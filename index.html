@@ -211,6 +211,16 @@
         </li>
       
         
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
         <li class="menu-item menu-item-about">
           <a href="/about/" rel="section">
             
@@ -297,6 +307,264 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://taccisum.github.io/openfeign_research_and_application.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="taccisum">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/Avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="taccisum 😉">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/openfeign_research_and_application.html" itemprop="url">声明式http客户端openfeign的研究与应用</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-06-21T05:54:42+08:00">
+                2018-06-21
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/java/" itemprop="url" rel="index">
+                    <span itemprop="name">java</span>
+                  </a>
+                </span>
+
+                
+                
+                  , 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/java/spring-cloud/" itemprop="url" rel="index">
+                    <span itemprop="name">spring cloud</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><h2 id="openfeign"><a href="#openfeign" class="headerlink" title="openfeign"></a>openfeign</h2><p>openfeign，简称feign，是netflix开源的技术栈之一。<br>feign的主旨是使得编写java http客户端更容易。为了贯彻这个理念，feign采用了通过处理注解来自动生成请求的方式（官方称呼为<code>声明式</code>、<code>模板化</code>）。因此，基于feign编写的http客户端画风看起来是这样的</p>
+<pre class=" language-java"><code class="language-java"><span class="token keyword">interface</span> <span class="token class-name">Bank</span> <span class="token punctuation">{</span>
+  <span class="token annotation punctuation">@RequestLine</span><span class="token punctuation">(</span><span class="token string">"POST /account/{id}"</span><span class="token punctuation">)</span>
+  Account <span class="token function">getAccountInfo</span><span class="token punctuation">(</span><span class="token annotation punctuation">@Param</span><span class="token punctuation">(</span><span class="token string">"id"</span><span class="token punctuation">)</span> String id<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>然后通过一系列操作可以为Bank接口在运行时自动生成对应的实现。通过这个实现我们就可以在java中像调用一个本地方法一样完成一次http请求，大大减少了编码成本，同时提高了代码可读性。</p>
+<h2 id="spring-cloud-openfeign"><a href="#spring-cloud-openfeign" class="headerlink" title="spring-cloud-openfeign"></a>spring-cloud-openfeign</h2><p>spring-cloud-feign基于自动配置功能（autoconfiguration），为spring boot应用提供openfiegn的集成：</p>
+<ul>
+<li>支持通过<code>JAX-RS</code>或<code>Spring MVC annotations</code>来构建feign client</li>
+<li>自动使用Spring MVC的<code>HttpMessageConverters</code>来完成序列化反序列化</li>
+<li>集成了<code>ribbon</code>和<code>hystrix</code>，只要在项目中引入相关的依赖即可立即使用</li>
+<li>无需任何配置，开箱即用，秉承了spring-boot一贯的作风。</li>
+</ul>
+<blockquote>
+<p><a href="https://github.com/spring-cloud/spring-cloud-openfeign/blob/master/docs/src/main/asciidoc/spring-cloud-openfeign.adoc" target="_blank" rel="noopener">官方文档参考</a></p>
+</blockquote>
+<h1 id="常见问题及解决方案"><a href="#常见问题及解决方案" class="headerlink" title="常见问题及解决方案"></a>常见问题及解决方案</h1><h2 id="处理响应数据的通用部分"><a href="#处理响应数据的通用部分" class="headerlink" title="处理响应数据的通用部分"></a>处理响应数据的通用部分</h2><p>api响应数据格式，一般而言除实际的业务数据外是固定的格式，其中包括了对此次请求的处理信息描述。对于这部分数据，应由feign进行统一处理。</p>
+<h3 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h3><p>feignclient是通过Decoder来对请求响应进行处理的，因此可以使用自定义的Decoder来处理响应数据的通用部分。</p>
+<p>例如可以定义一个<code>UnwrapRestfulApiResponseSpringDecoder</code>来对<code>RestfulApiResponse</code>进行自动拆包操作，并通过<code>@FeignClient</code>的<code>configuration</code>属性配置其使用的Decoder。</p>
+<pre class=" language-java"><code class="language-java"><span class="token annotation punctuation">@FeignClient</span><span class="token punctuation">(</span>name <span class="token operator">=</span> AuthCenter<span class="token punctuation">.</span>SERVICE_NAME<span class="token punctuation">,</span> path <span class="token operator">=</span> RMIPath<span class="token punctuation">.</span>USER<span class="token punctuation">,</span> configuration <span class="token operator">=</span> TenantUserClient<span class="token punctuation">.</span>Configuration<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">)</span>
+<span class="token keyword">public</span> <span class="token keyword">interface</span> <span class="token class-name">TenantUserClient</span> <span class="token punctuation">{</span>
+    <span class="token keyword">class</span> <span class="token class-name">Configuration</span> <span class="token punctuation">{</span>
+        <span class="token annotation punctuation">@Autowired</span>
+        <span class="token keyword">private</span> ObjectFactory<span class="token operator">&lt;</span>HttpMessageConverters<span class="token operator">></span> messageConverters<span class="token punctuation">;</span>
+
+        <span class="token annotation punctuation">@Bean</span>
+        <span class="token keyword">public</span> Decoder <span class="token function">feignDecoder</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">return</span> <span class="token keyword">new</span> <span class="token class-name">ResponseEntityDecoder</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">UnwrapRestfulApiResponseSpringDecoder</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span>messageConverters<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h2 id="本地调用需要注册到注册中心导致服务不可用的问题"><a href="#本地调用需要注册到注册中心导致服务不可用的问题" class="headerlink" title="本地调用需要注册到注册中心导致服务不可用的问题"></a>本地调用需要注册到注册中心导致服务不可用的问题</h2><p>在实际开发过程中，有时会出现需要在本地调用远程服务来进行调试的情况，此时我们需要将本地的应用注册到注册中心。而一旦这样做，会导致该服务存在多个节点（一个远程一个本地），从而导致依赖该服务的应用软负载均衡负载到本地节点时会失败。</p>
+<h3 id="解决方案-1"><a href="#解决方案-1" class="headerlink" title="解决方案"></a>解决方案</h3><h4 id="1-不通过注册中心获取信息，使用直接指定url的方式调用（✘不推荐）"><a href="#1-不通过注册中心获取信息，使用直接指定url的方式调用（✘不推荐）" class="headerlink" title="1. 不通过注册中心获取信息，使用直接指定url的方式调用（✘不推荐）"></a>1. 不通过注册中心获取信息，使用直接指定url的方式调用（✘不推荐）</h4><p><strong>参考代码</strong></p>
+<pre class=" language-java"><code class="language-java"><span class="token annotation punctuation">@FeignClient</span><span class="token punctuation">(</span>name <span class="token operator">=</span> <span class="token string">"sysinfo-service"</span> <span class="token punctuation">,</span>url <span class="token operator">=</span> <span class="token string">"http://49.4.7.72"</span><span class="token punctuation">,</span> path <span class="token operator">=</span> <span class="token string">"/"</span><span class="token punctuation">)</span>
+<span class="token keyword">public</span> <span class="token keyword">interface</span> <span class="token class-name">SysinfoClient</span> <span class="token punctuation">{</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>此方案优点是简单易用，但缺点也很明显：</p>
+<ol>
+<li>在应用实际上线时需要将调用方式修改为通过注册中心调用，否则client将无法进行负载均衡，因此需要频繁改动代码</li>
+<li>在特定环境下，即使忘记切换调用方式有时也不影响client的使用，会将问题隐藏，埋下隐患</li>
+<li>并没有与其它服务真正地解耦，一旦依赖的服务故障就会导致本地开发无法进行</li>
+</ol>
+<p>由于存在上述缺点，现一般<strong>不推荐</strong>使用该方案。</p>
+<h4 id="2-使用打桩的方式与远程服务解耦（✔推荐）"><a href="#2-使用打桩的方式与远程服务解耦（✔推荐）" class="headerlink" title="2. 使用打桩的方式与远程服务解耦（✔推荐）"></a>2. 使用打桩的方式与远程服务解耦（✔推荐）</h4><p>大致思路为，通过Spring的<code>@Profile</code>注解，在不同的环境为应用注册不同的client bean（例如在本地环境使用Hard Code bean，而在非本地环境则使用远程调用的client bean）。</p>
+<p><strong>参考代码</strong><br><strong>ClientConfiguration.java</strong></p>
+<pre class=" language-java"><code class="language-java"><span class="token annotation punctuation">@EnableAuthClient</span>
+<span class="token annotation punctuation">@EnableFeignClients</span><span class="token punctuation">(</span>basePackages <span class="token operator">=</span> <span class="token string">"com.cheegu.icm.biz.foo.client"</span><span class="token punctuation">)</span>
+<span class="token annotation punctuation">@Configuration</span>
+<span class="token annotation punctuation">@Profile</span><span class="token punctuation">(</span><span class="token punctuation">{</span>SpringProfiles<span class="token punctuation">.</span>DEV<span class="token punctuation">,</span> SpringProfiles<span class="token punctuation">.</span>TEST<span class="token punctuation">,</span> SpringProfiles<span class="token punctuation">.</span>PROD<span class="token punctuation">}</span><span class="token punctuation">)</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">ClientConfiguration</span> <span class="token punctuation">{</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p><strong>MockClientConfiguration.java</strong></p>
+<pre class=" language-java"><code class="language-java"><span class="token annotation punctuation">@Configuration</span>
+<span class="token annotation punctuation">@Profile</span><span class="token punctuation">(</span>SpringProfiles<span class="token punctuation">.</span>LOCAL<span class="token punctuation">)</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">MockClientConfiguration</span> <span class="token punctuation">{</span>
+    <span class="token annotation punctuation">@Bean</span>
+    <span class="token keyword">public</span> SysinfoClient <span class="token function">sysinfoClient</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> <span class="token keyword">new</span> <span class="token class-name">SysinfoClient</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token annotation punctuation">@Override</span>
+            <span class="token keyword">public</span> UserInfoDto <span class="token function">user</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                <span class="token keyword">return</span> <span class="token keyword">new</span> <span class="token class-name">UserInfoDto</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+
+            <span class="token annotation punctuation">@Override</span>
+            <span class="token keyword">public</span> TableData<span class="token operator">&lt;</span>UserRowDto<span class="token operator">></span> <span class="token function">users</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                <span class="token keyword">return</span> TableData<span class="token punctuation">.</span><span class="token function">empty</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token annotation punctuation">@Bean</span>
+    <span class="token keyword">public</span> TenantUserClient <span class="token function">tenantUserClient</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> <span class="token keyword">new</span> <span class="token class-name">TenantUserClient</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token annotation punctuation">@Override</span>
+            <span class="token keyword">public</span> List<span class="token operator">&lt;</span>ResourceInfoDto<span class="token operator">></span> <span class="token function">listMyAlResource</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                <span class="token keyword">return</span> <span class="token keyword">new</span> <span class="token class-name">ArrayList</span><span class="token operator">&lt;</span><span class="token operator">></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h2 id="如何在调用时带上请求头"><a href="#如何在调用时带上请求头" class="headerlink" title="如何在调用时带上请求头"></a>如何在调用时带上请求头</h2><p>在使用客户端进行调用时，有时会需要带上某些请求头（例如认证token），但又不希望在代码中手动去做这些操作。</p>
+<h3 id="解决方案-2"><a href="#解决方案-2" class="headerlink" title="解决方案"></a>解决方案</h3><p>可以通过实现feign提供的<code>RequestInterceptor</code>接口来对请求进行切面处理。这样每次通过client发起请求时都会由feign interceptor进行拦截，为请求添加headers。</p>
+<p><strong>参考代码</strong></p>
+<pre class=" language-java"><code class="language-java"><span class="token annotation punctuation">@Configuration</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">AppConfiguration</span> <span class="token keyword">implements</span> <span class="token class-name">EnvironmentAware</span> <span class="token punctuation">{</span>
+    <span class="token keyword">private</span> Environment environment<span class="token punctuation">;</span>
+
+    <span class="token annotation punctuation">@Bean</span>
+    <span class="token keyword">public</span> AuthorizationInfoForwardingInterceptor <span class="token function">authorizationInfoForwardingInterceptor</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token comment" spellcheck="true">//这个interceptor会为请求自动带上认证token</span>
+        <span class="token keyword">return</span> <span class="token keyword">new</span> <span class="token class-name">AuthorizationInfoForwardingInterceptor</span><span class="token punctuation">(</span>environment<span class="token punctuation">.</span><span class="token function">getProperty</span><span class="token punctuation">(</span><span class="token string">"spring.application.name"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token annotation punctuation">@Override</span>
+    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">setEnvironment</span><span class="token punctuation">(</span>Environment environment<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span>environment <span class="token operator">=</span> environment<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h2 id="使用MultipartFile类型作为请求参数"><a href="#使用MultipartFile类型作为请求参数" class="headerlink" title="使用MultipartFile类型作为请求参数"></a>使用MultipartFile类型作为请求参数</h2><p>有时对外提供的接口调用可能需要传送文件，此时需要对<code>MultipartFile</code>类型的参数进行处理</p>
+<h3 id="解决方案-3"><a href="#解决方案-3" class="headerlink" title="解决方案"></a>解决方案</h3><p><strong>待补充</strong></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://taccisum.github.io/outbound_rule_invalid_cause_by_urlrewritefilter_and_shirofilter.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -362,19 +630,8 @@
                 
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/java/urlrewritefilter/" itemprop="url" rel="index">
-                    <span itemprop="name">urlrewritefilter</span>
-                  </a>
-                </span>
-
-                
-                
-                  , 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/java/urlrewritefilter/shiro/" itemprop="url" rel="index">
-                    <span itemprop="name">shiro</span>
+                  <a href="/categories/java/踩坑日记/" itemprop="url" rel="index">
+                    <span itemprop="name">踩坑日记</span>
                   </a>
                 </span>
 
@@ -673,8 +930,8 @@
                 
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/java/mybatis/" itemprop="url" rel="index">
-                    <span itemprop="name">mybatis</span>
+                  <a href="/categories/java/踩坑日记/" itemprop="url" rel="index">
+                    <span itemprop="name">踩坑日记</span>
                   </a>
                 </span>
 
@@ -917,18 +1174,7 @@ Caused by<span class="token operator">:</span> java<span class="token punctuatio
                 
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/java/构建工具/" itemprop="url" rel="index">
-                    <span itemprop="name">构建工具</span>
-                  </a>
-                </span>
-
-                
-                
-                  , 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/java/构建工具/gradle/" itemprop="url" rel="index">
+                  <a href="/categories/java/gradle/" itemprop="url" rel="index">
                     <span itemprop="name">gradle</span>
                   </a>
                 </span>
@@ -1497,18 +1743,7 @@ publishing <span class="token punctuation">{</span>
                 
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/java/构建工具/" itemprop="url" rel="index">
-                    <span itemprop="name">构建工具</span>
-                  </a>
-                </span>
-
-                
-                
-                  , 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/java/构建工具/gradle/" itemprop="url" rel="index">
+                  <a href="/categories/java/gradle/" itemprop="url" rel="index">
                     <span itemprop="name">gradle</span>
                   </a>
                 </span>
@@ -1661,18 +1896,7 @@ publishing <span class="token punctuation">{</span>
                 
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/java/构建工具/" itemprop="url" rel="index">
-                    <span itemprop="name">构建工具</span>
-                  </a>
-                </span>
-
-                
-                
-                  , 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/java/构建工具/gradle/" itemprop="url" rel="index">
+                  <a href="/categories/java/gradle/" itemprop="url" rel="index">
                     <span itemprop="name">gradle</span>
                   </a>
                 </span>
@@ -1944,18 +2168,7 @@ subprojects <span class="token punctuation">{</span>
                 
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/java/构建工具/" itemprop="url" rel="index">
-                    <span itemprop="name">构建工具</span>
-                  </a>
-                </span>
-
-                
-                
-                  , 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/java/构建工具/gradle/" itemprop="url" rel="index">
+                  <a href="/categories/java/gradle/" itemprop="url" rel="index">
                     <span itemprop="name">gradle</span>
                   </a>
                 </span>
@@ -2231,18 +2444,7 @@ hello, it s you args: [123,abc,qaz]
                 
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/java/构建工具/" itemprop="url" rel="index">
-                    <span itemprop="name">构建工具</span>
-                  </a>
-                </span>
-
-                
-                
-                  , 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/java/构建工具/gradle/" itemprop="url" rel="index">
+                  <a href="/categories/java/gradle/" itemprop="url" rel="index">
                     <span itemprop="name">gradle</span>
                   </a>
                 </span>
@@ -2597,8 +2799,8 @@ Rules
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/设计模式/" itemprop="url" rel="index">
-                    <span itemprop="name">设计模式</span>
+                  <a href="/categories/java/" itemprop="url" rel="index">
+                    <span itemprop="name">java</span>
                   </a>
                 </span>
 
@@ -2608,8 +2810,8 @@ Rules
                 
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/设计模式/java/" itemprop="url" rel="index">
-                    <span itemprop="name">java</span>
+                  <a href="/categories/java/设计模式/" itemprop="url" rel="index">
+                    <span itemprop="name">设计模式</span>
                   </a>
                 </span>
 
@@ -2909,245 +3111,13 @@ cn<span class="token punctuation">.</span>tac<span class="token punctuation">.</
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://taccisum.github.io/about_java.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="taccisum">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/Avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="taccisum 😉">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/about_java.html" itemprop="url">关于java</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-09-25T16:25:28+08:00">
-                2017-09-25
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/java/" itemprop="url" rel="index">
-                    <span itemprop="name">java</span>
-                  </a>
-                </span>
-
-                
-                
-                  , 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/java/jvm/" itemprop="url" rel="index">
-                    <span itemprop="name">jvm</span>
-                  </a>
-                </span>
-
-                
-                
-                  , 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/java/jvm/《深入理解java虚拟机》/" itemprop="url" rel="index">
-                    <span itemprop="name">《深入理解java虚拟机》</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="java体系"><a href="#java体系" class="headerlink" title="java体系"></a>java体系</h2><blockquote>
-<p>java不仅仅是一门编程语言，还是由一系列计算机软件和规范形成的技术体系。<br>这个体系提供了完整的用于软件开发和跨平台部署的支持环境。</p>
-</blockquote>
-<p><strong>Sun官方定义的java技术体系包括以下内容</strong>：  </p>
-<ol>
-<li>java程序设计语言</li>
-<li>各硬件平台上的java虚拟机（jvm）</li>
-<li>Class文件格式</li>
-<li>java api类库</li>
-<li>来自商业机构和开源社区的第三方类库</li>
-</ol>
-<p>以上1、2、4点统称为jdk，jdk是支持java程序开发的最小环境.<br>java api中的java se api子集和java虚拟机统称为jre，jre是java程序运行的最小环境.</p>
-<p>java除了一门优秀的编程语言外，还有许多不可忽视的优点：</p>
-<ul>
-<li>摆脱硬件平台束缚，实现跨平台</li>
-<li>内存管理，避免绝大部分内存泄露和指针越界问题</li>
-<li>热点代码检测和运行时编译及优化</li>
-<li>完善的应用程序编程接口及丰富、优秀的第三方类库</li>
-</ul>
-<p>java技术体系按照所服务的领域来划分，可以分为四大模块：<code>java card</code> <code>java se</code> <code>java me</code> <code>java ee</code></p>
-<h2 id="jdk发展史"><a href="#jdk发展史" class="headerlink" title="jdk发展史"></a>jdk发展史</h2><p>java语言前身：oak</p>
-<ul>
-<li>1995年，oak更名为java，同时sun正式提出”write once, run anywhere”的口号，标识着java正式诞生</li>
-<li>1996年，jdk1.0发布，并提供了一个纯解释性的java虚拟机（Sun Classic VM）</li>
-<li>1997年，jdk1.l发布，代表技术有：jdbc, rmi, java beans, .jar文件等</li>
-<li>1998年，jdk1.2发布，正式把java技术体系划分为3个方向：java se, java me, java ee，代表技术较多，如ejb, java pluin-in, swing等。java虚拟机中第一次内置了jit编译器，且附带了HotSpot作为备选</li>
-<li>2000年，jdk1.3发布，将HotSpot作为默认虚拟机，并提供jndi作为平台级服务，从此后Sun公司基本保持两年一个主版本的更新速度</li>
-<li>2002年，jdk1.4发布，标志着java正式走向成熟，代表技术有：正则表达式、异常链、nio、日志类、xml解析器等等</li>
-<li>2004年，jdk1.5(jdk5)发布，主要是对java语言的易用性方面做了改进</li>
-<li>2006年，jdk1.6(jdk6)发布，除了改进之外，Sun正式将java开源（GPL协议），并建立了OpenJDK组织对其进行管理<br>jdk1.7(jdk7)开发，Sun公司由于各种原因，最终无法按计划完成。2009年Oracle公司将其收购后，对jdk1.7的内容进行大幅度裁剪，并把剩余内容延迟到jdk1.8中。jdk1.7于2011年正式发布</li>
-<li>2013年，jdk1.8(jdk8)发布，加入了lambda表达式及函数式接口等支持</li>
-</ul>
-<h2 id="部分jvm介绍"><a href="#部分jvm介绍" class="headerlink" title="部分jvm介绍"></a>部分jvm介绍</h2><ul>
-<li><p>Sun Classic VMr</p>
-<ul>
-<li>Classic VM是Sun公司发布的第一款商用java虚拟机，作为默认虚拟机与jdk1.0绑定发布，技术较为原始</li>
-<li>在jdk1.2之前都是唯一存在的虚拟机</li>
-<li>只能使用纯解释器方式来运行java程序</li>
-<li>如果要使用JIT编译器，必须外挂</li>
-</ul>
-</li>
-<li><p>Exact VM</p>
-<ul>
-<li>为了解决Classic VM存在的各种问题而开发，在jdk1.2期间发布</li>
-<li>具备了现代高性能虚拟机的原型</li>
-<li>在商用只存在了短暂的时间后，即被更为优秀的HotSpot取代</li>
-</ul>
-</li>
-<li><p>Sun HotSpot VM</p>
-<ul>
-<li>是SunJDK及OpenJDK中所带的虚拟机，也是目前使用最广的虚拟机</li>
-<li>最初是由一家名为”Longview Teconologies”的小公司设计，在1997年该公司被Sun收购</li>
-<li>其即有Sun之前两款虚拟机的优点，也有许多自身的技术优势如热点代码探测能力</li>
-</ul>
-</li>
-<li><p>Sun Mobile-Embedded VM/Meta-Circular VM</p>
-<ul>
-<li>Sun公司针对移动和嵌入式市场的虚拟机</li>
-</ul>
-</li>
-<li><p>BEA JRockit</p>
-<ul>
-<li>一款专门为服务端硬件和服务端应用场景而专门优化的虚拟机</li>
-<li>不关注应用程序的启动速度，因而其内部不含解析器的实现，全部代码靠JIT编译运行</li>
-<li>除此之外，其垃圾收集器和MissionControl等服务套件的实现也一直在众多虚拟机中保持领先的水平</li>
-</ul>
-</li>
-<li><p>IBM J9 VM</p>
-</li>
-<li>Azul VM/BEA Liquid VM</li>
-<li>Apache Harmony/Google Android Dalvik VM</li>
-<li>Microsoft JVM</li>
-</ul>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
+  <nav class="pagination">
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right"></i></a>
+  </nav>
+
 
 
           </div>
@@ -3191,7 +3161,7 @@ cn<span class="token punctuation">.</span>tac<span class="token punctuation">.</
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">10</span>
+                <span class="site-state-item-count">11</span>
                 <span class="site-state-item-name">posts</span>
               </a>
             </div>
@@ -3201,10 +3171,10 @@ cn<span class="token punctuation">.</span>tac<span class="token punctuation">.</
             
             
             <div class="site-state-item site-state-categories">
-              
-                <span class="site-state-item-count">15</span>
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">27</span>
                 <span class="site-state-item-name">categories</span>
-              
+              </a>
             </div>
           
 
@@ -3278,7 +3248,7 @@ cn<span class="token punctuation">.</span>tac<span class="token punctuation">.</
 </div>
 
 <div>
-  <span class="post-count">11.0k works</span>
+  <span class="post-count">12.1k words</span>
 </div>
         
 

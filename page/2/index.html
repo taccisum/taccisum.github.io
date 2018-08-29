@@ -94,22 +94,16 @@
 
 
 
-<meta name="description" content="build-scan（构建审视）插件介绍 A build scan is a shareable and centralized record of a build that provides insights into what happened and why. By applying the build scan plugin to your project, you can create">
-<meta property="og:type" content="article">
-<meta property="og:title" content="Gradle学习（二） - 常用插件">
-<meta property="og:url" content="https://taccisum.github.io/learn_gradle_2.html">
+<meta name="description" content="el psy congroo.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="taccisum 😉">
+<meta property="og:url" content="https://taccisum.github.io/page/2/index.html">
 <meta property="og:site_name" content="taccisum 😉">
-<meta property="og:description" content="build-scan（构建审视）插件介绍 A build scan is a shareable and centralized record of a build that provides insights into what happened and why. By applying the build scan plugin to your project, you can create">
+<meta property="og:description" content="el psy congroo.">
 <meta property="og:locale" content="en">
-<meta property="og:image" content="https://docs.gradle.com/build-scan-plugin/images/build-scan-service-overview.svg">
-<meta property="og:image" content="https://taccisum.github.io/images/gradle_build_scan_task.png">
-<meta property="og:image" content="https://taccisum.github.io/images/gradle_build_scan_insight.png">
-<meta property="og:image" content="https://taccisum.github.io/images/gradle_build_scan_insight_failure.png">
-<meta property="og:updated_time" content="2018-08-29T09:05:16.642Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Gradle学习（二） - 常用插件">
-<meta name="twitter:description" content="build-scan（构建审视）插件介绍 A build scan is a shareable and centralized record of a build that provides insights into what happened and why. By applying the build scan plugin to your project, you can create">
-<meta name="twitter:image" content="https://docs.gradle.com/build-scan-plugin/images/build-scan-service-overview.svg">
+<meta name="twitter:title" content="taccisum 😉">
+<meta name="twitter:description" content="el psy congroo.">
 
 
 
@@ -138,13 +132,13 @@
 
 
 
-  <link rel="canonical" href="https://taccisum.github.io/learn_gradle_2.html"/>
+  <link rel="canonical" href="https://taccisum.github.io/page/2/"/>
 
 
 
 
 
-  <title>Gradle学习（二） - 常用插件 | taccisum 😉</title>
+  <title>taccisum 😉</title>
   
 
 
@@ -169,7 +163,9 @@
     
   
 
-  <div class="container sidebar-position-left page-post-detail ">
+  <div class="container sidebar-position-left 
+   page-home 
+ ">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -296,9 +292,9 @@
         <div class="content-wrap">
           <div id="content" class="content">
             
-
-  <div id="posts" class="posts-expand">
+  <section id="posts" class="posts-expand">
     
+      
 
   
 
@@ -311,7 +307,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://taccisum.github.io/learn_gradle_2.html">
+    <link itemprop="mainEntityOfPage" href="https://taccisum.github.io/about_java.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="taccisum">
@@ -328,7 +324,9 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Gradle学习（二） - 常用插件</h1>
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/about_java.html" itemprop="url">关于java</a></h1>
         
 
         <div class="post-meta">
@@ -340,8 +338,8 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-09-26T17:56:40+08:00">
-                2017-09-26
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-09-25T16:25:28+08:00">
+                2017-09-25
               </time>
             
 
@@ -374,8 +372,8 @@
                 
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/java/gradle/" itemprop="url" rel="index">
-                    <span itemprop="name">gradle</span>
+                  <a href="/categories/java/jvm/" itemprop="url" rel="index">
+                    <span itemprop="name">jvm</span>
                   </a>
                 </span>
 
@@ -411,131 +409,84 @@
       
 
       
-        <h2 id="build-scan（构建审视）插件"><a href="#build-scan（构建审视）插件" class="headerlink" title="build-scan（构建审视）插件"></a>build-scan（构建审视）插件</h2><h3 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h3><blockquote>
-<p>A build scan is a shareable and centralized record of a build that provides insights into what happened and why. By applying the build scan plugin to your project, you can create a build scan in the Gradle Cloud for free.<br><a href="https://guides.gradle.org/creating-build-scans/" target="_blank" rel="noopener">Creating Build Scans</a></p>
+        
+          
+            <h2 id="java体系"><a href="#java体系" class="headerlink" title="java体系"></a>java体系</h2><blockquote>
+<p>java不仅仅是一门编程语言，还是由一系列计算机软件和规范形成的技术体系。<br>这个体系提供了完整的用于软件开发和跨平台部署的支持环境。</p>
 </blockquote>
-<p>大概的意思是build scan能为你提供构建过程中发生的what and why信息，在你构建的时候，插件会抓取数据提交到<code>Gradle Cloud</code>，同时返回一个包含构建信息的链接。</p>
-<p><strong>工作流程</strong><br><img src="https://docs.gradle.com/build-scan-plugin/images/build-scan-service-overview.svg" alt="overview"></p>
-<h3 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h3><p>配置方式很简单，只需要在build.gradle中加入</p>
-<pre class=" language-groovy"><code class="language-groovy">plugins <span class="token punctuation">{</span>
-    id <span class="token string">'com.gradle.build-scan'</span> version <span class="token string">'1.9'</span> 
-<span class="token punctuation">}</span>
-</code></pre>
-<p>添加了插件后，可以通过buildScan块来配置插件，其中有两个<code>license</code>相关的属性是<strong><em>必需要配置</em></strong>的</p>
-<pre class=" language-groovy"><code class="language-groovy">buildScan <span class="token punctuation">{</span>
-    licenseAgreementUrl <span class="token operator">=</span> <span class="token string">'https://gradle.com/terms-of-service'</span>
-    licenseAgree <span class="token operator">=</span> <span class="token string">'yes'</span>
-<span class="token punctuation">}</span>
-</code></pre>
-<p>import changes（如果没有勾选auto-import），可以看到Gradle Project面板上多了个task<br><img src="/images/gradle_build_scan_task.png" alt=""></p>
-<p><strong>tip</strong></p>
+<p><strong>Sun官方定义的java技术体系包括以下内容</strong>：  </p>
+<ol>
+<li>java程序设计语言</li>
+<li>各硬件平台上的java虚拟机（jvm）</li>
+<li>Class文件格式</li>
+<li>java api类库</li>
+<li>来自商业机构和开源社区的第三方类库</li>
+</ol>
+<p>以上1、2、4点统称为jdk，jdk是支持java程序开发的最小环境.<br>java api中的java se api子集和java虚拟机统称为jre，jre是java程序运行的最小环境.</p>
+<p>java除了一门优秀的编程语言外，还有许多不可忽视的优点：</p>
 <ul>
-<li>如果添加新的plugin，应该确保build-scan<strong><em>总是在第一个位置</em></strong>，否则其之前的插件虽然仍然正常工作，但是无法到抓取相关的构建信息</li>
+<li>摆脱硬件平台束缚，实现跨平台</li>
+<li>内存管理，避免绝大部分内存泄露和指针越界问题</li>
+<li>热点代码检测和运行时编译及优化</li>
+<li>完善的应用程序编程接口及丰富、优秀的第三方类库</li>
 </ul>
-<h3 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h3><p>先执行build -&gt; build，再执行这个build scan -&gt; buildScanPublishPrevious，不出意外可以看到terminal中返回了一个链接</p>
-<pre class=" language-text"><code class="language-text">9:50:39 PM: Executing external task 'buildScanPublishPrevious'...
-:buildScanPublishPrevious
-
-Publishing build scan...
-https://gradle.com/s/af72je4qbzhme
-
-BUILD SUCCESSFUL
-
-Total time: 1.283 secs
-9:50:41 PM: External task execution finished 'buildScanPublishPrevious'.
-</code></pre>
-<p>打开链接后可以看到这样一个界面</p>
-<p><img src="/images/gradle_build_scan_insight.png" alt="build scan"></p>
-<p>接下来在任一个单元测试内加入一行让构建失败</p>
-<pre class=" language-java"><code class="language-java">        Assert<span class="token punctuation">.</span><span class="token function">fail</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-</code></pre>
-<p>再执行一次构建，打开链接查看<br><img src="/images/gradle_build_scan_insight_failure.png" alt="failed build scan"></p>
-<p>可以看到有以下几大优点：</p>
+<p>java技术体系按照所服务的领域来划分，可以分为四大模块：<code>java card</code> <code>java se</code> <code>java me</code> <code>java ee</code></p>
+<h2 id="jdk发展史"><a href="#jdk发展史" class="headerlink" title="jdk发展史"></a>jdk发展史</h2><p>java语言前身：oak</p>
 <ul>
-<li>信息展示非常全面丰富、直观</li>
-<li>良好的分类、折叠，让用户自己选择展开感兴趣的内容，非常友好</li>
-<li>网页形式，非常易于分享（这一点有点类似<code>AngularJS</code>的错误信息，不过没考察是谁借鉴谁的，或许两者都不是原创？）。</li>
+<li>1995年，oak更名为java，同时sun正式提出”write once, run anywhere”的口号，标识着java正式诞生</li>
+<li>1996年，jdk1.0发布，并提供了一个纯解释性的java虚拟机（Sun Classic VM）</li>
+<li>1997年，jdk1.l发布，代表技术有：jdbc, rmi, java beans, .jar文件等</li>
+<li>1998年，jdk1.2发布，正式把java技术体系划分为3个方向：java se, java me, java ee，代表技术较多，如ejb, java pluin-in, swing等。java虚拟机中第一次内置了jit编译器，且附带了HotSpot作为备选</li>
+<li>2000年，jdk1.3发布，将HotSpot作为默认虚拟机，并提供jndi作为平台级服务，从此后Sun公司基本保持两年一个主版本的更新速度</li>
+<li>2002年，jdk1.4发布，标志着java正式走向成熟，代表技术有：正则表达式、异常链、nio、日志类、xml解析器等等</li>
+<li>2004年，jdk1.5(jdk5)发布，主要是对java语言的易用性方面做了改进</li>
+<li>2006年，jdk1.6(jdk6)发布，除了改进之外，Sun正式将java开源（GPL协议），并建立了OpenJDK组织对其进行管理<br>jdk1.7(jdk7)开发，Sun公司由于各种原因，最终无法按计划完成。2009年Oracle公司将其收购后，对jdk1.7的内容进行大幅度裁剪，并把剩余内容延迟到jdk1.8中。jdk1.7于2011年正式发布</li>
+<li>2013年，jdk1.8(jdk8)发布，加入了lambda表达式及函数式接口等支持</li>
 </ul>
-<p>相比之下，这里不得不提到一直被人吐槽的Maven的构建信息，真心是非常不友好😒</p>
-<p><strong>tip</strong></p>
+<h2 id="部分jvm介绍"><a href="#部分jvm介绍" class="headerlink" title="部分jvm介绍"></a>部分jvm介绍</h2><ul>
+<li><p>Sun Classic VMr</p>
 <ul>
-<li>如果构建时出现”There is no previous build data available to publish.”，可能是没有先执行任一task。</li>
+<li>Classic VM是Sun公司发布的第一款商用java虚拟机，作为默认虚拟机与jdk1.0绑定发布，技术较为原始</li>
+<li>在jdk1.2之前都是唯一存在的虚拟机</li>
+<li>只能使用纯解释器方式来运行java程序</li>
+<li>如果要使用JIT编译器，必须外挂</li>
 </ul>
-<h2 id="Application插件"><a href="#Application插件" class="headerlink" title="Application插件"></a>Application插件</h2><h3 id="介绍-1"><a href="#介绍-1" class="headerlink" title="介绍"></a>介绍</h3><p>Application插件可以让你轻松地在本地开发环境下<code>执行JVM应用</code>，同时还可以帮助你将应用打包成一个包含了各类操作系统对应<code>启动脚本</code>的tar and/or zip文件。</p>
-<p><a href="https://docs.gradle.org/3.5/userguide/application_plugin.html" target="_blank" rel="noopener">The Application Plugin</a></p>
-<h3 id="配置-1"><a href="#配置-1" class="headerlink" title="配置"></a>配置</h3><p><strong>build.gradle</strong></p>
-<pre class=" language-groovy"><code class="language-groovy">apply plugin<span class="token punctuation">:</span> <span class="token string">'application'</span>
-mainClassName <span class="token operator">=</span> <span class="token string">"cn.tac.test.gradle.Application"</span>    <span class="token comment" spellcheck="true">//指定程序入口类</span>
-<span class="token comment" spellcheck="true">//applicationDefaultJvmArgs = ["-Dgreeting.language=en"]      //应用程序启动时的jvm参数</span>
-</code></pre>
-<p>添加了Application插件后，项目会多出以下几个task</p>
+</li>
+<li><p>Exact VM</p>
 <ul>
-<li>run</li>
-<li>startScripts</li>
-<li>installDist</li>
-<li>distZip</li>
-<li>distTar</li>
+<li>为了解决Classic VM存在的各种问题而开发，在jdk1.2期间发布</li>
+<li>具备了现代高性能虚拟机的原型</li>
+<li>在商用只存在了短暂的时间后，即被更为优秀的HotSpot取代</li>
 </ul>
-<p>具体可以通过tasks任务查看</p>
-<p><strong>tips</strong></p>
+</li>
+<li><p>Sun HotSpot VM</p>
 <ul>
-<li>按照官方的说法，Application插件已经隐式地包括了<code>Java</code>插件和<code>Distribution</code>插件，因此如果你原来引入了这两个插件，现在可以去掉了</li>
+<li>是SunJDK及OpenJDK中所带的虚拟机，也是目前使用最广的虚拟机</li>
+<li>最初是由一家名为”Longview Teconologies”的小公司设计，在1997年该公司被Sun收购</li>
+<li>其即有Sun之前两款虚拟机的优点，也有许多自身的技术优势如热点代码探测能力</li>
 </ul>
-<h3 id="使用-1"><a href="#使用-1" class="headerlink" title="使用"></a>使用</h3><p>以我的main函数为例（注意要跟<code>mainClassName</code>属性指定的类一致）</p>
-<pre class=" language-java"><code class="language-java"><span class="token keyword">package</span> cn<span class="token punctuation">.</span>tac<span class="token punctuation">.</span>test<span class="token punctuation">.</span>gradle<span class="token punctuation">;</span>
-
-<span class="token keyword">import</span> java<span class="token punctuation">.</span>util<span class="token punctuation">.</span>Arrays<span class="token punctuation">;</span>
-
-<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">Application</span> <span class="token punctuation">{</span>
-    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        <span class="token keyword">if</span> <span class="token punctuation">(</span>args<span class="token punctuation">.</span>length <span class="token operator">></span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-             System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"hello, it's you args: "</span> <span class="token operator">+</span> Arrays<span class="token punctuation">.</span><span class="token function">toString</span><span class="token punctuation">(</span>args<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
-             System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"hello, you do not input any args"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token punctuation">}</span>
-    <span class="token punctuation">}</span>
-<span class="token punctuation">}</span>
-</code></pre>
-<h4 id="执行应用"><a href="#执行应用" class="headerlink" title="执行应用"></a>执行应用</h4><pre class=" language-shell"><code class="language-shell">$ sh gradlew run
-
-> Task :run
-hello, you do not input any args
-</code></pre>
-<p>如果要<code>传入参数</code>，可以配置一下run任务<br><strong>build.gradle</strong></p>
-<pre class=" language-groovy"><code class="language-groovy">run <span class="token punctuation">{</span>
-    <span class="token keyword">if</span><span class="token punctuation">(</span>project<span class="token operator">.</span><span class="token function">hasProperty</span><span class="token punctuation">(</span><span class="token string">"myArgs"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
-      args myArgs
-    <span class="token punctuation">}</span>
-<span class="token punctuation">}</span>
-</code></pre>
-<p>上面配置的意思是，如果当前项目的project对象包含有myArgs属性，那么在执行main函数时就将这个属性作为参数传递，之后我们可以这样执行</p>
-<pre class=" language-shell"><code class="language-shell">$ sh gradlew run -PmyArgs="123","abc","qaz"
-
-> Task :run
-hello, it s you args: [123,abc,qaz]
-</code></pre>
-<p>其中-PmyArgs分为两部分</p>
+</li>
+<li><p>Sun Mobile-Embedded VM/Meta-Circular VM</p>
 <ul>
-<li>-P，命令行option。作用是指定一个属性的值run，不能省去</li>
-<li>myArgs，我们刚刚在run任务中自定义的属性，通过-P指定</li>
+<li>Sun公司针对移动和嵌入式市场的虚拟机</li>
 </ul>
-<h4 id="打包"><a href="#打包" class="headerlink" title="打包"></a>打包</h4><p>执行以下脚本可以进行打包</p>
-<pre class=" language-shell"><code class="language-shell">$ sh gradlew distTar distZip
-</code></pre>
-<p>打包好的内容在<code>/build/distributions</code>中，分别多了一个tar文件和一个zip文件，解压后查看目录结构如下</p>
-<pre class=" language-shell"><code class="language-shell">$ tree .
-.
-├── bin
-│   ├── gradle_cli
-│   └── gradle_cli.bat
-└── lib
-    └── gradle_cli-1.0.jar
-</code></pre>
-<p><strong>tips</strong></p>
+</li>
+<li><p>BEA JRockit</p>
 <ul>
-<li>当然你也可以通过build任务来打包，build任务会自动将<code>distTar</code>和<code>distZip</code>任务包括进去</li>
+<li>一款专门为服务端硬件和服务端应用场景而专门优化的虚拟机</li>
+<li>不关注应用程序的启动速度，因而其内部不含解析器的实现，全部代码靠JIT编译运行</li>
+<li>除此之外，其垃圾收集器和MissionControl等服务套件的实现也一直在众多虚拟机中保持领先的水平</li>
+</ul>
+</li>
+<li><p>IBM J9 VM</p>
+</li>
+<li>Azul VM/BEA Liquid VM</li>
+<li>Apache Harmony/Google Android Dalvik VM</li>
+<li>Microsoft JVM</li>
 </ul>
 
+          
+        
       
     </div>
     
@@ -552,32 +503,12 @@ hello, it s you args: [123,abc,qaz]
       
 
       
-      
+
       
 
       
-        <div class="post-nav">
-          <div class="post-nav-next post-nav-item">
-            
-              <a href="/learn_gradle_1.html" rel="next" title="Gradle学习（一） - Getting Started">
-                <i class="fa fa-chevron-left"></i> Gradle学习（一） - Getting Started
-              </a>
-            
-          </div>
-
-          <span class="post-nav-divider"></span>
-
-          <div class="post-nav-prev post-nav-item">
-            
-              <a href="/learn_gradle_3.html" rel="prev" title="Gradle学习（三） - 多项目构建">
-                Gradle学习（三） - 多项目构建 <i class="fa fa-chevron-right"></i>
-              </a>
-            
-          </div>
-        </div>
       
-
-      
+        <div class="post-eof"></div>
       
     </footer>
   </div>
@@ -587,11 +518,14 @@ hello, it s you args: [123,abc,qaz]
   </article>
 
 
+    
+  </section>
 
-    <div class="post-spread">
-      
-    </div>
-  </div>
+  
+  <nav class="pagination">
+    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span>
+  </nav>
+
 
 
           </div>
@@ -599,10 +533,6 @@ hello, it s you args: [123,abc,qaz]
 
 
           
-  <div class="comments" id="comments">
-    
-  </div>
-
 
         </div>
         
@@ -623,17 +553,8 @@ hello, it s you args: [123,abc,qaz]
       
 
       
-        <ul class="sidebar-nav motion-element">
-          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
-            Table of Contents
-          </li>
-          <li class="sidebar-nav-overview" data-target="site-overview">
-            Overview
-          </li>
-        </ul>
-      
 
-      <section class="site-overview sidebar-panel">
+      <section class="site-overview sidebar-panel sidebar-panel-active">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
           <img class="site-author-image" itemprop="image"
                src="/images/Avatar.jpg"
@@ -710,22 +631,6 @@ hello, it s you args: [123,abc,qaz]
 
       </section>
 
-      
-      <!--noindex-->
-        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
-          <div class="post-toc">
-
-            
-              
-            
-
-            
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#build-scan（构建审视）插件"><span class="nav-number">1.</span> <span class="nav-text">build-scan（构建审视）插件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#介绍"><span class="nav-number">1.1.</span> <span class="nav-text">介绍</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#配置"><span class="nav-number">1.2.</span> <span class="nav-text">配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用"><span class="nav-number">1.3.</span> <span class="nav-text">使用</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Application插件"><span class="nav-number">2.</span> <span class="nav-text">Application插件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#介绍-1"><span class="nav-number">2.1.</span> <span class="nav-text">介绍</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#配置-1"><span class="nav-number">2.2.</span> <span class="nav-text">配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用-1"><span class="nav-number">2.3.</span> <span class="nav-text">使用</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#执行应用"><span class="nav-number">2.3.1.</span> <span class="nav-text">执行应用</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#打包"><span class="nav-number">2.3.2.</span> <span class="nav-text">打包</span></a></li></ol></li></ol></li></ol></div>
-            
-
-          </div>
-        </section>
-      <!--/noindex-->
       
 
       
@@ -829,10 +734,10 @@ hello, it s you args: [123,abc,qaz]
   
 
   
-  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+    <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
 <script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
 
-
+  
 
   
 
