@@ -515,8 +515,29 @@
     <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<h2 id="使用MultipartFile类型作为请求参数"><a href="#使用MultipartFile类型作为请求参数" class="headerlink" title="使用MultipartFile类型作为请求参数"></a>使用MultipartFile类型作为请求参数</h2><p>有时对外提供的接口调用可能需要传送文件，此时需要对<code>MultipartFile</code>类型的参数进行处理</p>
-<h3 id="解决方案-3"><a href="#解决方案-3" class="headerlink" title="解决方案"></a>解决方案</h3><p><strong>待补充</strong></p>
+<h2 id="指定了get方法，但feign仍然使用了post方法进行请求"><a href="#指定了get方法，但feign仍然使用了post方法进行请求" class="headerlink" title="指定了get方法，但feign仍然使用了post方法进行请求"></a>指定了get方法，但feign仍然使用了post方法进行请求</h2><p>如下代码所示</p>
+<pre class=" language-java"><code class="language-java"><span class="token annotation punctuation">@FeignClient</span><span class="token punctuation">(</span><span class="token string">"microservice-provider-user"</span><span class="token punctuation">)</span>
+<span class="token keyword">public</span> <span class="token keyword">interface</span> <span class="token class-name">UserFeignClient</span> <span class="token punctuation">{</span>
+  <span class="token annotation punctuation">@RequestMapping</span><span class="token punctuation">(</span>value <span class="token operator">=</span> <span class="token string">"/get"</span><span class="token punctuation">,</span> method <span class="token operator">=</span> RequestMethod<span class="token punctuation">.</span>GET<span class="token punctuation">)</span>
+  <span class="token keyword">public</span> User <span class="token function">get0</span><span class="token punctuation">(</span>User user<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>通过<code>@RequestMapping</code>的method属性指定了请求方法为GET，但实际运行会发现feign仍然使用了POST方法进行了调用。</p>
+<h3 id="解决方案-3"><a href="#解决方案-3" class="headerlink" title="解决方案"></a>解决方案</h3><p>这种写法并不正确，正确写法有二：</p>
+<h4 id="1-通过-RequestParam指定url参数名"><a href="#1-通过-RequestParam指定url参数名" class="headerlink" title="1. 通过@RequestParam指定url参数名"></a>1. 通过@RequestParam指定url参数名</h4><pre class=" language-java"><code class="language-java"><span class="token annotation punctuation">@FeignClient</span><span class="token punctuation">(</span>name <span class="token operator">=</span> <span class="token string">"microservice-provider-user"</span><span class="token punctuation">)</span>
+<span class="token keyword">public</span> <span class="token keyword">interface</span> <span class="token class-name">UserFeignClient</span> <span class="token punctuation">{</span>
+  <span class="token annotation punctuation">@RequestMapping</span><span class="token punctuation">(</span>value <span class="token operator">=</span> <span class="token string">"/get"</span><span class="token punctuation">,</span> method <span class="token operator">=</span> RequestMethod<span class="token punctuation">.</span>GET<span class="token punctuation">)</span>
+  <span class="token keyword">public</span> User <span class="token function">get1</span><span class="token punctuation">(</span><span class="token annotation punctuation">@RequestParam</span><span class="token punctuation">(</span><span class="token string">"id"</span><span class="token punctuation">)</span> Long id<span class="token punctuation">,</span> <span class="token annotation punctuation">@RequestParam</span><span class="token punctuation">(</span><span class="token string">"username"</span><span class="token punctuation">)</span> String username<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h4 id="2-当目标url参数较多时，可使用map来构建"><a href="#2-当目标url参数较多时，可使用map来构建" class="headerlink" title="2. 当目标url参数较多时，可使用map来构建"></a>2. 当目标url参数较多时，可使用map来构建</h4><pre class=" language-java"><code class="language-java"><span class="token annotation punctuation">@FeignClient</span><span class="token punctuation">(</span>name <span class="token operator">=</span> <span class="token string">"microservice-provider-user"</span><span class="token punctuation">)</span>
+<span class="token keyword">public</span> <span class="token keyword">interface</span> <span class="token class-name">UserFeignClient</span> <span class="token punctuation">{</span>
+  <span class="token annotation punctuation">@RequestMapping</span><span class="token punctuation">(</span>value <span class="token operator">=</span> <span class="token string">"/get"</span><span class="token punctuation">,</span> method <span class="token operator">=</span> RequestMethod<span class="token punctuation">.</span>GET<span class="token punctuation">)</span>
+  <span class="token keyword">public</span> User <span class="token function">get2</span><span class="token punctuation">(</span><span class="token annotation punctuation">@RequestParam</span> Map<span class="token operator">&lt;</span>String<span class="token punctuation">,</span> Object<span class="token operator">></span> map<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h2 id="使用MultipartFile类型作为请求参数"><a href="#使用MultipartFile类型作为请求参数" class="headerlink" title="使用MultipartFile类型作为请求参数"></a>使用MultipartFile类型作为请求参数</h2><p>t<br>有时对外提供的接口调用可能需要传送文件，此时需要对<code>MultipartFile</code>类型的参数进行处理</p>
+<h3 id="解决方案-4"><a href="#解决方案-4" class="headerlink" title="解决方案"></a>解决方案</h3><p><strong>待补充</strong></p>
 
           
         
@@ -3248,7 +3269,7 @@ cn<span class="token punctuation">.</span>tac<span class="token punctuation">.</
 </div>
 
 <div>
-  <span class="post-count">12.1k words</span>
+  <span class="post-count">12.3k words</span>
 </div>
         
 
