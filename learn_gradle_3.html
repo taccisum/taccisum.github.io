@@ -94,16 +94,20 @@
 
 
 
-<meta name="description" content="el psy congroo.">
-<meta property="og:type" content="website">
-<meta property="og:title" content="taccisum 😉">
-<meta property="og:url" content="https://taccisum.github.io/categories/java/index.html">
+<meta name="description" content="前言从第一篇中我们知道了如何构建一个单项目，但仅仅这样是不够的。实现多项目的构建有利于模块化，如此一来我们便能更好地在一个大型项目中分离我们的关注点。 Getting Started创建根项目新建一个文件夹作为根项目目录，执行gradle init $ mkdir multi_project $ gradle init $ ls build.gradle    gradle          gr">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Gradle学习（三） - 多项目构建">
+<meta property="og:url" content="https://taccisum.github.io/learn_gradle_3.html">
 <meta property="og:site_name" content="taccisum 😉">
-<meta property="og:description" content="el psy congroo.">
+<meta property="og:description" content="前言从第一篇中我们知道了如何构建一个单项目，但仅仅这样是不够的。实现多项目的构建有利于模块化，如此一来我们便能更好地在一个大型项目中分离我们的关注点。 Getting Started创建根项目新建一个文件夹作为根项目目录，执行gradle init $ mkdir multi_project $ gradle init $ ls build.gradle    gradle          gr">
 <meta property="og:locale" content="en">
+<meta property="og:image" content="https://taccisum.github.io/images/gradle_learn/multi_project/subproject1test.png">
+<meta property="og:image" content="https://taccisum.github.io/images/gradle_learn/multi_project/subproject2test.png">
+<meta property="og:updated_time" content="2018-08-29T02:57:22.851Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="taccisum 😉">
-<meta name="twitter:description" content="el psy congroo.">
+<meta name="twitter:title" content="Gradle学习（三） - 多项目构建">
+<meta name="twitter:description" content="前言从第一篇中我们知道了如何构建一个单项目，但仅仅这样是不够的。实现多项目的构建有利于模块化，如此一来我们便能更好地在一个大型项目中分离我们的关注点。 Getting Started创建根项目新建一个文件夹作为根项目目录，执行gradle init $ mkdir multi_project $ gradle init $ ls build.gradle    gradle          gr">
+<meta name="twitter:image" content="https://taccisum.github.io/images/gradle_learn/multi_project/subproject1test.png">
 
 
 
@@ -132,13 +136,13 @@
 
 
 
-  <link rel="canonical" href="https://taccisum.github.io/categories/java/"/>
+  <link rel="canonical" href="https://taccisum.github.io/learn_gradle_3.html"/>
 
 
 
 
 
-  <title>Category: java | taccisum 😉</title>
+  <title>Gradle学习（三） - 多项目构建 | taccisum 😉</title>
   
 
 
@@ -163,7 +167,7 @@
     
   
 
-  <div class="container sidebar-position-left  ">
+  <div class="container sidebar-position-left page-post-detail ">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -281,251 +285,308 @@
           <div id="content" class="content">
             
 
+  <div id="posts" class="posts-expand">
+    
+
+  
+
   
   
   
-  <div class="post-block category">
-
-    <div id="posts" class="posts-collapse">
-      <div class="collection-title">
-        <h1>java<small>Category</small>
-        </h1>
-      </div>
-
-      
-        
 
   <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://taccisum.github.io/learn_gradle_3.html">
 
-      <h2 class="post-title">
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="taccisum">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/Avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="taccisum 😉">
+    </span>
+
+    
+      <header class="post-header">
+
         
-            <a class="post-title-link" href="/outbound_rule_invalid_cause_by_urlrewritefilter_and_shirofilter.html" itemprop="url">
-              
-                <span itemprop="name">同时配置UrlRewriteFilter与ShiroFilter导致outbound rule失效的问题</span>
-              
-            </a>
         
-      </h2>
+          <h1 class="post-title" itemprop="name headline">Gradle学习（三） - 多项目构建</h1>
+        
 
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2017-12-21T16:10:51+08:00"
-              content="2017-12-21" >
-          12-21
-        </time>
-      </div>
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-09-30T10:17:25+08:00">
+                2017-09-30
+              </time>
+            
 
-    </header>
-  </article>
+            
 
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/java/" itemprop="url" rel="index">
+                    <span itemprop="name">java</span>
+                  </a>
+                </span>
+
+                
+                
+                  , 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/java/构建工具/" itemprop="url" rel="index">
+                    <span itemprop="name">构建工具</span>
+                  </a>
+                </span>
+
+                
+                
+                  , 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/java/构建工具/gradle/" itemprop="url" rel="index">
+                    <span itemprop="name">gradle</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
 
       
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/instantiationexception_on_mybatistest.html" itemprop="url">
-              
-                <span itemprop="name">在@MybatisTest中使用通用Mapper出现InstantiationException的问题</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2017-11-15T11:42:36+08:00"
-              content="2017-11-15" >
-          11-15
-        </time>
-      </div>
-
-    </header>
-  </article>
-
+      
 
       
-        
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>从<a href="/2017/09/26/Gradle学习（一）/">第一篇</a>中我们知道了如何构建一个单项目，但仅仅这样是不够的。实现多项目的构建有利于<code>模块化</code>，如此一来我们便能更好地在一个大型项目中分离我们的关注点。</p>
+<h2 id="Getting-Started"><a href="#Getting-Started" class="headerlink" title="Getting Started"></a>Getting Started</h2><h3 id="创建根项目"><a href="#创建根项目" class="headerlink" title="创建根项目"></a>创建根项目</h3><p>新建一个文件夹作为根项目目录，执行gradle init</p>
+<pre class=" language-shell"><code class="language-shell">$ mkdir multi_project
+$ gradle init
+$ ls
+build.gradle    gradle          gradlew         gradlew.bat     settings.gradle
+</code></pre>
+<p>这次我们要关注的重点有两个文件</p>
+<ul>
+<li>build.gradle<blockquote>
+<p>配置一些应用于所有子项目的公共配置</p>
+</blockquote>
+</li>
+<li>settings.gradle<blockquote>
+<p>描述各项目之间的关系</p>
+</blockquote>
+</li>
+</ul>
+<h3 id="创建子项目"><a href="#创建子项目" class="headerlink" title="创建子项目"></a>创建子项目</h3><p>在根目录下分别创建sub-project1和sub-project2目录，然后分别为其创建build.gradle</p>
+<pre class=" language-shell"><code class="language-shell">$ mkdir sub-project1 sub-project2
+$ touch sub-project1/build.gradle sub-project2/build.gradle
+</code></pre>
+<p>然后在根项目的settings.gradle中添加下面内容以关联子项目</p>
+<pre class=" language-groovy"><code class="language-groovy">include <span class="token string">'sub-project1'</span>
+include <span class="token string">'sub-project2'</span>
+</code></pre>
+<p><strong>tips</strong></p>
+<ul>
+<li>一定要注意子项目只需为其创建build.gradle即可，而非使用gradle init指令初始化，这点很重要</li>
+<li>子项目的build.gradle只用于配置该项目特有的一些配置项，公共的配置通过根项目的build.gradle配置</li>
+</ul>
+<h3 id="公共配置"><a href="#公共配置" class="headerlink" title="公共配置"></a>公共配置</h3><p>在根项目的build.gradle中加入以下内容</p>
+<pre class=" language-groovy"><code class="language-groovy">allprojects<span class="token punctuation">{</span>
+    group <span class="token operator">=</span> <span class="token string">'cn.tac'</span>
+    version <span class="token operator">=</span> <span class="token string">'0.1'</span>
+    repositories<span class="token punctuation">{</span>
+        maven <span class="token punctuation">{</span>
+            url <span class="token string">'http://maven.aliyun.com/nexus/content/groups/public/'</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
 
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
+subprojects <span class="token punctuation">{</span>
+    apply plugin<span class="token punctuation">:</span> <span class="token string">'java'</span>
+    sourceCompatibility <span class="token operator">=</span> <span class="token number">1.8</span>
+    dependencies <span class="token punctuation">{</span>
+        testCompile <span class="token string">'junit:junit:4.12'</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<ul>
+<li><code>allprojects{}</code> 为所有项目添加配置项，所以group、version、repositories都放在了这个block下</li>
+<li><code>subprojects{}</code> 仅仅为当前项目的子项目添加配置项（不包括当前项目本身），所以根项目不需要的内容（如依赖）放在了这个block下</li>
+</ul>
+<h3 id="编写代码"><a href="#编写代码" class="headerlink" title="编写代码"></a>编写代码</h3><p>分别为子项目创建src目录</p>
+<pre class=" language-shell"><code class="language-shell">$ mkdir -p sub-project1/src/test/java/cn/tac/gradle sub-project2/src/test/java/cn/tac/gradle
+</code></pre>
+<p>并创建单元测试</p>
+<pre class=" language-java"><code class="language-java"><span class="token keyword">package</span> cn<span class="token punctuation">.</span>tac<span class="token punctuation">.</span>gradle<span class="token punctuation">;</span>
 
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/learn_gradle_5.html" itemprop="url">
-              
-                <span itemprop="name">Gradle学习（五） - 打包发布</span>
-              
-            </a>
-        
-      </h2>
+<span class="token keyword">import</span> org<span class="token punctuation">.</span>junit<span class="token punctuation">.</span>Assert<span class="token punctuation">;</span>
+<span class="token keyword">import</span> org<span class="token punctuation">.</span>junit<span class="token punctuation">.</span>Test<span class="token punctuation">;</span>
 
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2017-10-13T11:32:20+08:00"
-              content="2017-10-13" >
-          10-13
-        </time>
-      </div>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">SubProject1Test</span> <span class="token punctuation">{</span>
+    <span class="token annotation punctuation">@Test</span>
+    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">testSimply</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"hello, i'm sub project1"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<pre class=" language-java"><code class="language-java"><span class="token keyword">package</span> cn<span class="token punctuation">.</span>tac<span class="token punctuation">.</span>gradle<span class="token punctuation">;</span>
 
-    </header>
-  </article>
+<span class="token keyword">import</span> org<span class="token punctuation">.</span>junit<span class="token punctuation">.</span>Assert<span class="token punctuation">;</span>
+<span class="token keyword">import</span> org<span class="token punctuation">.</span>junit<span class="token punctuation">.</span>Test<span class="token punctuation">;</span>
 
-
-      
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/learn_gradle_4.html" itemprop="url">
-              
-                <span itemprop="name">Gradle学习（四） - 自定义任务</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2017-09-30T18:26:51+08:00"
-              content="2017-09-30" >
-          09-30
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-      
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/learn_gradle_3.html" itemprop="url">
-              
-                <span itemprop="name">Gradle学习（三） - 多项目构建</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2017-09-30T10:17:25+08:00"
-              content="2017-09-30" >
-          09-30
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-      
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/learn_gradle_2.html" itemprop="url">
-              
-                <span itemprop="name">Gradle学习（二） - 常用插件</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2017-09-26T17:56:40+08:00"
-              content="2017-09-26" >
-          09-26
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-      
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/learn_gradle_1.html" itemprop="url">
-              
-                <span itemprop="name">Gradle学习（一） - Getting Started</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2017-09-26T15:39:42+08:00"
-              content="2017-09-26" >
-          09-26
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-      
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/about_java.html" itemprop="url">
-              
-                <span itemprop="name">关于java</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2017-09-25T16:25:28+08:00"
-              content="2017-09-25" >
-          09-25
-        </time>
-      </div>
-
-    </header>
-  </article>
-
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">SubProject2Test</span> <span class="token punctuation">{</span>
+    <span class="token annotation punctuation">@Test</span>
+    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">testSimply</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"hello, i'm sub project2"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h3 id="执行构建"><a href="#执行构建" class="headerlink" title="执行构建"></a>执行构建</h3><p>完成了上述步骤之后，不出意外此时的目录结构应该如下</p>
+<pre class=" language-shell"><code class="language-shell">$ tree .
+.
+├── build.gradle
+├── gradle
+│   └── wrapper
+│       ├── gradle-wrapper.jar
+│       └── gradle-wrapper.properties
+├── gradlew
+├── gradlew.bat
+├── settings.gradle
+├── sub-project1
+│   ├── build.gradle
+│   └── src
+│       └── test
+│           └── java
+│               └── cn
+│                   └── tac
+│                       └── gradle
+│                           └── SubProject1Test.java
+└── sub-project2
+    ├── build.gradle
+    └── src
+        └── test
+            └── java
+                └── cn
+                    └── tac
+                        └── gradle
+                            └── SubProject2Test.java
+</code></pre>
+<p>接下来我们切换到根目录下，执行</p>
+<pre><code>$ sh gradlew build
+</code></pre><p>再查看子项目的目录，发现分别多了一个build目录，可见在为根项目执行构建任务时，其include的所有子项目也分别进行了构建。以下分别是两个子项目的build reports<br><img src="/images/gradle_learn/multi_project/subproject1test.png" alt="sub project 1"><br><img src="/images/gradle_learn/multi_project/subproject2test.png" alt="sub project 2"></p>
+<h3 id="依赖其它项目"><a href="#依赖其它项目" class="headerlink" title="依赖其它项目"></a>依赖其它项目</h3><p>在<code>dependencies{}</code>中添加依赖即可，例如sub-project2要依赖sub-project1，可以在sub-project2的build.gradle中添加</p>
+<pre class=" language-groovy"><code class="language-groovy">dependencies <span class="token punctuation">{</span>
+  compile <span class="token function">project</span><span class="token punctuation">(</span><span class="token string">':sub-project1'</span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+</code></pre>
 
       
     </div>
+    
+    
+    
 
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/learn_gradle_2.html" rel="next" title="Gradle学习（二） - 常用插件">
+                <i class="fa fa-chevron-left"></i> Gradle学习（二） - 常用插件
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/learn_gradle_4.html" rel="prev" title="Gradle学习（四） - 自定义任务">
+                Gradle学习（四） - 自定义任务 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
   </div>
   
   
   
+  </article>
 
-  
 
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
 
 
           </div>
@@ -533,6 +594,10 @@
 
 
           
+  <div class="comments" id="comments">
+    
+  </div>
+
 
         </div>
         
@@ -553,8 +618,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
 
-      <section class="site-overview sidebar-panel sidebar-panel-active">
+      <section class="site-overview sidebar-panel">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
           <img class="site-author-image" itemprop="image"
                src="/images/Avatar.jpg"
@@ -631,6 +705,22 @@
 
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Getting-Started"><span class="nav-number">2.</span> <span class="nav-text">Getting Started</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#创建根项目"><span class="nav-number">2.1.</span> <span class="nav-text">创建根项目</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#创建子项目"><span class="nav-number">2.2.</span> <span class="nav-text">创建子项目</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#公共配置"><span class="nav-number">2.3.</span> <span class="nav-text">公共配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#编写代码"><span class="nav-number">2.4.</span> <span class="nav-text">编写代码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#执行构建"><span class="nav-number">2.5.</span> <span class="nav-text">执行构建</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#依赖其它项目"><span class="nav-number">2.6.</span> <span class="nav-text">依赖其它项目</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
@@ -734,10 +824,10 @@
   
 
   
-    <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
 <script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
 
-  
+
 
   
 
