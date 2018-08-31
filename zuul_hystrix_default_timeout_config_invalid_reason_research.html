@@ -94,16 +94,17 @@
 
 
 
-<meta name="description" content="el psy congroo.">
-<meta property="og:type" content="website">
-<meta property="og:title" content="taccisum 😉">
-<meta property="og:url" content="https://taccisum.github.io/categories/java/设计模式/index.html">
+<meta name="description" content="所处环境 spring boot: 1.5.9.RELEASE spring cloud: Edgware.RELEASE  问题描述根据netflix hystrix官方的描述，可以通过hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds这个全局配置为所有服务配置默认超时时间。然而在实践中却发现该配置并没">
+<meta property="og:type" content="article">
+<meta property="og:title" content="zuul中hystrix默认timeout配置失效的原因">
+<meta property="og:url" content="https://taccisum.github.io/zuul_hystrix_default_timeout_config_invalid_reason_research.html">
 <meta property="og:site_name" content="taccisum 😉">
-<meta property="og:description" content="el psy congroo.">
+<meta property="og:description" content="所处环境 spring boot: 1.5.9.RELEASE spring cloud: Edgware.RELEASE  问题描述根据netflix hystrix官方的描述，可以通过hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds这个全局配置为所有服务配置默认超时时间。然而在实践中却发现该配置并没">
 <meta property="og:locale" content="en">
+<meta property="og:updated_time" content="2018-08-30T10:53:53.646Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="taccisum 😉">
-<meta name="twitter:description" content="el psy congroo.">
+<meta name="twitter:title" content="zuul中hystrix默认timeout配置失效的原因">
+<meta name="twitter:description" content="所处环境 spring boot: 1.5.9.RELEASE spring cloud: Edgware.RELEASE  问题描述根据netflix hystrix官方的描述，可以通过hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds这个全局配置为所有服务配置默认超时时间。然而在实践中却发现该配置并没">
 
 
 
@@ -132,13 +133,13 @@
 
 
 
-  <link rel="canonical" href="https://taccisum.github.io/categories/java/设计模式/"/>
+  <link rel="canonical" href="https://taccisum.github.io/zuul_hystrix_default_timeout_config_invalid_reason_research.html"/>
 
 
 
 
 
-  <title>Category: 设计模式 | taccisum 😉</title>
+  <title>zuul中hystrix默认timeout配置失效的原因 | taccisum 😉</title>
   
 
 
@@ -163,7 +164,7 @@
     
   
 
-  <div class="container sidebar-position-left  ">
+  <div class="container sidebar-position-left page-post-detail ">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -291,55 +292,239 @@
           <div id="content" class="content">
             
 
-  
-  
-  
-  <div class="post-block category">
+  <div id="posts" class="posts-expand">
+    
 
-    <div id="posts" class="posts-collapse">
-      <div class="collection-title">
-        <h1>设计模式<small>Category</small>
-        </h1>
-      </div>
+  
 
-      
-        
+  
+  
+  
 
   <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://taccisum.github.io/zuul_hystrix_default_timeout_config_invalid_reason_research.html">
 
-      <h2 class="post-title">
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="taccisum">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/Avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="taccisum 😉">
+    </span>
+
+    
+      <header class="post-header">
+
         
-            <a class="post-title-link" href="/interpreter_pattern_in_action.html" itemprop="url">
-              
-                <span itemprop="name">解释器模式实践</span>
-              
-            </a>
         
-      </h2>
+          <h1 class="post-title" itemprop="name headline">zuul中hystrix默认timeout配置失效的原因</h1>
+        
 
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2017-09-25T17:12:13+08:00"
-              content="2017-09-25" >
-          09-25
-        </time>
-      </div>
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-08-30T15:29:35+08:00">
+                2018-08-30
+              </time>
+            
 
-    </header>
-  </article>
+            
 
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/java/" itemprop="url" rel="index">
+                    <span itemprop="name">java</span>
+                  </a>
+                </span>
+
+                
+                
+                  , 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/java/踩坑日记/" itemprop="url" rel="index">
+                    <span itemprop="name">踩坑日记</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="所处环境"><a href="#所处环境" class="headerlink" title="所处环境"></a>所处环境</h1><ul>
+<li><code>spring boot</code>: 1.5.9.RELEASE</li>
+<li><code>spring cloud</code>: Edgware.RELEASE</li>
+</ul>
+<h1 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h1><p>根据netflix hystrix官方的描述，可以通过<a href="https://github.com/Netflix/Hystrix/wiki/Configuration#execution.isolation.thread.timeoutInMilliseconds" target="_blank" rel="noopener"><code>hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds</code></a>这个全局配置为所有服务配置默认超时时间。然而在实践中却发现该配置并没有生效（一直是2000ms），但针对各服务进行单独配置却是可以生效的。</p>
+<h1 id="问题定位"><a href="#问题定位" class="headerlink" title="问题定位"></a>问题定位</h1><p>经google发现，hystrix的timeout机制是通过<code>HystrixTimer</code>来处理的。</p>
+<p>HystrixTimer是一个单例，开发人员可以在执行<code>HystrixCommand</code>前通过调用HystrixTimer.getInstance().addTimerListener()方法来添加一个定时的listener，然后在command on completed的时候移除它。相关的代码已经由netflix实现了，可以查看源码<a href="https://github.com/Netflix/Hystrix/blob/master/hystrix-core/src/main/java/com/netflix/hystrix/AbstractCommand.java#L1137" target="_blank" rel="noopener"><code>AbstractCommand.java</code></a></p>
+<pre class=" language-java"><code class="language-java">TimerListener listener <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">TimerListener</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token annotation punctuation">@Override</span>
+    <span class="token keyword">public</span> <span class="token keyword">int</span> <span class="token function">getIntervalTimeInMilliseconds</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> originalCommand<span class="token punctuation">.</span>properties<span class="token punctuation">.</span><span class="token function">executionTimeoutInMilliseconds</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token keyword">final</span> Reference<span class="token operator">&lt;</span>TimerListener<span class="token operator">></span> tl <span class="token operator">=</span> HystrixTimer<span class="token punctuation">.</span><span class="token function">getInstance</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">addTimerListener</span><span class="token punctuation">(</span>listener<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment" spellcheck="true">// set externally so execute/queue can see this</span>
+originalCommand<span class="token punctuation">.</span>timeoutTimer<span class="token punctuation">.</span><span class="token function">set</span><span class="token punctuation">(</span>tl<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment" spellcheck="true">/**
+* If this subscriber receives values it means the parent succeeded/completed
+*/</span>
+Subscriber<span class="token operator">&lt;</span>R<span class="token operator">></span> parent <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Subscriber</span><span class="token operator">&lt;</span>R<span class="token operator">></span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token annotation punctuation">@Override</span>
+    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">onCompleted</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">isNotTimedOut</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token comment" spellcheck="true">// stop timer and pass notification through</span>
+            tl<span class="token punctuation">.</span><span class="token function">clear</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            child<span class="token punctuation">.</span><span class="token function">onCompleted</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token annotation punctuation">@Override</span>
+    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">onError</span><span class="token punctuation">(</span>Throwable e<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">isNotTimedOut</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token comment" spellcheck="true">// stop timer and pass notification through</span>
+            tl<span class="token punctuation">.</span><span class="token function">clear</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            child<span class="token punctuation">.</span><span class="token function">onError</span><span class="token punctuation">(</span>e<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+</code></pre>
+<p>从以上代码可以很容易追溯到hystrix超时时间是从originalCommand.properties(<code>HystrixCommandProperties</code>)这个对象中获取的，而在spring cloud提供的<code>AbstractRibbonCommand</code>中存在以下代码</p>
+<pre class=" language-java"><code class="language-java"><span class="token keyword">final</span> HystrixCommandProperties<span class="token punctuation">.</span>Setter setter <span class="token operator">=</span> HystrixCommandProperties<span class="token punctuation">.</span><span class="token function">Setter</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+        <span class="token punctuation">.</span><span class="token function">withExecutionIsolationStrategy</span><span class="token punctuation">(</span>zuulProperties<span class="token punctuation">.</span><span class="token function">getRibbonIsolationStrategy</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">withExecutionTimeoutInMilliseconds</span><span class="token punctuation">(</span>
+                RibbonClientConfiguration<span class="token punctuation">.</span>DEFAULT_CONNECT_TIMEOUT <span class="token operator">+</span> RibbonClientConfiguration<span class="token punctuation">.</span>DEFAULT_READ_TIMEOUT<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p><strong>导致originalCommand.properties在构建时可以获取到一个executionTimeoutInMilliseconds的实例级默认值，从而覆盖掉了全局的executionTimeoutInMilliseconds配置，但实例级的配置并不受影响，因为hystrix property优先级为：</strong>  </p>
+<ol>
+<li>Global default from code</li>
+<li>Dynamic global default property</li>
+<li>Instance default from code</li>
+<li>Dynamic instance property</li>
+</ol>
+<h1 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h1><ol>
+<li><p>改写HttpClientRibbonCommand的实现<br>//todo:: 待补充</p>
+</li>
+<li><p>升级spring cloud版本到Edgware.SR1以上<br>Spring cloud在<code>Edgware.SR1</code>版本中已经解决了此问题(<a href="https://github.com/spring-cloud/spring-cloud-netflix/pull/2633" target="_blank" rel="noopener">issue2633</a>)，如果有条件可以直接通过升级版本来解决此问题。</p>
+</li>
+</ol>
+<h1 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h1><ul>
+<li><a href="https://github.com/Netflix/Hystrix/wiki/Configuration" target="_blank" rel="noopener">Hystrix Configurations</a></li>
+<li><a href="https://segmentfault.com/a/1190000015393836" target="_blank" rel="noopener">聊聊hystrix的timeout处理 - segmentfault</a></li>
+<li><a href="https://segmentfault.com/a/1190000012439580" target="_blank" rel="noopener">Hystrix工作原理</a></li>
+<li><a href="https://www.jianshu.com/p/6e2f11821c77" target="_blank" rel="noopener">ribbon设置url级别的超时时间</a></li>
+</ul>
 
       
     </div>
+    
+    
+    
 
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/openfeign_research_and_application.html" rel="next" title="声明式http客户端openfeign的研究与应用">
+                <i class="fa fa-chevron-left"></i> 声明式http客户端openfeign的研究与应用
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
   </div>
   
   
   
+  </article>
 
-  
 
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
 
 
           </div>
@@ -347,6 +532,10 @@
 
 
           
+  <div class="comments" id="comments">
+    
+  </div>
+
 
         </div>
         
@@ -367,8 +556,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
 
-      <section class="site-overview sidebar-panel sidebar-panel-active">
+      <section class="site-overview sidebar-panel">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
           <img class="site-author-image" itemprop="image"
                src="/images/Avatar.jpg"
@@ -445,6 +643,22 @@
 
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#所处环境"><span class="nav-number">1.</span> <span class="nav-text">所处环境</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#问题描述"><span class="nav-number">2.</span> <span class="nav-text">问题描述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#问题定位"><span class="nav-number">3.</span> <span class="nav-text">问题定位</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#解决方案"><span class="nav-number">4.</span> <span class="nav-text">解决方案</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考链接"><span class="nav-number">5.</span> <span class="nav-text">参考链接</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
@@ -548,10 +762,10 @@
   
 
   
-    <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
 <script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
 
-  
+
 
   
 

@@ -3,9 +3,31 @@
 
 
     
+    
+  <url>
+    <loc>https://taccisum.github.io/zuul_hystrix_default_timeout_config_invalid_reason_research.html</loc>
+    <lastmod>2018-08-30T10:53:53.646Z</lastmod>
+    <data>
+        <display>
+        <title>zuul中hystrix默认timeout配置失效的原因</title>
+        <pubTime>2018-08-30T07:29:35.000Z</pubTime>
+        
+         
+           
+             
+              <breadCrumb title="java" url="https://taccisum.github.io/categories/java/"/>
+          
+             
+              <breadCrumb title="踩坑日记" url="https://taccisum.github.io/categories/java/%E8%B8%A9%E5%9D%91%E6%97%A5%E8%AE%B0/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
   <url>
     <loc>https://taccisum.github.io/openfeign_research_and_application.html</loc>
-    <lastmod>2018-08-29T11:11:20.767Z</lastmod>
+    <lastmod>2018-08-30T07:31:27.727Z</lastmod>
     <data>
         <display>
         <title>声明式http客户端openfeign的研究与应用</title>
