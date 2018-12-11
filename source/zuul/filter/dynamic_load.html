@@ -94,17 +94,17 @@
 
 
 
-<meta name="description" content="介绍zuul支持用两种语言编写的过滤器，分别是Groovy和Java。不过只有Groovy编写的过滤器才支持动态加载。 所谓动态加载，即是可以在应用的运行时对filter进行CRUD的操作，以达到动态调整zuul行为的目的。 以下我们看看zuul是如何实现这一点的。 需要说明的是，Filter动态加载并不是zuul-core提供的功能，而是zuul-netflix提供的一个实现。在zuul-cor">
+<meta name="description" content="介绍zuul支持用两种语言编写的过滤器，分别是Groovy和Java。不过只有Groovy编写的过滤器才支持动态加载。 所谓动态加载，即是可以在应用的运行时对filter进行CRUD的操作，以达到动态调整zuul行为的目的。 以下我们看看zuul是如何实现这一点的。 FilterLoader// FilterLoader.java     /**      * 获取所有指定类型的filter并排序">
 <meta property="og:type" content="article">
-<meta property="og:title" content="zuul源码解析 —— 动态加载Filter">
+<meta property="og:title" content="zuul源码解析 —— 动态加载Filter（未完成）">
 <meta property="og:url" content="https://taccisum.github.io/source/zuul/filter/dynamic_load.html">
 <meta property="og:site_name" content="taccisum 😉">
-<meta property="og:description" content="介绍zuul支持用两种语言编写的过滤器，分别是Groovy和Java。不过只有Groovy编写的过滤器才支持动态加载。 所谓动态加载，即是可以在应用的运行时对filter进行CRUD的操作，以达到动态调整zuul行为的目的。 以下我们看看zuul是如何实现这一点的。 需要说明的是，Filter动态加载并不是zuul-core提供的功能，而是zuul-netflix提供的一个实现。在zuul-cor">
+<meta property="og:description" content="介绍zuul支持用两种语言编写的过滤器，分别是Groovy和Java。不过只有Groovy编写的过滤器才支持动态加载。 所谓动态加载，即是可以在应用的运行时对filter进行CRUD的操作，以达到动态调整zuul行为的目的。 以下我们看看zuul是如何实现这一点的。 FilterLoader// FilterLoader.java     /**      * 获取所有指定类型的filter并排序">
 <meta property="og:locale" content="en">
-<meta property="og:updated_time" content="2018-12-10T09:54:48.044Z">
+<meta property="og:updated_time" content="2018-12-11T09:08:57.191Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="zuul源码解析 —— 动态加载Filter">
-<meta name="twitter:description" content="介绍zuul支持用两种语言编写的过滤器，分别是Groovy和Java。不过只有Groovy编写的过滤器才支持动态加载。 所谓动态加载，即是可以在应用的运行时对filter进行CRUD的操作，以达到动态调整zuul行为的目的。 以下我们看看zuul是如何实现这一点的。 需要说明的是，Filter动态加载并不是zuul-core提供的功能，而是zuul-netflix提供的一个实现。在zuul-cor">
+<meta name="twitter:title" content="zuul源码解析 —— 动态加载Filter（未完成）">
+<meta name="twitter:description" content="介绍zuul支持用两种语言编写的过滤器，分别是Groovy和Java。不过只有Groovy编写的过滤器才支持动态加载。 所谓动态加载，即是可以在应用的运行时对filter进行CRUD的操作，以达到动态调整zuul行为的目的。 以下我们看看zuul是如何实现这一点的。 FilterLoader// FilterLoader.java     /**      * 获取所有指定类型的filter并排序">
 
 
 
@@ -139,7 +139,7 @@
 
 
 
-  <title>zuul源码解析 —— 动态加载Filter | taccisum 😉</title>
+  <title>zuul源码解析 —— 动态加载Filter（未完成） | taccisum 😉</title>
   
 
 
@@ -324,7 +324,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">zuul源码解析 —— 动态加载Filter</h1>
+          <h1 class="post-title" itemprop="name headline">zuul源码解析 —— 动态加载Filter（未完成）</h1>
         
 
         <div class="post-meta">
@@ -410,7 +410,6 @@
         <h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>zuul支持用两种语言编写的过滤器，分别是Groovy和Java。不过只有Groovy编写的过滤器才支持动态加载。</p>
 <p>所谓动态加载，即是可以在应用的运行时对filter进行CRUD的操作，以达到动态调整zuul行为的目的。</p>
 <p>以下我们看看zuul是如何实现这一点的。</p>
-<p>需要说明的是，Filter动态加载并不是zuul-core提供的功能，而是zuul-netflix提供的一个实现。在zuul-core中，仅是提供了动态加载filter的可能性。也因此，这里TODO::一下，spring cloud zuul中可能没有这个功能？</p>
 <h2 id="FilterLoader"><a href="#FilterLoader" class="headerlink" title="FilterLoader"></a>FilterLoader</h2><pre class="line-numbers language-java"><code class="language-java"><span class="token comment" spellcheck="true">// FilterLoader.java</span>
     <span class="token comment" spellcheck="true">/**
      * 获取所有指定类型的filter并排序，通过ZuulFilter.filterOrder()方法
@@ -479,7 +478,7 @@
 <td>CANARY</td>
 <td>PUT/POST</td>
 <td>handleCanaryAction</td>
-<td>TODO::不知道干啥的</td>
+<td>TODO::还不知道干啥用的</td>
 </tr>
 <tr>
 <td>DEACTIVATE</td>
@@ -522,6 +521,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/sourece/flowable/startup/spring_boot.html" rel="prev" title="flowable启动流程解析（spring boot）">
+                flowable启动流程解析（spring boot） <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -598,7 +601,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">23</span>
+                <span class="site-state-item-count">24</span>
                 <span class="site-state-item-name">posts</span>
               </a>
             </div>
@@ -701,7 +704,7 @@
 </div>
 
 <div>
-  <span class="post-count">25.1k words</span>
+  <span class="post-count">25.7k words</span>
 </div>
         
 
