@@ -158,7 +158,8 @@
 
 
 
-<link rel="stylesheet" href="/css/prism-ghcolors.css" type="text/css"></head>
+<link rel="stylesheet" href="/css/prism-ghcolors.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="en">
 
@@ -411,11 +412,11 @@
       
         <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>从<a href="/2017/09/26/Gradle学习（一）/">第一篇</a>中我们知道了如何构建一个单项目，但仅仅这样是不够的。实现多项目的构建有利于<code>模块化</code>，如此一来我们便能更好地在一个大型项目中分离我们的关注点。</p>
 <h2 id="Getting-Started"><a href="#Getting-Started" class="headerlink" title="Getting Started"></a>Getting Started</h2><h3 id="创建根项目"><a href="#创建根项目" class="headerlink" title="创建根项目"></a>创建根项目</h3><p>新建一个文件夹作为根项目目录，执行gradle init</p>
-<pre class=" language-shell"><code class="language-shell">$ mkdir multi_project
+<pre class="line-numbers language-shell"><code class="language-shell">$ mkdir multi_project
 $ gradle init
 $ ls
 build.gradle    gradle          gradlew         gradlew.bat     settings.gradle
-</code></pre>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
 <p>这次我们要关注的重点有两个文件</p>
 <ul>
 <li>build.gradle<blockquote>
@@ -428,20 +429,20 @@ build.gradle    gradle          gradlew         gradlew.bat     settings.gradle
 </li>
 </ul>
 <h3 id="创建子项目"><a href="#创建子项目" class="headerlink" title="创建子项目"></a>创建子项目</h3><p>在根目录下分别创建sub-project1和sub-project2目录，然后分别为其创建build.gradle</p>
-<pre class=" language-shell"><code class="language-shell">$ mkdir sub-project1 sub-project2
+<pre class="line-numbers language-shell"><code class="language-shell">$ mkdir sub-project1 sub-project2
 $ touch sub-project1/build.gradle sub-project2/build.gradle
-</code></pre>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
 <p>然后在根项目的settings.gradle中添加下面内容以关联子项目</p>
-<pre class=" language-groovy"><code class="language-groovy">include <span class="token string">'sub-project1'</span>
+<pre class="line-numbers language-groovy"><code class="language-groovy">include <span class="token string">'sub-project1'</span>
 include <span class="token string">'sub-project2'</span>
-</code></pre>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
 <p><strong>tips</strong></p>
 <ul>
 <li>一定要注意子项目只需为其创建build.gradle即可，而非使用gradle init指令初始化，这点很重要</li>
 <li>子项目的build.gradle只用于配置该项目特有的一些配置项，公共的配置通过根项目的build.gradle配置</li>
 </ul>
 <h3 id="公共配置"><a href="#公共配置" class="headerlink" title="公共配置"></a>公共配置</h3><p>在根项目的build.gradle中加入以下内容</p>
-<pre class=" language-groovy"><code class="language-groovy">allprojects<span class="token punctuation">{</span>
+<pre class="line-numbers language-groovy"><code class="language-groovy">allprojects<span class="token punctuation">{</span>
     group <span class="token operator">=</span> <span class="token string">'cn.tac'</span>
     version <span class="token operator">=</span> <span class="token string">'0.1'</span>
     repositories<span class="token punctuation">{</span>
@@ -458,16 +459,16 @@ subprojects <span class="token punctuation">{</span>
         testCompile <span class="token string">'junit:junit:4.12'</span>
     <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
-</code></pre>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <ul>
 <li><code>allprojects{}</code> 为所有项目添加配置项，所以group、version、repositories都放在了这个block下</li>
 <li><code>subprojects{}</code> 仅仅为当前项目的子项目添加配置项（不包括当前项目本身），所以根项目不需要的内容（如依赖）放在了这个block下</li>
 </ul>
 <h3 id="编写代码"><a href="#编写代码" class="headerlink" title="编写代码"></a>编写代码</h3><p>分别为子项目创建src目录</p>
-<pre class=" language-shell"><code class="language-shell">$ mkdir -p sub-project1/src/test/java/cn/tac/gradle sub-project2/src/test/java/cn/tac/gradle
-</code></pre>
+<pre class="line-numbers language-shell"><code class="language-shell">$ mkdir -p sub-project1/src/test/java/cn/tac/gradle sub-project2/src/test/java/cn/tac/gradle
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 <p>并创建单元测试</p>
-<pre class=" language-java"><code class="language-java"><span class="token keyword">package</span> cn<span class="token punctuation">.</span>tac<span class="token punctuation">.</span>gradle<span class="token punctuation">;</span>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token keyword">package</span> cn<span class="token punctuation">.</span>tac<span class="token punctuation">.</span>gradle<span class="token punctuation">;</span>
 
 <span class="token keyword">import</span> org<span class="token punctuation">.</span>junit<span class="token punctuation">.</span>Assert<span class="token punctuation">;</span>
 <span class="token keyword">import</span> org<span class="token punctuation">.</span>junit<span class="token punctuation">.</span>Test<span class="token punctuation">;</span>
@@ -478,8 +479,8 @@ subprojects <span class="token punctuation">{</span>
         System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"hello, i'm sub project1"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
-</code></pre>
-<pre class=" language-java"><code class="language-java"><span class="token keyword">package</span> cn<span class="token punctuation">.</span>tac<span class="token punctuation">.</span>gradle<span class="token punctuation">;</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token keyword">package</span> cn<span class="token punctuation">.</span>tac<span class="token punctuation">.</span>gradle<span class="token punctuation">;</span>
 
 <span class="token keyword">import</span> org<span class="token punctuation">.</span>junit<span class="token punctuation">.</span>Assert<span class="token punctuation">;</span>
 <span class="token keyword">import</span> org<span class="token punctuation">.</span>junit<span class="token punctuation">.</span>Test<span class="token punctuation">;</span>
@@ -490,9 +491,9 @@ subprojects <span class="token punctuation">{</span>
         System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"hello, i'm sub project2"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
-</code></pre>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <h3 id="执行构建"><a href="#执行构建" class="headerlink" title="执行构建"></a>执行构建</h3><p>完成了上述步骤之后，不出意外此时的目录结构应该如下</p>
-<pre class=" language-shell"><code class="language-shell">$ tree .
+<pre class="line-numbers language-shell"><code class="language-shell">$ tree .
 .
 ├── build.gradle
 ├── gradle
@@ -520,15 +521,15 @@ subprojects <span class="token punctuation">{</span>
                     └── tac
                         └── gradle
                             └── SubProject2Test.java
-</code></pre>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <p>接下来我们切换到根目录下，执行</p>
 <pre><code>$ sh gradlew build
 </code></pre><p>再查看子项目的目录，发现分别多了一个build目录，可见在为根项目执行构建任务时，其include的所有子项目也分别进行了构建。以下分别是两个子项目的build reports<br><img src="/images/gradle_learn/multi_project/subproject1test.png" alt="sub project 1"><br><img src="/images/gradle_learn/multi_project/subproject2test.png" alt="sub project 2"></p>
 <h3 id="依赖其它项目"><a href="#依赖其它项目" class="headerlink" title="依赖其它项目"></a>依赖其它项目</h3><p>在<code>dependencies{}</code>中添加依赖即可，例如sub-project2要依赖sub-project1，可以在sub-project2的build.gradle中添加</p>
-<pre class=" language-groovy"><code class="language-groovy">dependencies <span class="token punctuation">{</span>
+<pre class="line-numbers language-groovy"><code class="language-groovy">dependencies <span class="token punctuation">{</span>
   compile <span class="token function">project</span><span class="token punctuation">(</span><span class="token string">':sub-project1'</span><span class="token punctuation">)</span>
 <span class="token punctuation">}</span>
-</code></pre>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
 
       
     </div>
@@ -642,7 +643,7 @@ subprojects <span class="token punctuation">{</span>
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-count">23</span>
                 <span class="site-state-item-name">posts</span>
               </a>
             </div>
@@ -653,7 +654,7 @@ subprojects <span class="token punctuation">{</span>
             
             <div class="site-state-item site-state-categories">
               <a href="/categories/index.html">
-                <span class="site-state-item-count">10</span>
+                <span class="site-state-item-count">18</span>
                 <span class="site-state-item-name">categories</span>
               </a>
             </div>
@@ -745,7 +746,7 @@ subprojects <span class="token punctuation">{</span>
 </div>
 
 <div>
-  <span class="post-count">12.8k words</span>
+  <span class="post-count">25.1k words</span>
 </div>
         
 

@@ -158,7 +158,8 @@
 
 
 
-<link rel="stylesheet" href="/css/prism-ghcolors.css" type="text/css"></head>
+<link rel="stylesheet" href="/css/prism-ghcolors.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="en">
 
@@ -411,10 +412,10 @@
       
         <h2 id="发布到Maven仓库"><a href="#发布到Maven仓库" class="headerlink" title="发布到Maven仓库"></a>发布到Maven仓库</h2><h3 id="Maven-Publish插件"><a href="#Maven-Publish插件" class="headerlink" title="Maven-Publish插件"></a>Maven-Publish插件</h3><p>Gradle将项目发布到Maven仓库需要借助插件，<code>Maven-Publish</code>便是官方推荐的一款插件。<br><a href="https://docs.gradle.org/current/userguide/publishing_maven.html" target="_blank" rel="noopener">Maven-Publish</a></p>
 <h3 id="发布项目"><a href="#发布项目" class="headerlink" title="发布项目"></a>发布项目</h3><p>通过<code>&#39;maven-publish&#39;</code>引入插件<br><strong>build.gradle</strong></p>
-<pre class=" language-groovy"><code class="language-groovy">apply plugin<span class="token punctuation">:</span> <span class="token string">'maven-publish'</span>
-</code></pre>
+<pre class="line-numbers language-groovy"><code class="language-groovy">apply plugin<span class="token punctuation">:</span> <span class="token string">'maven-publish'</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 <h4 id="发布到本地"><a href="#发布到本地" class="headerlink" title="发布到本地"></a>发布到本地</h4><p><strong>build.gradle</strong></p>
-<pre class=" language-groovy"><code class="language-groovy">apply plugin<span class="token punctuation">:</span> <span class="token string">'java'</span>
+<pre class="line-numbers language-groovy"><code class="language-groovy">apply plugin<span class="token punctuation">:</span> <span class="token string">'java'</span>
 apply plugin<span class="token punctuation">:</span> <span class="token string">'maven-publish'</span>
 
 group <span class="token operator">=</span> <span class="token string">'cn.tac.test'</span>
@@ -434,7 +435,7 @@ publishing <span class="token punctuation">{</span>
         <span class="token punctuation">}</span>
     <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
-</code></pre>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <p>在以上配置中</p>
 <ul>
 <li><code>publishing{}</code>是由插件为项目创建的扩展（PublishingExtension类型），这个扩展提供了两个block：<code>publications{}</code>（MavenPublication类型）和<code>repositories{}</code>（MavenArtifactRepository 类型），分别用于配置<code>要发布的内容</code>和<code>目标仓库</code>（均可配置多个）。</li>
@@ -454,7 +455,7 @@ publishing <span class="token punctuation">{</span>
 <li>配置发布组件，使其发布的同时额外发布一个包含源码的<code>artifact</code></li>
 </ol>
 <p><strong>build.gradle</strong></p>
-<pre class=" language-groovy"><code class="language-groovy">……
+<pre class="line-numbers language-groovy"><code class="language-groovy">……
 <span class="token comment" spellcheck="true">//这个task可以获取到源码</span>
 task <span class="token function">sourceJar</span><span class="token punctuation">(</span>type<span class="token punctuation">:</span> Jar<span class="token punctuation">)</span> <span class="token punctuation">{</span>
     from sourceSets<span class="token operator">.</span>main<span class="token operator">.</span>allJava
@@ -473,11 +474,11 @@ publishing <span class="token punctuation">{</span>
     <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 ……
-</code></pre>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <p>执行task<br><img src="/images/gradle_learn/publishing/build_repo_with_sources.png" alt="sources"></p>
 <h4 id="发布到远程仓库"><a href="#发布到远程仓库" class="headerlink" title="发布到远程仓库"></a>发布到远程仓库</h4><p>只需要修改url指向远程仓库即可。同时由于远程仓库大多需要认证，因此通常需要通过<code>credentials{}</code>指定用户名和密码</p>
 <p><strong>build.gradle</strong></p>
-<pre class=" language-groovy"><code class="language-groovy">……
+<pre class="line-numbers language-groovy"><code class="language-groovy">……
 publishing <span class="token punctuation">{</span>
     repositories <span class="token punctuation">{</span>
         maven <span class="token punctuation">{</span>
@@ -490,10 +491,10 @@ publishing <span class="token punctuation">{</span>
     <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 ……
-</code></pre>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <h4 id="条件发布"><a href="#条件发布" class="headerlink" title="条件发布"></a>条件发布</h4><p>这点相信会点groovy的同学都不会觉得难，用<code>if/else</code>就可以完成。例如下面的配置实现根据version后缀来决定是发布到<code>snapshots</code>还是<code>releases</code>仓库中</p>
 <p><strong>build.gralde</strong></p>
-<pre class=" language-groovy"><code class="language-groovy">……
+<pre class="line-numbers language-groovy"><code class="language-groovy">……
 publishing <span class="token punctuation">{</span>
     repositories <span class="token punctuation">{</span>
         <span class="token keyword">def</span> NEXUS_URL <span class="token operator">=</span> <span class="token string">"http://172.10.10.66:8081/nexus/content/repositories/releases/"</span>
@@ -510,10 +511,10 @@ publishing <span class="token punctuation">{</span>
     <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 ……
-</code></pre>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <h4 id="发布多项目"><a href="#发布多项目" class="headerlink" title="发布多项目"></a>发布多项目</h4><p>父项目的task执行的同时会执行其所有子项目的同一task（最常见的如build任务），因此多项目发布只需要配置好所有子项目的发布配置即可。</p>
 <p><strong>build.gradle</strong></p>
-<pre class=" language-groovy"><code class="language-groovy">subprojects <span class="token punctuation">{</span>
+<pre class="line-numbers language-groovy"><code class="language-groovy">subprojects <span class="token punctuation">{</span>
     apply plugin<span class="token punctuation">:</span> <span class="token string">'java'</span>
     apply plugin<span class="token punctuation">:</span> <span class="token string">'maven-publish'</span>
 
@@ -536,14 +537,14 @@ publishing <span class="token punctuation">{</span>
         <span class="token punctuation">}</span>
     <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
-</code></pre>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <p>执行task，可以看到每个子项目都发布到了其对应的<code>build/repo</code>中。</p>
 <p><strong>tips</strong></p>
 <ul>
 <li>如果子模块之间互相有依赖，Gradle发布时会自动解析各模块的先后发布顺序，无需我们自己配置</li>
 </ul>
 <h3 id="常见问题"><a href="#常见问题" class="headerlink" title="常见问题"></a>常见问题</h3><h4 id="发布后pom-xml中项目的依赖scope为runtime的问题"><a href="#发布后pom-xml中项目的依赖scope为runtime的问题" class="headerlink" title="发布后pom.xml中项目的依赖scope为runtime的问题"></a>发布后pom.xml中项目的依赖scope为runtime的问题</h4><p>在发布的时候发现，项目中通过complie依赖的第三方库或其它模块，在发布后由Gradle生成的<code>pom.xml</code>文件中，依赖的scope默认变成了<code>runtime</code>，而非我们期望的<code>compile</code></p>
-<pre class=" language-xml"><code class="language-xml"><span class="token prolog">&lt;?xml version="1.0" encoding="UTF-8"?></span>
+<pre class="line-numbers language-xml"><code class="language-xml"><span class="token prolog">&lt;?xml version="1.0" encoding="UTF-8"?></span>
   ……
   <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>groupId</span><span class="token punctuation">></span></span>cn.tac.test<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>groupId</span><span class="token punctuation">></span></span>
   <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>artifactId</span><span class="token punctuation">></span></span>publishing<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>artifactId</span><span class="token punctuation">></span></span>
@@ -557,9 +558,9 @@ publishing <span class="token punctuation">{</span>
     <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>dependency</span><span class="token punctuation">></span></span>
   <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>dependencies</span><span class="token punctuation">></span></span>
 <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>project</span><span class="token punctuation">></span></span>
-</code></pre>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <p>为了达到期望的效果，只需要在发布配置中通过<code>withXML</code>对pom进行修改即可<br><strong>build.gradle</strong></p>
-<pre class=" language-groovy"><code class="language-groovy">publishing <span class="token punctuation">{</span>
+<pre class="line-numbers language-groovy"><code class="language-groovy">publishing <span class="token punctuation">{</span>
     publications <span class="token punctuation">{</span>
         <span class="token function">mavenJava</span><span class="token punctuation">(</span>MavenPublication<span class="token punctuation">)</span> <span class="token punctuation">{</span>
             from components<span class="token operator">.</span>java
@@ -576,9 +577,9 @@ publishing <span class="token punctuation">{</span>
         <span class="token punctuation">}</span>
     <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
-</code></pre>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <p>再次发布</p>
-<pre class=" language-xml"><code class="language-xml"><span class="token prolog">&lt;?xml version="1.0" encoding="UTF-8"?></span>
+<pre class="line-numbers language-xml"><code class="language-xml"><span class="token prolog">&lt;?xml version="1.0" encoding="UTF-8"?></span>
   ……
   <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>groupId</span><span class="token punctuation">></span></span>cn.tac.test<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>groupId</span><span class="token punctuation">></span></span>
   <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>artifactId</span><span class="token punctuation">></span></span>publishing<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>artifactId</span><span class="token punctuation">></span></span>
@@ -592,7 +593,7 @@ publishing <span class="token punctuation">{</span>
     <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>dependency</span><span class="token punctuation">></span></span>
   <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>dependencies</span><span class="token punctuation">></span></span>
 <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>project</span><span class="token punctuation">></span></span>
-</code></pre>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <p><strong>tips</strong></p>
 <ul>
 <li>参考链接 <a href="https://stackoverflow.com/questions/31069666/how-to-change-artifactory-runtime-scope-to-compile-scope" target="_blank" rel="noopener">How to change artifactory runtime scope to compile scope?</a></li>
@@ -711,7 +712,7 @@ publishing <span class="token punctuation">{</span>
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-count">23</span>
                 <span class="site-state-item-name">posts</span>
               </a>
             </div>
@@ -722,7 +723,7 @@ publishing <span class="token punctuation">{</span>
             
             <div class="site-state-item site-state-categories">
               <a href="/categories/index.html">
-                <span class="site-state-item-count">10</span>
+                <span class="site-state-item-count">18</span>
                 <span class="site-state-item-name">categories</span>
               </a>
             </div>
@@ -814,7 +815,7 @@ publishing <span class="token punctuation">{</span>
 </div>
 
 <div>
-  <span class="post-count">12.8k words</span>
+  <span class="post-count">25.1k words</span>
 </div>
         
 

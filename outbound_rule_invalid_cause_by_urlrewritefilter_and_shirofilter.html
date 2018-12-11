@@ -157,7 +157,8 @@
 
 
 
-<link rel="stylesheet" href="/css/prism-ghcolors.css" type="text/css"></head>
+<link rel="stylesheet" href="/css/prism-ghcolors.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="en">
 
@@ -411,25 +412,25 @@
         <h2 id="项目环境"><a href="#项目环境" class="headerlink" title="项目环境"></a>项目环境</h2><p>Spring Boot1.5.4 + Shiro1.4.0 + UrlRewriteFilter4.0.4</p>
 <h2 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h2><p>最近在项目中同时用到<a href="http://shiro.apache.org/" target="_blank" rel="noopener">Shiro</a>和<a href="http://www.tuckey.org/urlrewrite/" target="_blank" rel="noopener">UrlRewriteFilter</a>。由于在web环境下两者都是通过配置filter来实现功能的，因此导致出现了冲突——UrlRewriteFilter的outbound rule无法正常工作。具体表现为：</p>
 <p>在urlrewrite.xml中配置了</p>
-<pre class=" language-xml"><code class="language-xml"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>urlrewrite</span><span class="token punctuation">></span></span>
+<pre class="line-numbers language-xml"><code class="language-xml"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>urlrewrite</span><span class="token punctuation">></span></span>
     <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>outbound-rule</span><span class="token punctuation">></span></span>
         <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>from</span><span class="token punctuation">></span></span>/in-rewrite\?type=(\w+)$<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>from</span><span class="token punctuation">></span></span>
         <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>to</span><span class="token punctuation">></span></span>/in/$1.html<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>to</span><span class="token punctuation">></span></span>
     <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>outbound-rule</span><span class="token punctuation">></span></span>
 <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>urlrewrite</span><span class="token punctuation">></span></span>
-</code></pre>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <p>在java代码中定义action</p>
-<pre class=" language-java"><code class="language-java">    <span class="token annotation punctuation">@GetMapping</span><span class="token punctuation">(</span><span class="token string">"out-rewrite"</span><span class="token punctuation">)</span>
+<pre class="line-numbers language-java"><code class="language-java">    <span class="token annotation punctuation">@GetMapping</span><span class="token punctuation">(</span><span class="token string">"out-rewrite"</span><span class="token punctuation">)</span>
     <span class="token annotation punctuation">@ResponseBody</span>
     <span class="token keyword">public</span> String <span class="token function">out</span><span class="token punctuation">(</span>HttpServletRequest request<span class="token punctuation">,</span> HttpServletResponse response<span class="token punctuation">)</span> <span class="token punctuation">{</span>
         <span class="token keyword">return</span> response<span class="token punctuation">.</span><span class="token function">encodeURL</span><span class="token punctuation">(</span><span class="token string">"localhost:8080/in-rewrite?type=233"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>       <span class="token comment" spellcheck="true">//will be rewrite to 'localhost:8080/in/233.html'</span>
     <span class="token punctuation">}</span>
-</code></pre>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <p>正常来说，访问这个api应该返回”localhost:8080/in/233.html”才对，但却返回了未转换前的url，即”localhost:8080/in-rewrite?type=233”。</p>
 <h2 id="问题分析"><a href="#问题分析" class="headerlink" title="问题分析"></a>问题分析</h2><p>在调试源码的时候发现，同时配置了ShiroFilter和UrlRewriteFilter时，response的类型是<code>ShiroHttpServletResponse</code>，此时outbound rule是不起作用的。而把ShiroFilter的配置去掉，只留下UrlRewriteFilter时，response的类型则是<code>UrlRewriteWrappedResponse</code>，而此时outbound rule是起作用的。显然，两者在filter里面都对response进行了重新包装，而ShiroFilter执行在后，导致前者的部分功能失效。</p>
 <p>再查看上面两个response包装类的源码：</p>
 <p><strong>UrlRewriteWrappedResponse.java</strong></p>
-<pre class=" language-java"><code class="language-java"><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>
     <span class="token keyword">public</span> String <span class="token function">encodeURL</span><span class="token punctuation">(</span>String s<span class="token punctuation">)</span> <span class="token punctuation">{</span>
         RewrittenOutboundUrl rou <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">processPreEncodeURL</span><span class="token punctuation">(</span>s<span class="token punctuation">)</span><span class="token punctuation">;</span>
         <span class="token keyword">if</span><span class="token punctuation">(</span>rou <span class="token operator">==</span> null<span class="token punctuation">)</span> <span class="token punctuation">{</span>
@@ -443,9 +444,9 @@
         <span class="token punctuation">}</span>
     <span class="token punctuation">}</span>
 <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>
-</code></pre>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <p><strong>ShiroHttpServletResponse.java</strong></p>
-<pre class=" language-java"><code class="language-java"><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>
     <span class="token keyword">public</span> String <span class="token function">encodeURL</span><span class="token punctuation">(</span>String url<span class="token punctuation">)</span> <span class="token punctuation">{</span>
         String absolute <span class="token operator">=</span> <span class="token function">toAbsolute</span><span class="token punctuation">(</span>url<span class="token punctuation">)</span><span class="token punctuation">;</span>
         <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">isEncodeable</span><span class="token punctuation">(</span>absolute<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
@@ -459,7 +460,7 @@
         <span class="token punctuation">}</span>
     <span class="token punctuation">}</span>
 <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>
-</code></pre>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <p>发现两者均对<code>encodeUrl</code>、<code>encodeRedirectUrl</code>等四个方法进行了改写。Shiro的包装类执行在后，导致<code>UrlRewriteWrappedResponse</code>的相关代码没有被执行。</p>
 <h2 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h2><h3 id="重排Filter的执行顺序"><a href="#重排Filter的执行顺序" class="headerlink" title="重排Filter的执行顺序"></a>重排Filter的执行顺序</h3><p>让<code>UrlRewriteWrappedResponse</code>的包装过程执行在后，避免encodeUrl方法被改写。</p>
 <p>显然这不是一个好的办法，原因如下：</p>
@@ -470,7 +471,7 @@
 <h3 id="自己实现encodeUrl的逻辑"><a href="#自己实现encodeUrl的逻辑" class="headerlink" title="自己实现encodeUrl的逻辑"></a>自己实现encodeUrl的逻辑</h3><p>让<code>ShiroHttpServletResponse</code>执行encode前先执行<code>UrlRewriteWrappedResponse</code>的encode代码。</p>
 <ol>
 <li><p>改写<code>ShiroHttpServletResponse</code>，重写其encode逻辑</p>
-<pre class=" language-java"><code class="language-java"> <span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">CustomShiroHttpServletResponse</span> <span class="token keyword">extends</span> <span class="token class-name">ShiroHttpServletResponse</span> <span class="token punctuation">{</span>
+<pre class="line-numbers language-java"><code class="language-java"> <span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">CustomShiroHttpServletResponse</span> <span class="token keyword">extends</span> <span class="token class-name">ShiroHttpServletResponse</span> <span class="token punctuation">{</span>
      <span class="token keyword">private</span> HttpServletResponse wrapped<span class="token punctuation">;</span>
 
      <span class="token keyword">public</span> <span class="token function">CustomShiroHttpServletResponse</span><span class="token punctuation">(</span>HttpServletResponse wrapped<span class="token punctuation">,</span> ServletContext context<span class="token punctuation">,</span> ShiroHttpServletRequest request<span class="token punctuation">)</span> <span class="token punctuation">{</span>
@@ -498,10 +499,10 @@
          <span class="token keyword">return</span> <span class="token keyword">super</span><span class="token punctuation">.</span><span class="token function">encodeUrl</span><span class="token punctuation">(</span>wrapped<span class="token punctuation">.</span><span class="token function">encodeUrl</span><span class="token punctuation">(</span>s<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
      <span class="token punctuation">}</span>
  <span class="token punctuation">}</span>
-</code></pre>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 </li>
 <li><p>改写<code>ShiroFilter</code>，使用<code>CustomShiroHttpServletResponse</code>代替<code>ShiroHttpServletResponse</code></p>
-<pre class=" language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">CustomSpringShiroFilter</span> <span class="token keyword">extends</span> <span class="token class-name">AbstractShiroFilter</span> <span class="token punctuation">{</span>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">CustomSpringShiroFilter</span> <span class="token keyword">extends</span> <span class="token class-name">AbstractShiroFilter</span> <span class="token punctuation">{</span>
  <span class="token keyword">protected</span> <span class="token function">CustomSpringShiroFilter</span><span class="token punctuation">(</span>WebSecurityManager webSecurityManager<span class="token punctuation">,</span> FilterChainResolver resolver<span class="token punctuation">)</span> <span class="token punctuation">{</span>
      <span class="token comment" spellcheck="true">//这段代码是copy了ShiroFilterFactoryBean$SpringShiroFilter的构造方法中的代码</span>
      <span class="token keyword">super</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
@@ -520,10 +521,10 @@
      <span class="token keyword">return</span> <span class="token keyword">new</span> <span class="token class-name">CustomShiroHttpServletResponse</span><span class="token punctuation">(</span>orig<span class="token punctuation">,</span> <span class="token function">getServletContext</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> request<span class="token punctuation">)</span><span class="token punctuation">;</span>
  <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
-</code></pre>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 </li>
 <li><p>然后改写<code>ShiroFilterFactoryBean</code>的createInstance方法，使用<code>CustomSpringShiroFilter</code>，代替原来的Filter</p>
-<pre class=" language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">CustomShiroFilterFactoryBean</span> <span class="token keyword">extends</span> <span class="token class-name">ShiroFilterFactoryBean</span> <span class="token punctuation">{</span>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">CustomShiroFilterFactoryBean</span> <span class="token keyword">extends</span> <span class="token class-name">ShiroFilterFactoryBean</span> <span class="token punctuation">{</span>
  <span class="token keyword">private</span> <span class="token keyword">static</span> <span class="token keyword">transient</span> <span class="token keyword">final</span> Logger log <span class="token operator">=</span> LoggerFactory<span class="token punctuation">.</span><span class="token function">getLogger</span><span class="token punctuation">(</span>ShiroFilterFactoryBean<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 
  <span class="token annotation punctuation">@Override</span>
@@ -551,7 +552,7 @@
      <span class="token keyword">return</span> <span class="token keyword">new</span> <span class="token class-name">CustomSpringShiroFilter</span><span class="token punctuation">(</span><span class="token punctuation">(</span>WebSecurityManager<span class="token punctuation">)</span> securityManager<span class="token punctuation">,</span> chainResolver<span class="token punctuation">)</span><span class="token punctuation">;</span>
  <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
-</code></pre>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 </li>
 <li><p>重启项目，访问”/out-rewrite”，结果如下<br><img src="/images/20171221/outbound.png" alt="outbound rule"></p>
 </li>
@@ -669,7 +670,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-count">23</span>
                 <span class="site-state-item-name">posts</span>
               </a>
             </div>
@@ -680,7 +681,7 @@
             
             <div class="site-state-item site-state-categories">
               <a href="/categories/index.html">
-                <span class="site-state-item-count">10</span>
+                <span class="site-state-item-count">18</span>
                 <span class="site-state-item-name">categories</span>
               </a>
             </div>
@@ -772,7 +773,7 @@
 </div>
 
 <div>
-  <span class="post-count">12.8k words</span>
+  <span class="post-count">25.1k words</span>
 </div>
         
 

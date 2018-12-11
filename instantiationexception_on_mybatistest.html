@@ -155,7 +155,8 @@
 
 
 
-<link rel="stylesheet" href="/css/prism-ghcolors.css" type="text/css"></head>
+<link rel="stylesheet" href="/css/prism-ghcolors.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="en">
 
@@ -407,7 +408,7 @@
 
       
         <h2 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h2><p>在Spring Boot环境中使用<a href="http://www.mybatis.org/spring-boot-starter/mybatis-spring-boot-test-autoconfigure/" target="_blank" rel="noopener">@MybatisTest</a>注解针对Mapper写单元测试的时候，由于同时引入了<a href="https://github.com/abel533/Mapper" target="_blank" rel="noopener">通用Mapper</a>，在单元测试中调用通用Mapper的方法进行CRUD时会出现<code>InstantiationException</code>异常</p>
-<pre class=" language-java"><code class="language-java">org<span class="token punctuation">.</span>mybatis<span class="token punctuation">.</span>spring<span class="token punctuation">.</span>MyBatisSystemException<span class="token operator">:</span> nested exception is org<span class="token punctuation">.</span>apache<span class="token punctuation">.</span>ibatis<span class="token punctuation">.</span>builder<span class="token punctuation">.</span>BuilderException<span class="token operator">:</span> Error invoking SqlProvider <span class="token function">method</span> <span class="token punctuation">(</span>tk<span class="token punctuation">.</span>mybatis<span class="token punctuation">.</span>mapper<span class="token punctuation">.</span>provider<span class="token punctuation">.</span>base<span class="token punctuation">.</span>BaseSelectProvider<span class="token punctuation">.</span>dynamicSQL<span class="token punctuation">)</span><span class="token punctuation">.</span>  Cause<span class="token operator">:</span> java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>InstantiationException<span class="token operator">:</span> tk<span class="token punctuation">.</span>mybatis<span class="token punctuation">.</span>mapper<span class="token punctuation">.</span>provider<span class="token punctuation">.</span>base<span class="token punctuation">.</span>BaseSelectProvider
+<pre class="line-numbers language-java"><code class="language-java">org<span class="token punctuation">.</span>mybatis<span class="token punctuation">.</span>spring<span class="token punctuation">.</span>MyBatisSystemException<span class="token operator">:</span> nested exception is org<span class="token punctuation">.</span>apache<span class="token punctuation">.</span>ibatis<span class="token punctuation">.</span>builder<span class="token punctuation">.</span>BuilderException<span class="token operator">:</span> Error invoking SqlProvider <span class="token function">method</span> <span class="token punctuation">(</span>tk<span class="token punctuation">.</span>mybatis<span class="token punctuation">.</span>mapper<span class="token punctuation">.</span>provider<span class="token punctuation">.</span>base<span class="token punctuation">.</span>BaseSelectProvider<span class="token punctuation">.</span>dynamicSQL<span class="token punctuation">)</span><span class="token punctuation">.</span>  Cause<span class="token operator">:</span> java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>InstantiationException<span class="token operator">:</span> tk<span class="token punctuation">.</span>mybatis<span class="token punctuation">.</span>mapper<span class="token punctuation">.</span>provider<span class="token punctuation">.</span>base<span class="token punctuation">.</span>BaseSelectProvider
 
     at org<span class="token punctuation">.</span>mybatis<span class="token punctuation">.</span>spring<span class="token punctuation">.</span>MyBatisExceptionTranslator<span class="token punctuation">.</span><span class="token function">translateExceptionIfPossible</span><span class="token punctuation">(</span>MyBatisExceptionTranslator<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">77</span><span class="token punctuation">)</span>
     at org<span class="token punctuation">.</span>mybatis<span class="token punctuation">.</span>spring<span class="token punctuation">.</span>SqlSessionTemplate$SqlSessionInterceptor<span class="token punctuation">.</span><span class="token function">invoke</span><span class="token punctuation">(</span>SqlSessionTemplate<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">446</span><span class="token punctuation">)</span>
@@ -467,9 +468,9 @@ Caused by<span class="token operator">:</span> java<span class="token punctuatio
     at java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>Class<span class="token punctuation">.</span><span class="token function">getConstructor0</span><span class="token punctuation">(</span>Class<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">3082</span><span class="token punctuation">)</span>
     at java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>Class<span class="token punctuation">.</span><span class="token function">newInstance</span><span class="token punctuation">(</span>Class<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">412</span><span class="token punctuation">)</span>
     <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span> <span class="token number">46</span> more
-</code></pre>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <p>单元测试代码如下：</p>
-<pre class=" language-java"><code class="language-java"><span class="token annotation punctuation">@RunWith</span><span class="token punctuation">(</span>SpringRunner<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">)</span>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token annotation punctuation">@RunWith</span><span class="token punctuation">(</span>SpringRunner<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">)</span>
 <span class="token annotation punctuation">@MybatisTest</span>
 <span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">ImageRecordMapperTest</span> <span class="token punctuation">{</span>
     <span class="token annotation punctuation">@Autowired</span>
@@ -484,19 +485,19 @@ Caused by<span class="token operator">:</span> java<span class="token punctuatio
         Assert<span class="token punctuation">.</span><span class="token function">assertEquals</span><span class="token punctuation">(</span><span class="token string">"hash1"</span><span class="token punctuation">,</span> record<span class="token punctuation">.</span><span class="token function">getHash</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
-</code></pre>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <h2 id="分析原因"><a href="#分析原因" class="headerlink" title="分析原因"></a>分析原因</h2><p>在github上mapper的<a href="https://github.com/abel533/MyBatis-Spring-Boot/issues/34" target="_blank" rel="noopener">issue</a>中有一段作者的回复，说此异常是由于<code>通用方法没有被正确初始化</code>导致。<br>我这边的情况虽然和这个issue不同，但根本原因是一样的。<br>查阅<code>Mybatis-Test</code>的文档可知，<code>@MybatisTest</code>注解不同于<code>@SpringBootTest</code>，它只加载保证Mybatis正常运行所需要的configuration。显然通用Mapper作为Mybatis第三方的扩展，并没有被纳入其中，因而默认情况下通用Mapper的starter是不会被加载的，也就导致通用方法不会被初始化。</p>
 <blockquote>
 <p>The @MybatisTest can be used if you want to test MyBatis components(Mapper interface and SqlSession). By default it will configure MyBatis(MyBatis-Spring) components(SqlSessionFactory and SqlSessionTemplate), configure MyBatis mapper interfaces and configure an in-memory embedded database. MyBatis tests are transactional and rollback at the end of each test by default, for more details refer to the relevant section in the Spring Reference Documentation. Also regular @Component beans will not be loaded into the ApplicationContext.<br>以上是来自<a href="http://www.mybatis.org/spring-boot-starter/mybatis-spring-boot-test-autoconfigure/" target="_blank" rel="noopener">mybatis-spring-boot-test-autoconfigure</a>官方文档的描述</p>
 </blockquote>
 <h2 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h2><p>显然，只要让Mapper的starter在MybatisTest的单元测试启动时得以加载即可解决我们的问题。那么如何做呢？<br>Spring Boot提供了一个<code>@ImportAutoConfiguration</code>的注解，因此只需要在单元测试的目标类上使用该注解将MapperAutoConfiguration导入即可</p>
-<pre class=" language-java"><code class="language-java"><span class="token annotation punctuation">@RunWith</span><span class="token punctuation">(</span>SpringRunner<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">)</span>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token annotation punctuation">@RunWith</span><span class="token punctuation">(</span>SpringRunner<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">)</span>
 <span class="token annotation punctuation">@ImportAutoConfiguration</span><span class="token punctuation">(</span>MapperAutoConfiguration<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">)</span>
 <span class="token annotation punctuation">@MybatisTest</span>
 <span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">ImageRecordMapperTest</span> <span class="token punctuation">{</span>
     ……
 <span class="token punctuation">}</span>
-</code></pre>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <p>其中<code>MapperAutoConfiguration</code>是通用Mapper的starter的auto-configure类。</p>
 
       
@@ -611,7 +612,7 @@ Caused by<span class="token operator">:</span> java<span class="token punctuatio
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-count">23</span>
                 <span class="site-state-item-name">posts</span>
               </a>
             </div>
@@ -622,7 +623,7 @@ Caused by<span class="token operator">:</span> java<span class="token punctuatio
             
             <div class="site-state-item site-state-categories">
               <a href="/categories/index.html">
-                <span class="site-state-item-count">10</span>
+                <span class="site-state-item-count">18</span>
                 <span class="site-state-item-name">categories</span>
               </a>
             </div>
@@ -714,7 +715,7 @@ Caused by<span class="token operator">:</span> java<span class="token punctuatio
 </div>
 
 <div>
-  <span class="post-count">12.8k words</span>
+  <span class="post-count">25.1k words</span>
 </div>
         
 

@@ -4,9 +4,238 @@
 
     
     
+    
+  <url>
+    <loc>https://taccisum.github.io/%E3%80%8A%E6%91%84%E5%BD%B1%E5%B8%88%E7%9A%84%E8%A7%86%E7%95%8C%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0.html</loc>
+    <lastmod>2018-12-10T09:54:48.046Z</lastmod>
+    <data>
+        <display>
+        <title>《摄影师的视界》阅读笔记</title>
+        <pubTime>2018-09-28T09:31:32.000Z</pubTime>
+        
+         
+           
+             
+              <breadCrumb title="摄影" url="https://taccisum.github.io/categories/%E6%91%84%E5%BD%B1/"/>
+          
+             
+              <breadCrumb title="构图" url="https://taccisum.github.io/categories/%E6%91%84%E5%BD%B1/%E6%9E%84%E5%9B%BE/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>https://taccisum.github.io/source/zuul/filters.html</loc>
+    <lastmod>2018-12-10T09:54:48.045Z</lastmod>
+    <data>
+        <display>
+        <title>zuul源码解析 —— 过滤器</title>
+        <pubTime>2018-12-01T06:12:30.000Z</pubTime>
+        
+         
+           
+             
+              <breadCrumb title="source" url="https://taccisum.github.io/categories/source/"/>
+          
+             
+              <breadCrumb title="zuul" url="https://taccisum.github.io/categories/source/zuul/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>https://taccisum.github.io/source/zuul.html</loc>
+    <lastmod>2018-12-10T09:54:48.045Z</lastmod>
+    <data>
+        <display>
+        <title>zuul源码解析</title>
+        <pubTime>2018-11-28T13:25:22.000Z</pubTime>
+        
+         
+           
+             
+              <breadCrumb title="source" url="https://taccisum.github.io/categories/source/"/>
+          
+             
+              <breadCrumb title="zuul" url="https://taccisum.github.io/categories/source/zuul/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>https://taccisum.github.io/source/zuul/architecture.html</loc>
+    <lastmod>2018-12-10T09:54:48.044Z</lastmod>
+    <data>
+        <display>
+        <title>zuul源码解析 —— zuul整体架构</title>
+        <pubTime>2018-11-29T02:55:13.000Z</pubTime>
+        
+         
+           
+             
+              <breadCrumb title="source" url="https://taccisum.github.io/categories/source/"/>
+          
+             
+              <breadCrumb title="zuul" url="https://taccisum.github.io/categories/source/zuul/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>https://taccisum.github.io/source/zuul/filter/dynamic_load.html</loc>
+    <lastmod>2018-12-10T09:54:48.044Z</lastmod>
+    <data>
+        <display>
+        <title>zuul源码解析 —— 动态加载Filter</title>
+        <pubTime>2018-12-01T06:19:14.000Z</pubTime>
+        
+         
+           
+             
+              <breadCrumb title="source" url="https://taccisum.github.io/categories/source/"/>
+          
+             
+              <breadCrumb title="zuul" url="https://taccisum.github.io/categories/source/zuul/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>https://taccisum.github.io/source/zuul/debug_env.html</loc>
+    <lastmod>2018-12-10T09:54:48.044Z</lastmod>
+    <data>
+        <display>
+        <title>zuul源码解析 —— 搭建调试环境</title>
+        <pubTime>2018-11-29T02:49:29.000Z</pubTime>
+        
+         
+           
+             
+              <breadCrumb title="source" url="https://taccisum.github.io/categories/source/"/>
+          
+             
+              <breadCrumb title="zuul" url="https://taccisum.github.io/categories/source/zuul/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>https://taccisum.github.io/source/zuul/filters/route.html</loc>
+    <lastmod>2018-12-10T09:54:48.043Z</lastmod>
+    <data>
+        <display>
+        <title>zuul源码解析 —— Route类型过滤器</title>
+        <pubTime>2018-12-01T06:17:48.000Z</pubTime>
+        
+         
+           
+             
+              <breadCrumb title="source" url="https://taccisum.github.io/categories/source/"/>
+          
+             
+              <breadCrumb title="zuul" url="https://taccisum.github.io/categories/source/zuul/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>https://taccisum.github.io/source/zuul/filters/pre.html</loc>
+    <lastmod>2018-12-10T09:54:48.043Z</lastmod>
+    <data>
+        <display>
+        <title>zuul源码解析 —— Pre和其它类型的过滤器</title>
+        <pubTime>2018-12-01T06:17:36.000Z</pubTime>
+        
+         
+           
+             
+              <breadCrumb title="source" url="https://taccisum.github.io/categories/source/"/>
+          
+             
+              <breadCrumb title="zuul" url="https://taccisum.github.io/categories/source/zuul/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>https://taccisum.github.io/UNIX_basic_knowledge.html</loc>
+    <lastmod>2018-12-10T09:54:48.042Z</lastmod>
+    <data>
+        <display>
+        <title>UNIX基础知识</title>
+        <pubTime>2018-09-30T01:45:57.000Z</pubTime>
+        
+         
+           
+             
+              <breadCrumb title="UNIX" url="https://taccisum.github.io/categories/UNIX/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>https://taccisum.github.io/source/zuul/filters/post.html</loc>
+    <lastmod>2018-12-10T09:54:48.042Z</lastmod>
+    <data>
+        <display>
+        <title>zuul源码解析 —— Post类型过滤器</title>
+        <pubTime>2018-12-01T06:17:54.000Z</pubTime>
+        
+         
+           
+             
+              <breadCrumb title="source" url="https://taccisum.github.io/categories/source/"/>
+          
+             
+              <breadCrumb title="zuul" url="https://taccisum.github.io/categories/source/zuul/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>https://taccisum.github.io/redisson%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html</loc>
+    <lastmod>2018-09-29T08:48:47.866Z</lastmod>
+    <data>
+        <display>
+        <title>redisson学习笔记</title>
+        <pubTime>2018-09-21T05:57:48.000Z</pubTime>
+        
+         
+           
+             
+              <breadCrumb title="java" url="https://taccisum.github.io/categories/java/"/>
+          
+             
+              <breadCrumb title="redisson" url="https://taccisum.github.io/categories/java/redisson/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
   <url>
     <loc>https://taccisum.github.io/zuul_hystrix_default_timeout_config_invalid_reason_research.html</loc>
-    <lastmod>2018-08-30T10:53:53.646Z</lastmod>
+    <lastmod>2018-09-03T02:00:46.187Z</lastmod>
     <data>
         <display>
         <title>zuul中hystrix默认timeout配置失效的原因</title>
@@ -24,6 +253,7 @@
     </data>
     </url>
 
+    
     
   <url>
     <loc>https://taccisum.github.io/openfeign_research_and_application.html</loc>
@@ -45,7 +275,6 @@
     </data>
     </url>
 
-    
     
   <url>
     <loc>https://taccisum.github.io/outbound_rule_invalid_cause_by_urlrewritefilter_and_shirofilter.html</loc>
@@ -235,7 +464,6 @@
     </data>
     </url>
 
-    
     
     
     

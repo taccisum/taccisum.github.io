@@ -155,7 +155,8 @@
 
 
 
-<link rel="stylesheet" href="/css/prism-ghcolors.css" type="text/css"></head>
+<link rel="stylesheet" href="/css/prism-ghcolors.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="en">
 
@@ -407,11 +408,11 @@
 
       
         <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><h2 id="openfeign"><a href="#openfeign" class="headerlink" title="openfeign"></a>openfeign</h2><p>openfeign，简称feign，是netflix开源的技术栈之一。<br>feign的主旨是使得编写java http客户端更容易。为了贯彻这个理念，feign采用了通过处理注解来自动生成请求的方式（官方称呼为<code>声明式</code>、<code>模板化</code>）。因此，基于feign编写的http客户端画风看起来是这样的</p>
-<pre class=" language-java"><code class="language-java"><span class="token keyword">interface</span> <span class="token class-name">Bank</span> <span class="token punctuation">{</span>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token keyword">interface</span> <span class="token class-name">Bank</span> <span class="token punctuation">{</span>
   <span class="token annotation punctuation">@RequestLine</span><span class="token punctuation">(</span><span class="token string">"POST /account/{id}"</span><span class="token punctuation">)</span>
   Account <span class="token function">getAccountInfo</span><span class="token punctuation">(</span><span class="token annotation punctuation">@Param</span><span class="token punctuation">(</span><span class="token string">"id"</span><span class="token punctuation">)</span> String id<span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token punctuation">}</span>
-</code></pre>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
 <p>然后通过一系列操作可以为Bank接口在运行时自动生成对应的实现。通过这个实现我们就可以在java中像调用一个本地方法一样完成一次http请求，大大减少了编码成本，同时提高了代码可读性。</p>
 <h2 id="spring-cloud-openfeign"><a href="#spring-cloud-openfeign" class="headerlink" title="spring-cloud-openfeign"></a>spring-cloud-openfeign</h2><p>spring-cloud-feign基于自动配置功能（autoconfiguration），为spring boot应用提供openfiegn的集成：</p>
 <ul>
@@ -426,7 +427,7 @@
 <h1 id="常见问题及解决方案"><a href="#常见问题及解决方案" class="headerlink" title="常见问题及解决方案"></a>常见问题及解决方案</h1><h2 id="处理响应数据的通用部分"><a href="#处理响应数据的通用部分" class="headerlink" title="处理响应数据的通用部分"></a>处理响应数据的通用部分</h2><p>api响应数据格式，一般而言除实际的业务数据外是固定的格式，其中包括了对此次请求的处理信息描述。对于这部分数据，应由feign进行统一处理。</p>
 <h3 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h3><p>feignclient是通过Decoder来对请求响应进行处理的，因此可以使用自定义的Decoder来处理响应数据的通用部分。</p>
 <p>例如可以定义一个<code>UnwrapRestfulApiResponseSpringDecoder</code>来对<code>RestfulApiResponse</code>进行自动拆包操作，并通过<code>@FeignClient</code>的<code>configuration</code>属性配置其使用的Decoder。</p>
-<pre class=" language-java"><code class="language-java"><span class="token annotation punctuation">@FeignClient</span><span class="token punctuation">(</span>name <span class="token operator">=</span> AuthCenter<span class="token punctuation">.</span>SERVICE_NAME<span class="token punctuation">,</span> path <span class="token operator">=</span> RMIPath<span class="token punctuation">.</span>USER<span class="token punctuation">,</span> configuration <span class="token operator">=</span> TenantUserClient<span class="token punctuation">.</span>Configuration<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">)</span>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token annotation punctuation">@FeignClient</span><span class="token punctuation">(</span>name <span class="token operator">=</span> AuthCenter<span class="token punctuation">.</span>SERVICE_NAME<span class="token punctuation">,</span> path <span class="token operator">=</span> RMIPath<span class="token punctuation">.</span>USER<span class="token punctuation">,</span> configuration <span class="token operator">=</span> TenantUserClient<span class="token punctuation">.</span>Configuration<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">)</span>
 <span class="token keyword">public</span> <span class="token keyword">interface</span> <span class="token class-name">TenantUserClient</span> <span class="token punctuation">{</span>
     <span class="token keyword">class</span> <span class="token class-name">Configuration</span> <span class="token punctuation">{</span>
         <span class="token annotation punctuation">@Autowired</span>
@@ -438,13 +439,13 @@
         <span class="token punctuation">}</span>
     <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
-</code></pre>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <h2 id="本地调用需要注册到注册中心导致服务不可用的问题"><a href="#本地调用需要注册到注册中心导致服务不可用的问题" class="headerlink" title="本地调用需要注册到注册中心导致服务不可用的问题"></a>本地调用需要注册到注册中心导致服务不可用的问题</h2><p>在实际开发过程中，有时会出现需要在本地调用远程服务来进行调试的情况，此时我们需要将本地的应用注册到注册中心。而一旦这样做，会导致该服务存在多个节点（一个远程一个本地），从而导致依赖该服务的应用软负载均衡负载到本地节点时会失败。</p>
 <h3 id="解决方案-1"><a href="#解决方案-1" class="headerlink" title="解决方案"></a>解决方案</h3><h4 id="1-不通过注册中心获取信息，使用直接指定url的方式调用（✘不推荐）"><a href="#1-不通过注册中心获取信息，使用直接指定url的方式调用（✘不推荐）" class="headerlink" title="1. 不通过注册中心获取信息，使用直接指定url的方式调用（✘不推荐）"></a>1. 不通过注册中心获取信息，使用直接指定url的方式调用（✘不推荐）</h4><p><strong>参考代码</strong></p>
-<pre class=" language-java"><code class="language-java"><span class="token annotation punctuation">@FeignClient</span><span class="token punctuation">(</span>name <span class="token operator">=</span> <span class="token string">"sysinfo-service"</span> <span class="token punctuation">,</span>url <span class="token operator">=</span> <span class="token string">"http://49.4.7.72"</span><span class="token punctuation">,</span> path <span class="token operator">=</span> <span class="token string">"/"</span><span class="token punctuation">)</span>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token annotation punctuation">@FeignClient</span><span class="token punctuation">(</span>name <span class="token operator">=</span> <span class="token string">"sysinfo-service"</span> <span class="token punctuation">,</span>url <span class="token operator">=</span> <span class="token string">"http://49.4.7.72"</span><span class="token punctuation">,</span> path <span class="token operator">=</span> <span class="token string">"/"</span><span class="token punctuation">)</span>
 <span class="token keyword">public</span> <span class="token keyword">interface</span> <span class="token class-name">SysinfoClient</span> <span class="token punctuation">{</span>
 <span class="token punctuation">}</span>
-</code></pre>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
 <p>此方案优点是简单易用，但缺点也很明显：</p>
 <ol>
 <li>在应用实际上线时需要将调用方式修改为通过注册中心调用，否则client将无法进行负载均衡，因此需要频繁改动代码</li>
@@ -454,15 +455,15 @@
 <p>由于存在上述缺点，现一般<strong>不推荐</strong>使用该方案。</p>
 <h4 id="2-使用打桩的方式与远程服务解耦（✔推荐）"><a href="#2-使用打桩的方式与远程服务解耦（✔推荐）" class="headerlink" title="2. 使用打桩的方式与远程服务解耦（✔推荐）"></a>2. 使用打桩的方式与远程服务解耦（✔推荐）</h4><p>大致思路为，通过Spring的<code>@Profile</code>注解，在不同的环境为应用注册不同的client bean（例如在本地环境使用Hard Code bean，而在非本地环境则使用远程调用的client bean）。</p>
 <p><strong>参考代码</strong><br><strong>ClientConfiguration.java</strong></p>
-<pre class=" language-java"><code class="language-java"><span class="token annotation punctuation">@EnableAuthClient</span>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token annotation punctuation">@EnableAuthClient</span>
 <span class="token annotation punctuation">@EnableFeignClients</span><span class="token punctuation">(</span>basePackages <span class="token operator">=</span> <span class="token string">"com.cheegu.icm.biz.foo.client"</span><span class="token punctuation">)</span>
 <span class="token annotation punctuation">@Configuration</span>
 <span class="token annotation punctuation">@Profile</span><span class="token punctuation">(</span><span class="token punctuation">{</span>SpringProfiles<span class="token punctuation">.</span>DEV<span class="token punctuation">,</span> SpringProfiles<span class="token punctuation">.</span>TEST<span class="token punctuation">,</span> SpringProfiles<span class="token punctuation">.</span>PROD<span class="token punctuation">}</span><span class="token punctuation">)</span>
 <span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">ClientConfiguration</span> <span class="token punctuation">{</span>
 <span class="token punctuation">}</span>
-</code></pre>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <p><strong>MockClientConfiguration.java</strong></p>
-<pre class=" language-java"><code class="language-java"><span class="token annotation punctuation">@Configuration</span>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token annotation punctuation">@Configuration</span>
 <span class="token annotation punctuation">@Profile</span><span class="token punctuation">(</span>SpringProfiles<span class="token punctuation">.</span>LOCAL<span class="token punctuation">)</span>
 <span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">MockClientConfiguration</span> <span class="token punctuation">{</span>
     <span class="token annotation punctuation">@Bean</span>
@@ -490,11 +491,11 @@
         <span class="token punctuation">}</span><span class="token punctuation">;</span>
     <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
-</code></pre>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <h2 id="如何在调用时带上请求头"><a href="#如何在调用时带上请求头" class="headerlink" title="如何在调用时带上请求头"></a>如何在调用时带上请求头</h2><p>在使用客户端进行调用时，有时会需要带上某些请求头（例如认证token），但又不希望在代码中手动去做这些操作。</p>
 <h3 id="解决方案-2"><a href="#解决方案-2" class="headerlink" title="解决方案"></a>解决方案</h3><p>可以通过实现feign提供的<code>RequestInterceptor</code>接口来对请求进行切面处理。这样每次通过client发起请求时都会由feign interceptor进行拦截，为请求添加headers。</p>
 <p><strong>参考代码</strong></p>
-<pre class=" language-java"><code class="language-java"><span class="token annotation punctuation">@Configuration</span>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token annotation punctuation">@Configuration</span>
 <span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">AppConfiguration</span> <span class="token keyword">implements</span> <span class="token class-name">EnvironmentAware</span> <span class="token punctuation">{</span>
     <span class="token keyword">private</span> Environment environment<span class="token punctuation">;</span>
 
@@ -509,28 +510,28 @@
         <span class="token keyword">this</span><span class="token punctuation">.</span>environment <span class="token operator">=</span> environment<span class="token punctuation">;</span>
     <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
-</code></pre>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <h2 id="指定了get方法，但feign仍然使用了post方法进行请求"><a href="#指定了get方法，但feign仍然使用了post方法进行请求" class="headerlink" title="指定了get方法，但feign仍然使用了post方法进行请求"></a>指定了get方法，但feign仍然使用了post方法进行请求</h2><p>如下代码所示</p>
-<pre class=" language-java"><code class="language-java"><span class="token annotation punctuation">@FeignClient</span><span class="token punctuation">(</span><span class="token string">"microservice-provider-user"</span><span class="token punctuation">)</span>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token annotation punctuation">@FeignClient</span><span class="token punctuation">(</span><span class="token string">"microservice-provider-user"</span><span class="token punctuation">)</span>
 <span class="token keyword">public</span> <span class="token keyword">interface</span> <span class="token class-name">UserFeignClient</span> <span class="token punctuation">{</span>
   <span class="token annotation punctuation">@RequestMapping</span><span class="token punctuation">(</span>value <span class="token operator">=</span> <span class="token string">"/get"</span><span class="token punctuation">,</span> method <span class="token operator">=</span> RequestMethod<span class="token punctuation">.</span>GET<span class="token punctuation">)</span>
   <span class="token keyword">public</span> User <span class="token function">get0</span><span class="token punctuation">(</span>User user<span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token punctuation">}</span>
-</code></pre>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <p>通过<code>@RequestMapping</code>的method属性指定了请求方法为GET，但实际运行会发现feign仍然使用了POST方法进行了调用。</p>
 <h3 id="解决方案-3"><a href="#解决方案-3" class="headerlink" title="解决方案"></a>解决方案</h3><p>这种写法并不正确，正确写法有二：</p>
-<h4 id="1-通过-RequestParam指定url参数名"><a href="#1-通过-RequestParam指定url参数名" class="headerlink" title="1. 通过@RequestParam指定url参数名"></a>1. 通过@RequestParam指定url参数名</h4><pre class=" language-java"><code class="language-java"><span class="token annotation punctuation">@FeignClient</span><span class="token punctuation">(</span>name <span class="token operator">=</span> <span class="token string">"microservice-provider-user"</span><span class="token punctuation">)</span>
+<h4 id="1-通过-RequestParam指定url参数名"><a href="#1-通过-RequestParam指定url参数名" class="headerlink" title="1. 通过@RequestParam指定url参数名"></a>1. 通过@RequestParam指定url参数名</h4><pre class="line-numbers language-java"><code class="language-java"><span class="token annotation punctuation">@FeignClient</span><span class="token punctuation">(</span>name <span class="token operator">=</span> <span class="token string">"microservice-provider-user"</span><span class="token punctuation">)</span>
 <span class="token keyword">public</span> <span class="token keyword">interface</span> <span class="token class-name">UserFeignClient</span> <span class="token punctuation">{</span>
   <span class="token annotation punctuation">@RequestMapping</span><span class="token punctuation">(</span>value <span class="token operator">=</span> <span class="token string">"/get"</span><span class="token punctuation">,</span> method <span class="token operator">=</span> RequestMethod<span class="token punctuation">.</span>GET<span class="token punctuation">)</span>
   <span class="token keyword">public</span> User <span class="token function">get1</span><span class="token punctuation">(</span><span class="token annotation punctuation">@RequestParam</span><span class="token punctuation">(</span><span class="token string">"id"</span><span class="token punctuation">)</span> Long id<span class="token punctuation">,</span> <span class="token annotation punctuation">@RequestParam</span><span class="token punctuation">(</span><span class="token string">"username"</span><span class="token punctuation">)</span> String username<span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token punctuation">}</span>
-</code></pre>
-<h4 id="2-当目标url参数较多时，可使用map来构建"><a href="#2-当目标url参数较多时，可使用map来构建" class="headerlink" title="2. 当目标url参数较多时，可使用map来构建"></a>2. 当目标url参数较多时，可使用map来构建</h4><pre class=" language-java"><code class="language-java"><span class="token annotation punctuation">@FeignClient</span><span class="token punctuation">(</span>name <span class="token operator">=</span> <span class="token string">"microservice-provider-user"</span><span class="token punctuation">)</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h4 id="2-当目标url参数较多时，可使用map来构建"><a href="#2-当目标url参数较多时，可使用map来构建" class="headerlink" title="2. 当目标url参数较多时，可使用map来构建"></a>2. 当目标url参数较多时，可使用map来构建</h4><pre class="line-numbers language-java"><code class="language-java"><span class="token annotation punctuation">@FeignClient</span><span class="token punctuation">(</span>name <span class="token operator">=</span> <span class="token string">"microservice-provider-user"</span><span class="token punctuation">)</span>
 <span class="token keyword">public</span> <span class="token keyword">interface</span> <span class="token class-name">UserFeignClient</span> <span class="token punctuation">{</span>
   <span class="token annotation punctuation">@RequestMapping</span><span class="token punctuation">(</span>value <span class="token operator">=</span> <span class="token string">"/get"</span><span class="token punctuation">,</span> method <span class="token operator">=</span> RequestMethod<span class="token punctuation">.</span>GET<span class="token punctuation">)</span>
   <span class="token keyword">public</span> User <span class="token function">get2</span><span class="token punctuation">(</span><span class="token annotation punctuation">@RequestParam</span> Map<span class="token operator">&lt;</span>String<span class="token punctuation">,</span> Object<span class="token operator">></span> map<span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token punctuation">}</span>
-</code></pre>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <h2 id="使用MultipartFile类型作为请求参数"><a href="#使用MultipartFile类型作为请求参数" class="headerlink" title="使用MultipartFile类型作为请求参数"></a>使用MultipartFile类型作为请求参数</h2><p>有时对外提供的接口调用可能需要传送文件，此时需要对<code>MultipartFile</code>类型的参数进行处理</p>
 <h3 id="解决方案-4"><a href="#解决方案-4" class="headerlink" title="解决方案"></a>解决方案</h3><p><strong>待补充</strong></p>
 
@@ -646,7 +647,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-count">23</span>
                 <span class="site-state-item-name">posts</span>
               </a>
             </div>
@@ -657,7 +658,7 @@
             
             <div class="site-state-item site-state-categories">
               <a href="/categories/index.html">
-                <span class="site-state-item-count">10</span>
+                <span class="site-state-item-count">18</span>
                 <span class="site-state-item-name">categories</span>
               </a>
             </div>
@@ -749,7 +750,7 @@
 </div>
 
 <div>
-  <span class="post-count">12.8k words</span>
+  <span class="post-count">25.1k words</span>
 </div>
         
 

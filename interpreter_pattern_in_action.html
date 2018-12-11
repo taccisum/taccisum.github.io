@@ -157,7 +157,8 @@
 
 
 
-<link rel="stylesheet" href="/css/prism-ghcolors.css" type="text/css"></head>
+<link rel="stylesheet" href="/css/prism-ghcolors.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="en">
 
@@ -425,24 +426,24 @@
 <p><strong>NumberExpression</strong>: 数值表达式（也称<code>终结点表达式</code>，意为表达式解析的终结点，可以简单理解为树型结构的叶子节点），执行interpret()一般会得到一个常量供复合表达式计算</p>
 <p><strong>MultiplyExpression</strong>: 复合表达式（也称<code>非终结点表达式</code>，可以简单理解为树型结构的枝节点），一般包括一个或多个Expression类型的子节点，子节点数即代表该复合表达式的操作数数量，执行interpret()一般会得到其子节点互相作用后的结果</p>
 <h2 id="编码实践"><a href="#编码实践" class="headerlink" title="编码实践"></a>编码实践</h2><p>为了节省篇幅，这里只贴出部分重要代码，完整代码可从开头的源码地址下载。</p>
-<h3 id="简单四则运算"><a href="#简单四则运算" class="headerlink" title="简单四则运算"></a>简单四则运算</h3><h4 id="单元测试类"><a href="#单元测试类" class="headerlink" title="单元测试类"></a>单元测试类</h4><pre class=" language-text"><code class="language-text">cn.tac.test.interpreter.arithmetic.simple.SimpleCalculatorTest
-</code></pre>
+<h3 id="简单四则运算"><a href="#简单四则运算" class="headerlink" title="简单四则运算"></a>简单四则运算</h3><h4 id="单元测试类"><a href="#单元测试类" class="headerlink" title="单元测试类"></a>单元测试类</h4><pre class="line-numbers language-text"><code class="language-text">cn.tac.test.interpreter.arithmetic.simple.SimpleCalculatorTest
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 <h4 id="实现效果"><a href="#实现效果" class="headerlink" title="实现效果"></a>实现效果</h4><p>支持最简单的四则运算，不支持括弧运算，不支持优先级运算符。因为语言文法较简单，所以解析器较易实现，适合作为Hello World。</p>
 <h4 id="相关类"><a href="#相关类" class="headerlink" title="相关类"></a>相关类</h4><p><strong>Node</strong>: 即Expression</p>
-<pre class=" language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">interface</span> <span class="token class-name">Node</span> <span class="token punctuation">{</span>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">interface</span> <span class="token class-name">Node</span> <span class="token punctuation">{</span>
     <span class="token keyword">int</span> <span class="token function">interpret</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token punctuation">}</span>
-</code></pre>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
 <p><strong>ValueNode</strong>: 即NumberExpression，代表操作数</p>
-<pre class=" language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">abstract</span> <span class="token keyword">class</span> <span class="token class-name">ValueNode</span> <span class="token keyword">implements</span> <span class="token class-name">Node</span><span class="token punctuation">{</span>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">abstract</span> <span class="token keyword">class</span> <span class="token class-name">ValueNode</span> <span class="token keyword">implements</span> <span class="token class-name">Node</span><span class="token punctuation">{</span>
     <span class="token keyword">protected</span> <span class="token keyword">int</span> value<span class="token punctuation">;</span>
     <span class="token keyword">public</span> <span class="token function">ValueNode</span><span class="token punctuation">(</span><span class="token keyword">int</span> value<span class="token punctuation">)</span> <span class="token punctuation">{</span>
         <span class="token keyword">this</span><span class="token punctuation">.</span>value <span class="token operator">=</span> value<span class="token punctuation">;</span>
     <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
-</code></pre>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <p><strong>SymbolNode</strong>: 即MultiplyExpression，代表运算符（如+-*/），因为均为<code>二元操作符</code>，所以只有两个子节点</p>
-<pre class=" language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">abstract</span> <span class="token keyword">class</span> <span class="token class-name">SymbolNode</span> <span class="token keyword">implements</span> <span class="token class-name">Node</span> <span class="token punctuation">{</span>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">abstract</span> <span class="token keyword">class</span> <span class="token class-name">SymbolNode</span> <span class="token keyword">implements</span> <span class="token class-name">Node</span> <span class="token punctuation">{</span>
     <span class="token keyword">protected</span> Node left<span class="token punctuation">;</span>
     <span class="token keyword">protected</span> Node right<span class="token punctuation">;</span>
     <span class="token keyword">public</span> <span class="token function">SymbolNode</span><span class="token punctuation">(</span>Node left<span class="token punctuation">,</span> Node right<span class="token punctuation">)</span> <span class="token punctuation">{</span>
@@ -450,9 +451,9 @@
         <span class="token keyword">this</span><span class="token punctuation">.</span>right <span class="token operator">=</span> right<span class="token punctuation">;</span>
     <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
-</code></pre>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <p><strong>SimpleValueNode</strong>: 简单地返回数值本身</p>
-<pre class=" language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">SimpleValueNode</span> <span class="token keyword">extends</span> <span class="token class-name">ValueNode</span> <span class="token punctuation">{</span>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">SimpleValueNode</span> <span class="token keyword">extends</span> <span class="token class-name">ValueNode</span> <span class="token punctuation">{</span>
     <span class="token keyword">public</span> <span class="token function">SimpleValueNode</span><span class="token punctuation">(</span><span class="token keyword">int</span> value<span class="token punctuation">)</span> <span class="token punctuation">{</span>
         <span class="token keyword">super</span><span class="token punctuation">(</span>value<span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token punctuation">}</span>
@@ -460,9 +461,9 @@
         <span class="token keyword">return</span> value<span class="token punctuation">;</span>
     <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
-</code></pre>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <p><strong>运算符节点</strong>: 代表+-*/</p>
-<pre class=" language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">PlusNode</span> <span class="token keyword">extends</span> <span class="token class-name">SymbolNode</span> <span class="token punctuation">{</span>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">PlusNode</span> <span class="token keyword">extends</span> <span class="token class-name">SymbolNode</span> <span class="token punctuation">{</span>
     <span class="token keyword">public</span> <span class="token function">PlusNode</span><span class="token punctuation">(</span>Node left<span class="token punctuation">,</span> Node right<span class="token punctuation">)</span> <span class="token punctuation">{</span>
         <span class="token keyword">super</span><span class="token punctuation">(</span>left<span class="token punctuation">,</span> right<span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token punctuation">}</span>
@@ -473,9 +474,9 @@
 <span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">MinusNode</span> extend SymbolNode<span class="token punctuation">{</span>……<span class="token punctuation">}</span>
 <span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">MulNode</span> extend SymbolNode<span class="token punctuation">{</span>……<span class="token punctuation">}</span>
 <span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">DivNode</span> extend SymbolNode<span class="token punctuation">{</span>……<span class="token punctuation">}</span>
-</code></pre>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <p><strong>Parser</strong>:</p>
-<pre class=" language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">Parser</span> <span class="token punctuation">{</span>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">Parser</span> <span class="token punctuation">{</span>
     <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">final</span> String SPLITTER <span class="token operator">=</span> <span class="token string">" "</span><span class="token punctuation">;</span>  <span class="token comment" spellcheck="true">//为了方便解析，用空格将表达式分隔开</span>
     <span class="token keyword">public</span> Node <span class="token function">parse</span><span class="token punctuation">(</span>String statement<span class="token punctuation">)</span> <span class="token punctuation">{</span>
         String<span class="token punctuation">[</span><span class="token punctuation">]</span> arr <span class="token operator">=</span> statement<span class="token punctuation">.</span><span class="token function">split</span><span class="token punctuation">(</span>SPLITTER<span class="token punctuation">)</span><span class="token punctuation">;</span>
@@ -504,29 +505,29 @@
     <span class="token punctuation">}</span>
     ……
 <span class="token punctuation">}</span>
-</code></pre>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <p><strong>Calculator</strong>: </p>
-<pre class=" language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">SimpleCalculator</span> <span class="token punctuation">{</span>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">SimpleCalculator</span> <span class="token punctuation">{</span>
     <span class="token keyword">public</span> <span class="token keyword">int</span> <span class="token function">calculate</span><span class="token punctuation">(</span>String statement<span class="token punctuation">)</span><span class="token punctuation">{</span>
         Parser parser <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Parser</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
         <span class="token keyword">return</span> parser<span class="token punctuation">.</span><span class="token function">parse</span><span class="token punctuation">(</span>statement<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">interpret</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
-</code></pre>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <h5 id="Parser解析过程"><a href="#Parser解析过程" class="headerlink" title="Parser解析过程"></a>Parser解析过程</h5><ol>
 <li>将表达式分割为数组，并遍历</li>
 <li>从数组中获取一个元素，若为数值，则直接转换为节点并入栈；若为运算符，则只进行标记，等待下一个节点入栈后，将其与上一个节点一同取出，并合并为一个复合表达式节点入栈；</li>
 <li>反复执行步骤2，直到数组末尾</li>
 <li>将栈中的元素pop并返回（如果表达式无误，最终栈中应该只有一个元素，否则应该在解析过程中抛出异常）</li>
 </ol>
-<h3 id="完整四则运算"><a href="#完整四则运算" class="headerlink" title="完整四则运算"></a>完整四则运算</h3><h4 id="单元测试类-1"><a href="#单元测试类-1" class="headerlink" title="单元测试类"></a>单元测试类</h4><pre class=" language-java"><code class="language-java">cn<span class="token punctuation">.</span>tac<span class="token punctuation">.</span>test<span class="token punctuation">.</span>interpreter<span class="token punctuation">.</span>arithmetic<span class="token punctuation">.</span>full<span class="token punctuation">.</span>FullCalculatorTest
+<h3 id="完整四则运算"><a href="#完整四则运算" class="headerlink" title="完整四则运算"></a>完整四则运算</h3><h4 id="单元测试类-1"><a href="#单元测试类-1" class="headerlink" title="单元测试类"></a>单元测试类</h4><pre class="line-numbers language-java"><code class="language-java">cn<span class="token punctuation">.</span>tac<span class="token punctuation">.</span>test<span class="token punctuation">.</span>interpreter<span class="token punctuation">.</span>arithmetic<span class="token punctuation">.</span>full<span class="token punctuation">.</span>FullCalculatorTest
 cn<span class="token punctuation">.</span>tac<span class="token punctuation">.</span>test<span class="token punctuation">.</span>interpreter<span class="token punctuation">.</span>arithmetic<span class="token punctuation">.</span>full<span class="token punctuation">.</span>ParserTest
-</code></pre>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
 <h4 id="实现效果-1"><a href="#实现效果-1" class="headerlink" title="实现效果"></a>实现效果</h4><p>支持完整的四则运算，包括括弧运算，优先级运算。由于相较于上一个实践文法上复杂了许多，不能用同样的方式直接解析，而是应该先转换为<code>后缀表达式</code>再进行解析。</p>
 <h4 id="后缀表达式"><a href="#后缀表达式" class="headerlink" title="后缀表达式"></a>后缀表达式</h4><p>// todo::</p>
 <h4 id="相关类-1"><a href="#相关类-1" class="headerlink" title="相关类"></a>相关类</h4><p><strong>节点</strong><br>值节点和运算符节点类仍采用和上个实践相同的类。</p>
 <p><strong>Parser</strong></p>
-<pre class=" language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">Parser</span> <span class="token punctuation">{</span>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">Parser</span> <span class="token punctuation">{</span>
     <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">final</span> String SPLITTER <span class="token operator">=</span> <span class="token string">" "</span><span class="token punctuation">;</span>
 
     <span class="token keyword">public</span> Node <span class="token function">parse</span><span class="token punctuation">(</span>String statement<span class="token punctuation">)</span> <span class="token punctuation">{</span>
@@ -597,15 +598,15 @@ cn<span class="token punctuation">.</span>tac<span class="token punctuation">.</
     <span class="token punctuation">}</span>
     ……
 <span class="token punctuation">}</span>
-</code></pre>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <p><strong>Calculator</strong></p>
-<pre class=" language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">FullCalculator</span> <span class="token punctuation">{</span>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">FullCalculator</span> <span class="token punctuation">{</span>
     <span class="token keyword">public</span> <span class="token keyword">int</span> <span class="token function">calculate</span><span class="token punctuation">(</span>String statement<span class="token punctuation">)</span><span class="token punctuation">{</span>
         Parser parser <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Parser</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
         <span class="token keyword">return</span> parser<span class="token punctuation">.</span><span class="token function">parse</span><span class="token punctuation">(</span>statement<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">interpret</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
-</code></pre>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <h5 id="Parser解析过程-1"><a href="#Parser解析过程-1" class="headerlink" title="Parser解析过程"></a>Parser解析过程</h5><p>主要分为两大步骤<br><strong>一、将中缀表达式转换为后缀表达式</strong></p>
 <ol>
 <li>将表达式分割为数组，并遍历</li>
@@ -748,7 +749,7 @@ cn<span class="token punctuation">.</span>tac<span class="token punctuation">.</
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-count">23</span>
                 <span class="site-state-item-name">posts</span>
               </a>
             </div>
@@ -759,7 +760,7 @@ cn<span class="token punctuation">.</span>tac<span class="token punctuation">.</
             
             <div class="site-state-item site-state-categories">
               <a href="/categories/index.html">
-                <span class="site-state-item-count">10</span>
+                <span class="site-state-item-count">18</span>
                 <span class="site-state-item-name">categories</span>
               </a>
             </div>
@@ -851,7 +852,7 @@ cn<span class="token punctuation">.</span>tac<span class="token punctuation">.</
 </div>
 
 <div>
-  <span class="post-count">12.8k words</span>
+  <span class="post-count">25.1k words</span>
 </div>
         
 
