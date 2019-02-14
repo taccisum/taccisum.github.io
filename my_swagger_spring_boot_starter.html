@@ -94,17 +94,17 @@
 
 
 
-<meta name="description" content="认识redisson来看下官方的介绍：  Redis based In-Memory Data Grid for Java. State of the Art Redis client.  可以知道，redisson是Java的一款redis客户端。 作为redis客户端，它和大名鼎鼎的jedis有什么区别呢？redisson的宗旨是促进使用者对redis的关注分离，从而让使用者能够将精力更集中地">
+<meta name="description" content="Spring Boot Starter Swagger简介Swagger与Spring Boot现在在Java Web开发领域是再常用不过的两个框架了。集成这两者的Starter现在在Github上也存在很多（基本都是非官方的，官方好像没有提供Starter），但是大多数或多或少都存在以下问题：  整合程度低，许多Springfox-Swagger2提供的功能无法通过Spring Boot的方式进">
 <meta property="og:type" content="article">
-<meta property="og:title" content="redisson学习笔记">
-<meta property="og:url" content="https://taccisum.github.io/redisson学习笔记.html">
+<meta property="og:title" content="一个很好用的Spring Boot Starter Swagger">
+<meta property="og:url" content="https://taccisum.github.io/my_swagger_spring_boot_starter.html">
 <meta property="og:site_name" content="taccisum 😉">
-<meta property="og:description" content="认识redisson来看下官方的介绍：  Redis based In-Memory Data Grid for Java. State of the Art Redis client.  可以知道，redisson是Java的一款redis客户端。 作为redis客户端，它和大名鼎鼎的jedis有什么区别呢？redisson的宗旨是促进使用者对redis的关注分离，从而让使用者能够将精力更集中地">
+<meta property="og:description" content="Spring Boot Starter Swagger简介Swagger与Spring Boot现在在Java Web开发领域是再常用不过的两个框架了。集成这两者的Starter现在在Github上也存在很多（基本都是非官方的，官方好像没有提供Starter），但是大多数或多或少都存在以下问题：  整合程度低，许多Springfox-Swagger2提供的功能无法通过Spring Boot的方式进">
 <meta property="og:locale" content="en">
-<meta property="og:updated_time" content="2018-09-29T08:48:47.866Z">
+<meta property="og:updated_time" content="2019-02-14T06:19:49.702Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="redisson学习笔记">
-<meta name="twitter:description" content="认识redisson来看下官方的介绍：  Redis based In-Memory Data Grid for Java. State of the Art Redis client.  可以知道，redisson是Java的一款redis客户端。 作为redis客户端，它和大名鼎鼎的jedis有什么区别呢？redisson的宗旨是促进使用者对redis的关注分离，从而让使用者能够将精力更集中地">
+<meta name="twitter:title" content="一个很好用的Spring Boot Starter Swagger">
+<meta name="twitter:description" content="Spring Boot Starter Swagger简介Swagger与Spring Boot现在在Java Web开发领域是再常用不过的两个框架了。集成这两者的Starter现在在Github上也存在很多（基本都是非官方的，官方好像没有提供Starter），但是大多数或多或少都存在以下问题：  整合程度低，许多Springfox-Swagger2提供的功能无法通过Spring Boot的方式进">
 
 
 
@@ -133,13 +133,13 @@
 
 
 
-  <link rel="canonical" href="https://taccisum.github.io/redisson学习笔记.html"/>
+  <link rel="canonical" href="https://taccisum.github.io/my_swagger_spring_boot_starter.html"/>
 
 
 
 
 
-  <title>redisson学习笔记 | taccisum 😉</title>
+  <title>一个很好用的Spring Boot Starter Swagger | taccisum 😉</title>
   
 
 
@@ -307,7 +307,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://taccisum.github.io/redisson学习笔记.html">
+    <link itemprop="mainEntityOfPage" href="https://taccisum.github.io/my_swagger_spring_boot_starter.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="taccisum">
@@ -324,7 +324,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">redisson学习笔记</h1>
+          <h1 class="post-title" itemprop="name headline">一个很好用的Spring Boot Starter Swagger</h1>
         
 
         <div class="post-meta">
@@ -336,8 +336,8 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-09-21T13:57:48+08:00">
-                2018-09-21
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-02-14T14:17:43+08:00">
+                2019-02-14
               </time>
             
 
@@ -359,8 +359,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/java/" itemprop="url" rel="index">
-                    <span itemprop="name">java</span>
+                  <a href="/categories/framework/" itemprop="url" rel="index">
+                    <span itemprop="name">framework</span>
                   </a>
                 </span>
 
@@ -370,8 +370,8 @@
                 
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/java/redisson/" itemprop="url" rel="index">
-                    <span itemprop="name">redisson</span>
+                  <a href="/categories/framework/starter/" itemprop="url" rel="index">
+                    <span itemprop="name">starter</span>
                   </a>
                 </span>
 
@@ -407,75 +407,44 @@
       
 
       
-        <h1 id="认识redisson"><a href="#认识redisson" class="headerlink" title="认识redisson"></a>认识redisson</h1><p>来看下官方的介绍：</p>
-<blockquote>
-<p>Redis based In-Memory Data Grid for Java. State of the Art Redis client.</p>
-</blockquote>
-<p>可以知道，redisson是Java的一款redis客户端。</p>
-<p>作为redis客户端，它和大名鼎鼎的<code>jedis</code>有什么区别呢？redisson的宗旨是促进使用者对redis的<strong>关注分离</strong>，从而让使用者能够将精力更集中地放在处理业务逻辑上。</p>
-<p>换句话说，redisson对redis的操作进行了一些更高级的抽象，使得我们能够轻松地实现一些复杂的功能，如一系列的<code>Java分布式对象</code>，常用的<code>分布式服务</code>等。而作为抽象的代价，就是丢失了对底层细节的掌控。</p>
-<h1 id="Getting-Start"><a href="#Getting-Start" class="headerlink" title="Getting Start"></a>Getting Start</h1><p>redisson官方就支持与spring-boot集成，因此根据<a href="https://github.com/redisson/redisson/tree/master/redisson-spring-boot-starter" target="_blank" rel="noopener">官方文档</a>直接依赖</p>
-<pre class="line-numbers language-xml"><code class="language-xml"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>dependency</span><span class="token punctuation">></span></span>
-    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>groupId</span><span class="token punctuation">></span></span>org.redisson<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>groupId</span><span class="token punctuation">></span></span>
-    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>artifactId</span><span class="token punctuation">></span></span>redisson-spring-boot-starter<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>artifactId</span><span class="token punctuation">></span></span>
-    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>version</span><span class="token punctuation">></span></span>3.8.0<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>version</span><span class="token punctuation">></span></span>
-<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>dependency</span><span class="token punctuation">></span></span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>再配置相关yaml，以最简单的本地单机模式启动</p>
-<p><strong>application.yaml</strong></p>
-<pre class="line-numbers language-yaml"><code class="language-yaml"><span class="token key atrule">spring</span><span class="token punctuation">:</span>
-  <span class="token key atrule">redis</span><span class="token punctuation">:</span>
-    <span class="token key atrule">redisson</span><span class="token punctuation">:</span>
-      <span class="token key atrule">config</span><span class="token punctuation">:</span> classpath<span class="token punctuation">:</span>redisson.yaml
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
-<p><strong>redisson.yaml</strong></p>
-<pre class="line-numbers language-yaml"><code class="language-yaml"><span class="token key atrule">singleServerConfig</span><span class="token punctuation">:</span>
-  <span class="token key atrule">address</span><span class="token punctuation">:</span> redis<span class="token punctuation">:</span>//127.0.0.1<span class="token punctuation">:</span><span class="token number">6379</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
-<p>然而添加依赖后直接启动spring boot应用居然报错了，注入<code>RedissonClient</code>失败！</p>
-<p>妈耶，Google了一下无果，直接看源码，居然发下<code>redisson-spring-boot-starter</code>这个包没有<code>spring.factories</code>文件，也即是说<code>RedissonAutoConfiguration</code>不会自动加载。。</p>
-<p>于是补上</p>
-<pre class="line-numbers language-java"><code class="language-java"><span class="token annotation punctuation">@SpringBootApplication</span>
-<span class="token annotation punctuation">@ImportAutoConfiguration</span><span class="token punctuation">(</span>RedissonAutoConfiguration<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">)</span>
-<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">Application</span> <span class="token punctuation">{</span>
-    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        SpringApplication<span class="token punctuation">.</span><span class="token function">run</span><span class="token punctuation">(</span>Application<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">,</span> args<span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-<span class="token punctuation">}</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>虽然不知道redisson官方出于什么原因没有提供<code>spring.factories</code>文件，总之再次启动，正常。</p>
-<h1 id="redisson锁"><a href="#redisson锁" class="headerlink" title="redisson锁"></a>redisson锁</h1><h2 id="实践"><a href="#实践" class="headerlink" title="实践"></a>实践</h2><h3 id="接口调用限制"><a href="#接口调用限制" class="headerlink" title="接口调用限制"></a>接口调用限制</h3><h1 id="redisson执行lua脚本"><a href="#redisson执行lua脚本" class="headerlink" title="redisson执行lua脚本"></a>redisson执行lua脚本</h1><p>redisson提供了很方便地执行lua脚本的方式</p>
-<pre class="line-numbers language-java"><code class="language-java">redissonClient<span class="token punctuation">.</span><span class="token function">getScript</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">eval</span><span class="token punctuation">(</span>
-    RScript<span class="token punctuation">.</span>Mode<span class="token punctuation">.</span>READ_ONLY<span class="token punctuation">,</span> <span class="token comment" spellcheck="true">//执行模式</span>
-    <span class="token string">"return redis.call('get', KEYS[1])"</span><span class="token punctuation">,</span>    <span class="token comment" spellcheck="true">// 要执行的lua脚本</span>
-    RScript<span class="token punctuation">.</span>ReturnType<span class="token punctuation">.</span>INTEGER<span class="token punctuation">,</span> <span class="token comment" spellcheck="true">// 返回值类型</span>
-    Lists<span class="token punctuation">.</span><span class="token function">newArrayList</span><span class="token punctuation">(</span><span class="token string">"tac"</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  <span class="token comment" spellcheck="true">// 传入KEYS</span>
-    <span class="token boolean">true</span><span class="token punctuation">,</span> 1L<span class="token punctuation">,</span> <span class="token string">"hello"</span>   <span class="token comment" spellcheck="true">//传入ARGV</span>
-<span class="token punctuation">)</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<blockquote>
-<p>更具体可以参考官方文档<a href="https://github.com/redisson/redisson/wiki/10.-%E9%A2%9D%E5%A4%96%E5%8A%9F%E8%83%BD#104-%E8%84%9A%E6%9C%AC%E6%89%A7%E8%A1%8C" target="_blank" rel="noopener">脚本执行</a></p>
-</blockquote>
-<h2 id="踩过的一些坑"><a href="#踩过的一些坑" class="headerlink" title="踩过的一些坑"></a>踩过的一些坑</h2><h3 id="传入的Boolean值参数会变成字符串"><a href="#传入的Boolean值参数会变成字符串" class="headerlink" title="传入的Boolean值参数会变成字符串"></a>传入的Boolean值参数会变成字符串</h3><p>假设通过redisson的eval()传入的<code>ARGV = false</code>，那么在lua脚本中</p>
-<pre class="line-numbers language-lua"><code class="language-lua"><span class="token function">print</span><span class="token punctuation">(</span><span class="token function">type</span><span class="token punctuation">(</span>ARGV<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">)</span>    <span class="token comment" spellcheck="true">--输出'string'</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-<h3 id="传入数值也会变成字符串，非int型则会被序列化存储"><a href="#传入数值也会变成字符串，非int型则会被序列化存储" class="headerlink" title="传入数值也会变成字符串，非int型则会被序列化存储"></a>传入数值也会变成字符串，非int型则会被序列化存储</h3><p>假设通过redisson的eval()传入的<code>ARGV = 1L</code>，那么在lua脚本中获取会变成</p>
-<pre class="line-numbers language-lua"><code class="language-lua"><span class="token function">print</span><span class="token punctuation">(</span>ARGV<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span>   <span class="token comment" spellcheck="true">--输出'["java.lang.Long",1]'</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-<p>若传入的是<code>ARGV = 1</code>，则</p>
-<pre class="line-numbers language-lua"><code class="language-lua"><span class="token function">print</span><span class="token punctuation">(</span>ARGV<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span>   <span class="token comment" spellcheck="true">--输出'1'</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-<h3 id="直接从redis-call-获取得值是int型，而在lua中进行了数值操作后得到的值却是long型"><a href="#直接从redis-call-获取得值是int型，而在lua中进行了数值操作后得到的值却是long型" class="headerlink" title="直接从redis.call()获取得值是int型，而在lua中进行了数值操作后得到的值却是long型"></a>直接从redis.call()获取得值是int型，而在lua中进行了数值操作后得到的值却是long型</h3><p>例如，以下结果是转换为<code>java.lang.Integer</code></p>
-<pre class="line-numbers language-lua"><code class="language-lua"><span class="token keyword">return</span> redis<span class="token punctuation">.</span><span class="token function">call</span><span class="token punctuation">(</span><span class="token string">'get'</span><span class="token punctuation">,</span> <span class="token string">'tac'</span><span class="token punctuation">)</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-<p>而以下结果却是转换为<code>java.lang.Long</code></p>
-<pre class="line-numbers language-lua"><code class="language-lua"><span class="token keyword">local</span> tac <span class="token operator">=</span> redis<span class="token punctuation">.</span><span class="token function">call</span><span class="token punctuation">(</span><span class="token string">'get'</span><span class="token punctuation">,</span> <span class="token string">'tac'</span><span class="token punctuation">)</span>
-<span class="token keyword">return</span> tac <span class="token operator">+</span> <span class="token number">1</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
-<h1 id="一些小细节"><a href="#一些小细节" class="headerlink" title="一些小细节"></a>一些小细节</h1><ul>
-<li>注意是redisson，不要写成redission</li>
-<li>redisson提供的所有类都是以R开头的，如RLock</li>
+        <h1 id="Spring-Boot-Starter-Swagger"><a href="#Spring-Boot-Starter-Swagger" class="headerlink" title="Spring Boot Starter Swagger"></a>Spring Boot Starter Swagger</h1><h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>Swagger与Spring Boot现在在Java Web开发领域是再常用不过的两个框架了。集成这两者的Starter现在在Github上也存在很多（基本都是非官方的，官方好像没有提供Starter），但是大多数或多或少都存在以下问题：</p>
+<ul>
+<li><strong>整合程度低</strong>，许多Springfox-Swagger2提供的功能无法通过Spring Boot的方式进行配置或者配置方式复杂</li>
+<li><strong>项目疏于维护</strong>，许多Issue没人去解决</li>
+<li><strong>扩展性不足</strong>，当用户出现一些需求时只能祈求项目更新或者自行修改源码</li>
+<li><strong>无法同时兼容Spring Boot1.x和Spring Boot2.x</strong></li>
 </ul>
+<p>我曾在Github上找了许久都没找到，索性自行开发了一个。</p>
+<p>这个Starter具有以下特点：</p>
+<ul>
+<li>完美适配springfox-swagger2，几乎支持通过yaml文件进行所有配置</li>
+<li>提供拦截器，允许用户自行扩展自定义配置</li>
+<li>同时支持spring boot1和spring boot2</li>
+<li>扩展了一些小功能，如展示当前hostname等</li>
+</ul>
+<p><a href="https://github.com/taccisum/spring-boot-starter-swagger" target="_blank" rel="noopener"><strong>项目地址</strong></a></p>
+<h2 id="如何使用"><a href="#如何使用" class="headerlink" title="如何使用"></a>如何使用</h2><p>引入依赖</p>
+<p><strong>pom.xml</strong></p>
+<pre class="line-numbers language-xml"><code class="language-xml"><span class="token comment" spellcheck="true">&lt;!-- spring boot1用户 --></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>dependency</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>groupId</span><span class="token punctuation">></span></span>com.github.taccisum<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>groupId</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>artifactId</span><span class="token punctuation">></span></span>swagger-spring-boot1-starter<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>artifactId</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>version</span><span class="token punctuation">></span></span>{lastest.version}<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>version</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>dependency</span><span class="token punctuation">></span></span>
+
+<span class="token comment" spellcheck="true">&lt;!-- spring boot2用户 --></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>dependency</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>groupId</span><span class="token punctuation">></span></span>com.github.taccisum<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>groupId</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>artifactId</span><span class="token punctuation">></span></span>swagger-spring-boot2-starter<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>artifactId</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>version</span><span class="token punctuation">></span></span>{lastest.version}<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>version</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>dependency</span><span class="token punctuation">></span></span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p><strong>application.yml</strong></p>
+<pre class="line-numbers language-yaml"><code class="language-yaml"><span class="token key atrule">swagger</span><span class="token punctuation">:</span>
+  <span class="token key atrule">base-package</span><span class="token punctuation">:</span> com.github.taccisum.controller
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<p>启动项目，打开 <a href="http://localhost:8080/swagger-ui.html" target="_blank" rel="noopener">http://localhost:8080/swagger-ui.html</a> 即可查看API文档。</p>
+<p>更多功能可以到 <a href="https://github.com/taccisum/spring-boot-starter-swagger" target="_blank" rel="noopener">https://github.com/taccisum/spring-boot-starter-swagger</a> 了解。</p>
 
       
     </div>
@@ -500,8 +469,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/zuul_hystrix_default_timeout_config_invalid_reason_research.html" rel="next" title="zuul中hystrix默认timeout配置失效的原因">
-                <i class="fa fa-chevron-left"></i> zuul中hystrix默认timeout配置失效的原因
+              <a href="/sourece/flowable/startup/spring_boot.html" rel="next" title="flowable启动流程解析（spring boot）">
+                <i class="fa fa-chevron-left"></i> flowable启动流程解析（spring boot）
               </a>
             
           </div>
@@ -509,10 +478,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/《摄影师的视界》阅读笔记.html" rel="prev" title="《摄影师的视界》阅读笔记">
-                《摄影师的视界》阅读笔记 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -661,7 +626,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#认识redisson"><span class="nav-number">1.</span> <span class="nav-text">认识redisson</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Getting-Start"><span class="nav-number">2.</span> <span class="nav-text">Getting Start</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#redisson锁"><span class="nav-number">3.</span> <span class="nav-text">redisson锁</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#实践"><span class="nav-number">3.1.</span> <span class="nav-text">实践</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#接口调用限制"><span class="nav-number">3.1.1.</span> <span class="nav-text">接口调用限制</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#redisson执行lua脚本"><span class="nav-number">4.</span> <span class="nav-text">redisson执行lua脚本</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#踩过的一些坑"><span class="nav-number">4.1.</span> <span class="nav-text">踩过的一些坑</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#传入的Boolean值参数会变成字符串"><span class="nav-number">4.1.1.</span> <span class="nav-text">传入的Boolean值参数会变成字符串</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#传入数值也会变成字符串，非int型则会被序列化存储"><span class="nav-number">4.1.2.</span> <span class="nav-text">传入数值也会变成字符串，非int型则会被序列化存储</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#直接从redis-call-获取得值是int型，而在lua中进行了数值操作后得到的值却是long型"><span class="nav-number">4.1.3.</span> <span class="nav-text">直接从redis.call()获取得值是int型，而在lua中进行了数值操作后得到的值却是long型</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#一些小细节"><span class="nav-number">5.</span> <span class="nav-text">一些小细节</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Spring-Boot-Starter-Swagger"><span class="nav-number">1.</span> <span class="nav-text">Spring Boot Starter Swagger</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#简介"><span class="nav-number">1.1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#如何使用"><span class="nav-number">1.2.</span> <span class="nav-text">如何使用</span></a></li></ol></li></ol></div>
             
 
           </div>

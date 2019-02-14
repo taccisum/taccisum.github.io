@@ -4,6 +4,29 @@
 
     
   <url>
+    <loc>https://taccisum.github.io/my_swagger_spring_boot_starter.html</loc>
+    <lastmod>2019-02-14T06:19:49.702Z</lastmod>
+    <data>
+        <display>
+        <title>一个很好用的Spring Boot Starter Swagger</title>
+        <pubTime>2019-02-14T06:17:43.000Z</pubTime>
+        
+         
+           
+             
+              <breadCrumb title="framework" url="https://taccisum.github.io/categories/framework/"/>
+          
+             
+              <breadCrumb title="starter" url="https://taccisum.github.io/categories/framework/starter/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+    
+    
+  <url>
     <loc>https://taccisum.github.io/source/zuul/home.html</loc>
     <lastmod>2018-12-11T09:20:44.211Z</lastmod>
     <data>
@@ -65,7 +88,6 @@
     </data>
     </url>
 
-    
     
     
   <url>
@@ -153,12 +175,12 @@
 
     
   <url>
-    <loc>https://taccisum.github.io/source/zuul/filters/route.html</loc>
+    <loc>https://taccisum.github.io/source/zuul/filters/pre.html</loc>
     <lastmod>2018-12-10T09:54:48.043Z</lastmod>
     <data>
         <display>
-        <title>zuul源码解析 —— Route类型过滤器</title>
-        <pubTime>2018-12-01T06:17:48.000Z</pubTime>
+        <title>zuul源码解析 —— Pre和其它类型的过滤器</title>
+        <pubTime>2018-12-01T06:17:36.000Z</pubTime>
         
          
            
@@ -174,12 +196,12 @@
 
     
   <url>
-    <loc>https://taccisum.github.io/source/zuul/filters/pre.html</loc>
+    <loc>https://taccisum.github.io/source/zuul/filters/route.html</loc>
     <lastmod>2018-12-10T09:54:48.043Z</lastmod>
     <data>
         <display>
-        <title>zuul源码解析 —— Pre和其它类型的过滤器</title>
-        <pubTime>2018-12-01T06:17:36.000Z</pubTime>
+        <title>zuul源码解析 —— Route类型过滤器</title>
+        <pubTime>2018-12-01T06:17:48.000Z</pubTime>
         
          
            

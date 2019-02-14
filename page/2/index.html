@@ -308,6 +308,186 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://taccisum.github.io/UNIX_basic_knowledge.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="taccisum">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/Avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="taccisum 😉">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/UNIX_basic_knowledge.html" itemprop="url">UNIX基础知识</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-09-30T09:45:57+08:00">
+                2018-09-30
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/UNIX/" itemprop="url" rel="index">
+                    <span itemprop="name">UNIX</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="UNIX基础知识"><a href="#UNIX基础知识" class="headerlink" title="UNIX基础知识"></a>UNIX基础知识</h1><h2 id="操作系统简介"><a href="#操作系统简介" class="headerlink" title="操作系统简介"></a>操作系统简介</h2><p>所有的操作系统都为它们所运行的程序提供服务，包括：执行新程序、打开文件、读写文件、分配存储区等。</p>
+<p>严格意义上说，操作系统也是一种软件，它控制计算机硬件资源，提供程序运行环境。通常将这种软件称为<code>内核</code>。内核的接口被称为<code>系统调用</code>，<code>公用函数库</code>建立在系统调用接口之上，<code>shell</code>则是一种特殊的应用程序，为其它应用程序提供接口。</p>
+<p>Linux是GNU操作系统使用的内核。</p>
+<p>每一个进程都有一个<code>工作目录</code>，所有的相对路径都从工作目录开始解释。</p>
+<h2 id="文件描述符"><a href="#文件描述符" class="headerlink" title="文件描述符"></a>文件描述符</h2><p><code>文件描述符</code>是内核用以标识一个特定进程正在访问的文件，进程读写文件时使用。</p>
+<p>每运行一个新程序时，所有的shell都为其打开3个文件描述符：<code>标准输入0</code>、<code>标准输出1</code>、<code>标准错误2</code>。如果不做特殊处理，则所这3个描述符都将链接向终端。大多数shell都提供将这3个描述符重定向的方法，如bash</p>
+<pre class="line-numbers language-bash"><code class="language-bash">$ <span class="token function">ls</span> <span class="token operator">></span> out.txt
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><ul>
+<li><a href="https://blog.csdn.net/bit_clearoff/article/details/54565044" target="_blank" rel="noopener">关于文件描述符</a></li>
+</ul>
+<h2 id="程序"><a href="#程序" class="headerlink" title="程序"></a>程序</h2><p>程序是一个存储在磁盘上某个目录中的可执行文件。内核使用<code>exec</code>函数将程序读入内存并执行。</p>
+<p>程序的执行实例称为<code>进程</code>。每个进程都有一个唯一的数字标符，称为进程ID。进程可以在前台运行，将输出显示在屏幕上，也可以在后台运行。内核控制着系统如何管理运行在系统上的所有进程。</p>
+<h2 id="信号"><a href="#信号" class="headerlink" title="信号"></a>信号</h2><p><code>信号</code>用于通知进程发生了某种情况。进程接收到信号后会进行相应的处理。</p>
+<p>很多情况都会产生信号。如在终端键盘上可以通过<code>中断键（Ctrl-C）</code>和<code>退出键（Ctrl-\）</code>产生相应的信息，用于中断当前运行的进程。如在另一个进程中可通过<code>kill</code>函数向另一个进程发送一个信号中断其运行。</p>
+<h2 id="时间"><a href="#时间" class="headerlink" title="时间"></a>时间</h2><h3 id="日历时间"><a href="#日历时间" class="headerlink" title="日历时间"></a>日历时间</h3><p>其值为<code>自协调世界时（UTC）</code>。</p>
+<h3 id="进程时间"><a href="#进程时间" class="headerlink" title="进程时间"></a>进程时间</h3><p>也称<code>CPU时间</code>，用以度量进程使用的中央处理器资源。有3个进程时间值：</p>
+<ul>
+<li>时钟时间：进程运行的时间总量</li>
+<li>用户CPU时间：执行用户指令所用的时间量</li>
+<li>系统CPU时间：为该进程执行内核程序所经历的时间</li>
+</ul>
+<h2 id="系统调用和库函数"><a href="#系统调用和库函数" class="headerlink" title="系统调用和库函数"></a>系统调用和库函数</h2><p>所有的操作系统都提供多种服务的入口点，由此程序向内核请求服务。这些入口点即称为<code>系统调用</code>。</p>
+<p>系统调用的接口是用c语言定义的，与具体系统如何执行该系统调用的实现技术无关。</p>
+<p><code>通用库函数</code>可能会调用一个或多个内核的系统调用，也可能不会，但它们并不是内核的入口点。从实现来看，库函数与系统调用之间有着本质区别。但从用户角度看，这区别并不重要——系统调用和库函数都是以c函数的形式出现。</p>
+<h2 id="系统内存管理"><a href="#系统内存管理" class="headerlink" title="系统内存管理"></a>系统内存管理</h2><p>内核通过硬盘上的存储空间来实现虚拟内存，这块区域称为<code>交换空间</code>。内核不断地在交换空间和实际的物理内存之间反复交换虚拟内容中的内容，使得系统以为它拥有比物理内存更多的可用内存。</p>
+<h1 id="UNIX标准及实现"><a href="#UNIX标准及实现" class="headerlink" title="UNIX标准及实现"></a>UNIX标准及实现</h1><h2 id="UNIX标准"><a href="#UNIX标准" class="headerlink" title="UNIX标准"></a>UNIX标准</h2><ul>
+<li>ISO C</li>
+<li>IEEE POSIX</li>
+<li>SUS(Signle UNIX Spcification)</li>
+</ul>
+<h2 id="UNIX系统的实现"><a href="#UNIX系统的实现" class="headerlink" title="UNIX系统的实现"></a>UNIX系统的实现</h2><ul>
+<li>SVR4</li>
+<li>FreeBSD</li>
+<li>Linux</li>
+<li>Max OS X</li>
+<li>Solaris</li>
+</ul>
+<p>其中，虽然只有Max OS X和Solaris能够称之为是一种UNIX系统，但它们都实现了UNIX标准并提供了UNIX的编程环境。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://taccisum.github.io/《摄影师的视界》阅读笔记.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2524,278 +2704,6 @@ publishing <span class="token punctuation">{</span>
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://taccisum.github.io/learn_gradle_3.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="taccisum">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/Avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="taccisum 😉">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/learn_gradle_3.html" itemprop="url">Gradle学习（三） - 多项目构建</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-09-30T10:17:25+08:00">
-                2017-09-30
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/java/" itemprop="url" rel="index">
-                    <span itemprop="name">java</span>
-                  </a>
-                </span>
-
-                
-                
-                  , 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/java/gradle/" itemprop="url" rel="index">
-                    <span itemprop="name">gradle</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>从<a href="/2017/09/26/Gradle学习（一）/">第一篇</a>中我们知道了如何构建一个单项目，但仅仅这样是不够的。实现多项目的构建有利于<code>模块化</code>，如此一来我们便能更好地在一个大型项目中分离我们的关注点。</p>
-<h2 id="Getting-Started"><a href="#Getting-Started" class="headerlink" title="Getting Started"></a>Getting Started</h2><h3 id="创建根项目"><a href="#创建根项目" class="headerlink" title="创建根项目"></a>创建根项目</h3><p>新建一个文件夹作为根项目目录，执行gradle init</p>
-<pre class="line-numbers language-shell"><code class="language-shell">$ mkdir multi_project
-$ gradle init
-$ ls
-build.gradle    gradle          gradlew         gradlew.bat     settings.gradle
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
-<p>这次我们要关注的重点有两个文件</p>
-<ul>
-<li>build.gradle<blockquote>
-<p>配置一些应用于所有子项目的公共配置</p>
-</blockquote>
-</li>
-<li>settings.gradle<blockquote>
-<p>描述各项目之间的关系</p>
-</blockquote>
-</li>
-</ul>
-<h3 id="创建子项目"><a href="#创建子项目" class="headerlink" title="创建子项目"></a>创建子项目</h3><p>在根目录下分别创建sub-project1和sub-project2目录，然后分别为其创建build.gradle</p>
-<pre class="line-numbers language-shell"><code class="language-shell">$ mkdir sub-project1 sub-project2
-$ touch sub-project1/build.gradle sub-project2/build.gradle
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
-<p>然后在根项目的settings.gradle中添加下面内容以关联子项目</p>
-<pre class="line-numbers language-groovy"><code class="language-groovy">include <span class="token string">'sub-project1'</span>
-include <span class="token string">'sub-project2'</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
-<p><strong>tips</strong></p>
-<ul>
-<li>一定要注意子项目只需为其创建build.gradle即可，而非使用gradle init指令初始化，这点很重要</li>
-<li>子项目的build.gradle只用于配置该项目特有的一些配置项，公共的配置通过根项目的build.gradle配置</li>
-</ul>
-<h3 id="公共配置"><a href="#公共配置" class="headerlink" title="公共配置"></a>公共配置</h3><p>在根项目的build.gradle中加入以下内容</p>
-<pre class="line-numbers language-groovy"><code class="language-groovy">allprojects<span class="token punctuation">{</span>
-    group <span class="token operator">=</span> <span class="token string">'cn.tac'</span>
-    version <span class="token operator">=</span> <span class="token string">'0.1'</span>
-    repositories<span class="token punctuation">{</span>
-        maven <span class="token punctuation">{</span>
-            url <span class="token string">'http://maven.aliyun.com/nexus/content/groups/public/'</span>
-        <span class="token punctuation">}</span>
-    <span class="token punctuation">}</span>
-<span class="token punctuation">}</span>
-
-subprojects <span class="token punctuation">{</span>
-    apply plugin<span class="token punctuation">:</span> <span class="token string">'java'</span>
-    sourceCompatibility <span class="token operator">=</span> <span class="token number">1.8</span>
-    dependencies <span class="token punctuation">{</span>
-        testCompile <span class="token string">'junit:junit:4.12'</span>
-    <span class="token punctuation">}</span>
-<span class="token punctuation">}</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<ul>
-<li><code>allprojects{}</code> 为所有项目添加配置项，所以group、version、repositories都放在了这个block下</li>
-<li><code>subprojects{}</code> 仅仅为当前项目的子项目添加配置项（不包括当前项目本身），所以根项目不需要的内容（如依赖）放在了这个block下</li>
-</ul>
-<h3 id="编写代码"><a href="#编写代码" class="headerlink" title="编写代码"></a>编写代码</h3><p>分别为子项目创建src目录</p>
-<pre class="line-numbers language-shell"><code class="language-shell">$ mkdir -p sub-project1/src/test/java/cn/tac/gradle sub-project2/src/test/java/cn/tac/gradle
-<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-<p>并创建单元测试</p>
-<pre class="line-numbers language-java"><code class="language-java"><span class="token keyword">package</span> cn<span class="token punctuation">.</span>tac<span class="token punctuation">.</span>gradle<span class="token punctuation">;</span>
-
-<span class="token keyword">import</span> org<span class="token punctuation">.</span>junit<span class="token punctuation">.</span>Assert<span class="token punctuation">;</span>
-<span class="token keyword">import</span> org<span class="token punctuation">.</span>junit<span class="token punctuation">.</span>Test<span class="token punctuation">;</span>
-
-<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">SubProject1Test</span> <span class="token punctuation">{</span>
-    <span class="token annotation punctuation">@Test</span>
-    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">testSimply</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"hello, i'm sub project1"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-<span class="token punctuation">}</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<pre class="line-numbers language-java"><code class="language-java"><span class="token keyword">package</span> cn<span class="token punctuation">.</span>tac<span class="token punctuation">.</span>gradle<span class="token punctuation">;</span>
-
-<span class="token keyword">import</span> org<span class="token punctuation">.</span>junit<span class="token punctuation">.</span>Assert<span class="token punctuation">;</span>
-<span class="token keyword">import</span> org<span class="token punctuation">.</span>junit<span class="token punctuation">.</span>Test<span class="token punctuation">;</span>
-
-<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">SubProject2Test</span> <span class="token punctuation">{</span>
-    <span class="token annotation punctuation">@Test</span>
-    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">testSimply</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"hello, i'm sub project2"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-<span class="token punctuation">}</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<h3 id="执行构建"><a href="#执行构建" class="headerlink" title="执行构建"></a>执行构建</h3><p>完成了上述步骤之后，不出意外此时的目录结构应该如下</p>
-<pre class="line-numbers language-shell"><code class="language-shell">$ tree .
-.
-├── build.gradle
-├── gradle
-│   └── wrapper
-│       ├── gradle-wrapper.jar
-│       └── gradle-wrapper.properties
-├── gradlew
-├── gradlew.bat
-├── settings.gradle
-├── sub-project1
-│   ├── build.gradle
-│   └── src
-│       └── test
-│           └── java
-│               └── cn
-│                   └── tac
-│                       └── gradle
-│                           └── SubProject1Test.java
-└── sub-project2
-    ├── build.gradle
-    └── src
-        └── test
-            └── java
-                └── cn
-                    └── tac
-                        └── gradle
-                            └── SubProject2Test.java
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>接下来我们切换到根目录下，执行</p>
-<pre><code>$ sh gradlew build
-</code></pre><p>再查看子项目的目录，发现分别多了一个build目录，可见在为根项目执行构建任务时，其include的所有子项目也分别进行了构建。以下分别是两个子项目的build reports<br><img src="/images/gradle_learn/multi_project/subproject1test.png" alt="sub project 1"><br><img src="/images/gradle_learn/multi_project/subproject2test.png" alt="sub project 2"></p>
-<h3 id="依赖其它项目"><a href="#依赖其它项目" class="headerlink" title="依赖其它项目"></a>依赖其它项目</h3><p>在<code>dependencies{}</code>中添加依赖即可，例如sub-project2要依赖sub-project1，可以在sub-project2的build.gradle中添加</p>
-<pre class="line-numbers language-groovy"><code class="language-groovy">dependencies <span class="token punctuation">{</span>
-  compile <span class="token function">project</span><span class="token punctuation">(</span><span class="token string">':sub-project1'</span><span class="token punctuation">)</span>
-<span class="token punctuation">}</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2846,7 +2754,7 @@ subprojects <span class="token punctuation">{</span>
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">24</span>
+                <span class="site-state-item-count">25</span>
                 <span class="site-state-item-name">posts</span>
               </a>
             </div>
@@ -2857,7 +2765,7 @@ subprojects <span class="token punctuation">{</span>
             
             <div class="site-state-item site-state-categories">
               <a href="/categories/index.html">
-                <span class="site-state-item-count">18</span>
+                <span class="site-state-item-count">20</span>
                 <span class="site-state-item-name">categories</span>
               </a>
             </div>
@@ -2925,7 +2833,7 @@ subprojects <span class="token punctuation">{</span>
         <div class="copyright" >
   
   &copy; 
-  <span itemprop="copyrightYear">2018</span>
+  <span itemprop="copyrightYear">2019</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
@@ -2933,7 +2841,7 @@ subprojects <span class="token punctuation">{</span>
 </div>
 
 <div>
-  <span class="post-count">25.7k words</span>
+  <span class="post-count">26.1k words</span>
 </div>
         
 

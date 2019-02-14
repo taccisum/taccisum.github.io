@@ -308,6 +308,196 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://taccisum.github.io/my_swagger_spring_boot_starter.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="taccisum">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/Avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="taccisum 😉">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/my_swagger_spring_boot_starter.html" itemprop="url">一个很好用的Spring Boot Starter Swagger</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-02-14T14:17:43+08:00">
+                2019-02-14
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/framework/" itemprop="url" rel="index">
+                    <span itemprop="name">framework</span>
+                  </a>
+                </span>
+
+                
+                
+                  , 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/framework/starter/" itemprop="url" rel="index">
+                    <span itemprop="name">starter</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="Spring-Boot-Starter-Swagger"><a href="#Spring-Boot-Starter-Swagger" class="headerlink" title="Spring Boot Starter Swagger"></a>Spring Boot Starter Swagger</h1><h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>Swagger与Spring Boot现在在Java Web开发领域是再常用不过的两个框架了。集成这两者的Starter现在在Github上也存在很多（基本都是非官方的，官方好像没有提供Starter），但是大多数或多或少都存在以下问题：</p>
+<ul>
+<li><strong>整合程度低</strong>，许多Springfox-Swagger2提供的功能无法通过Spring Boot的方式进行配置或者配置方式复杂</li>
+<li><strong>项目疏于维护</strong>，许多Issue没人去解决</li>
+<li><strong>扩展性不足</strong>，当用户出现一些需求时只能祈求项目更新或者自行修改源码</li>
+<li><strong>无法同时兼容Spring Boot1.x和Spring Boot2.x</strong></li>
+</ul>
+<p>我曾在Github上找了许久都没找到，索性自行开发了一个。</p>
+<p>这个Starter具有以下特点：</p>
+<ul>
+<li>完美适配springfox-swagger2，几乎支持通过yaml文件进行所有配置</li>
+<li>提供拦截器，允许用户自行扩展自定义配置</li>
+<li>同时支持spring boot1和spring boot2</li>
+<li>扩展了一些小功能，如展示当前hostname等</li>
+</ul>
+<p><a href="https://github.com/taccisum/spring-boot-starter-swagger" target="_blank" rel="noopener"><strong>项目地址</strong></a></p>
+<h2 id="如何使用"><a href="#如何使用" class="headerlink" title="如何使用"></a>如何使用</h2><p>引入依赖</p>
+<p><strong>pom.xml</strong></p>
+<pre class="line-numbers language-xml"><code class="language-xml"><span class="token comment" spellcheck="true">&lt;!-- spring boot1用户 --></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>dependency</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>groupId</span><span class="token punctuation">></span></span>com.github.taccisum<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>groupId</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>artifactId</span><span class="token punctuation">></span></span>swagger-spring-boot1-starter<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>artifactId</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>version</span><span class="token punctuation">></span></span>{lastest.version}<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>version</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>dependency</span><span class="token punctuation">></span></span>
+
+<span class="token comment" spellcheck="true">&lt;!-- spring boot2用户 --></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>dependency</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>groupId</span><span class="token punctuation">></span></span>com.github.taccisum<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>groupId</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>artifactId</span><span class="token punctuation">></span></span>swagger-spring-boot2-starter<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>artifactId</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>version</span><span class="token punctuation">></span></span>{lastest.version}<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>version</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>dependency</span><span class="token punctuation">></span></span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p><strong>application.yml</strong></p>
+<pre class="line-numbers language-yaml"><code class="language-yaml"><span class="token key atrule">swagger</span><span class="token punctuation">:</span>
+  <span class="token key atrule">base-package</span><span class="token punctuation">:</span> com.github.taccisum.controller
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<p>启动项目，打开 <a href="http://localhost:8080/swagger-ui.html" target="_blank" rel="noopener">http://localhost:8080/swagger-ui.html</a> 即可查看API文档。</p>
+<p>更多功能可以到 <a href="https://github.com/taccisum/spring-boot-starter-swagger" target="_blank" rel="noopener">https://github.com/taccisum/spring-boot-starter-swagger</a> 了解。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://taccisum.github.io/sourece/flowable/startup/spring_boot.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -3022,186 +3212,6 @@ $ <span class="token punctuation">..</span>/gradlew jettyRun
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://taccisum.github.io/UNIX_basic_knowledge.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="taccisum">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/Avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="taccisum 😉">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/UNIX_basic_knowledge.html" itemprop="url">UNIX基础知识</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-09-30T09:45:57+08:00">
-                2018-09-30
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/UNIX/" itemprop="url" rel="index">
-                    <span itemprop="name">UNIX</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="UNIX基础知识"><a href="#UNIX基础知识" class="headerlink" title="UNIX基础知识"></a>UNIX基础知识</h1><h2 id="操作系统简介"><a href="#操作系统简介" class="headerlink" title="操作系统简介"></a>操作系统简介</h2><p>所有的操作系统都为它们所运行的程序提供服务，包括：执行新程序、打开文件、读写文件、分配存储区等。</p>
-<p>严格意义上说，操作系统也是一种软件，它控制计算机硬件资源，提供程序运行环境。通常将这种软件称为<code>内核</code>。内核的接口被称为<code>系统调用</code>，<code>公用函数库</code>建立在系统调用接口之上，<code>shell</code>则是一种特殊的应用程序，为其它应用程序提供接口。</p>
-<p>Linux是GNU操作系统使用的内核。</p>
-<p>每一个进程都有一个<code>工作目录</code>，所有的相对路径都从工作目录开始解释。</p>
-<h2 id="文件描述符"><a href="#文件描述符" class="headerlink" title="文件描述符"></a>文件描述符</h2><p><code>文件描述符</code>是内核用以标识一个特定进程正在访问的文件，进程读写文件时使用。</p>
-<p>每运行一个新程序时，所有的shell都为其打开3个文件描述符：<code>标准输入0</code>、<code>标准输出1</code>、<code>标准错误2</code>。如果不做特殊处理，则所这3个描述符都将链接向终端。大多数shell都提供将这3个描述符重定向的方法，如bash</p>
-<pre class="line-numbers language-bash"><code class="language-bash">$ <span class="token function">ls</span> <span class="token operator">></span> out.txt
-<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><ul>
-<li><a href="https://blog.csdn.net/bit_clearoff/article/details/54565044" target="_blank" rel="noopener">关于文件描述符</a></li>
-</ul>
-<h2 id="程序"><a href="#程序" class="headerlink" title="程序"></a>程序</h2><p>程序是一个存储在磁盘上某个目录中的可执行文件。内核使用<code>exec</code>函数将程序读入内存并执行。</p>
-<p>程序的执行实例称为<code>进程</code>。每个进程都有一个唯一的数字标符，称为进程ID。进程可以在前台运行，将输出显示在屏幕上，也可以在后台运行。内核控制着系统如何管理运行在系统上的所有进程。</p>
-<h2 id="信号"><a href="#信号" class="headerlink" title="信号"></a>信号</h2><p><code>信号</code>用于通知进程发生了某种情况。进程接收到信号后会进行相应的处理。</p>
-<p>很多情况都会产生信号。如在终端键盘上可以通过<code>中断键（Ctrl-C）</code>和<code>退出键（Ctrl-\）</code>产生相应的信息，用于中断当前运行的进程。如在另一个进程中可通过<code>kill</code>函数向另一个进程发送一个信号中断其运行。</p>
-<h2 id="时间"><a href="#时间" class="headerlink" title="时间"></a>时间</h2><h3 id="日历时间"><a href="#日历时间" class="headerlink" title="日历时间"></a>日历时间</h3><p>其值为<code>自协调世界时（UTC）</code>。</p>
-<h3 id="进程时间"><a href="#进程时间" class="headerlink" title="进程时间"></a>进程时间</h3><p>也称<code>CPU时间</code>，用以度量进程使用的中央处理器资源。有3个进程时间值：</p>
-<ul>
-<li>时钟时间：进程运行的时间总量</li>
-<li>用户CPU时间：执行用户指令所用的时间量</li>
-<li>系统CPU时间：为该进程执行内核程序所经历的时间</li>
-</ul>
-<h2 id="系统调用和库函数"><a href="#系统调用和库函数" class="headerlink" title="系统调用和库函数"></a>系统调用和库函数</h2><p>所有的操作系统都提供多种服务的入口点，由此程序向内核请求服务。这些入口点即称为<code>系统调用</code>。</p>
-<p>系统调用的接口是用c语言定义的，与具体系统如何执行该系统调用的实现技术无关。</p>
-<p><code>通用库函数</code>可能会调用一个或多个内核的系统调用，也可能不会，但它们并不是内核的入口点。从实现来看，库函数与系统调用之间有着本质区别。但从用户角度看，这区别并不重要——系统调用和库函数都是以c函数的形式出现。</p>
-<h2 id="系统内存管理"><a href="#系统内存管理" class="headerlink" title="系统内存管理"></a>系统内存管理</h2><p>内核通过硬盘上的存储空间来实现虚拟内存，这块区域称为<code>交换空间</code>。内核不断地在交换空间和实际的物理内存之间反复交换虚拟内容中的内容，使得系统以为它拥有比物理内存更多的可用内存。</p>
-<h1 id="UNIX标准及实现"><a href="#UNIX标准及实现" class="headerlink" title="UNIX标准及实现"></a>UNIX标准及实现</h1><h2 id="UNIX标准"><a href="#UNIX标准" class="headerlink" title="UNIX标准"></a>UNIX标准</h2><ul>
-<li>ISO C</li>
-<li>IEEE POSIX</li>
-<li>SUS(Signle UNIX Spcification)</li>
-</ul>
-<h2 id="UNIX系统的实现"><a href="#UNIX系统的实现" class="headerlink" title="UNIX系统的实现"></a>UNIX系统的实现</h2><ul>
-<li>SVR4</li>
-<li>FreeBSD</li>
-<li>Linux</li>
-<li>Max OS X</li>
-<li>Solaris</li>
-</ul>
-<p>其中，虽然只有Max OS X和Solaris能够称之为是一种UNIX系统，但它们都实现了UNIX标准并提供了UNIX的编程环境。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -3252,7 +3262,7 @@ $ <span class="token punctuation">..</span>/gradlew jettyRun
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">24</span>
+                <span class="site-state-item-count">25</span>
                 <span class="site-state-item-name">posts</span>
               </a>
             </div>
@@ -3263,7 +3273,7 @@ $ <span class="token punctuation">..</span>/gradlew jettyRun
             
             <div class="site-state-item site-state-categories">
               <a href="/categories/index.html">
-                <span class="site-state-item-count">18</span>
+                <span class="site-state-item-count">20</span>
                 <span class="site-state-item-name">categories</span>
               </a>
             </div>
@@ -3331,7 +3341,7 @@ $ <span class="token punctuation">..</span>/gradlew jettyRun
         <div class="copyright" >
   
   &copy; 
-  <span itemprop="copyrightYear">2018</span>
+  <span itemprop="copyrightYear">2019</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
@@ -3339,7 +3349,7 @@ $ <span class="token punctuation">..</span>/gradlew jettyRun
 </div>
 
 <div>
-  <span class="post-count">25.7k words</span>
+  <span class="post-count">26.1k words</span>
 </div>
         
 
