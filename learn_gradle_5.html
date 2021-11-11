@@ -1,0 +1,1271 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="发布到Maven仓库Maven-Publish插件Gradle将项目发布到Maven仓库需要借助插件，Maven-Publish便是官方推荐的一款插件。Maven-Publish 发布项目通过&amp;#39;maven-publish&amp;#39;引入插件build.gradle apply plugin: &apos;maven-publish&apos;  发布到本地build.gradle apply plugin: &apos;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Gradle学习（五） - 打包发布">
+<meta property="og:url" content="https://taccisum.github.io/learn_gradle_5.html">
+<meta property="og:site_name" content="taccisum 😉">
+<meta property="og:description" content="发布到Maven仓库Maven-Publish插件Gradle将项目发布到Maven仓库需要借助插件，Maven-Publish便是官方推荐的一款插件。Maven-Publish 发布项目通过&amp;#39;maven-publish&amp;#39;引入插件build.gradle apply plugin: &apos;maven-publish&apos;  发布到本地build.gradle apply plugin: &apos;">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="https://taccisum.github.io/images/gradle_learn/publishing/build_repo.png">
+<meta property="og:image" content="https://taccisum.github.io/images/gradle_learn/publishing/build_repo_with_sources.png">
+<meta property="og:updated_time" content="2020-03-13T10:05:01.362Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Gradle学习（五） - 打包发布">
+<meta name="twitter:description" content="发布到Maven仓库Maven-Publish插件Gradle将项目发布到Maven仓库需要借助插件，Maven-Publish便是官方推荐的一款插件。Maven-Publish 发布项目通过&amp;#39;maven-publish&amp;#39;引入插件build.gradle apply plugin: &apos;maven-publish&apos;  发布到本地build.gradle apply plugin: &apos;">
+<meta name="twitter:image" content="https://taccisum.github.io/images/gradle_learn/publishing/build_repo.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://taccisum.github.io/learn_gradle_5.html"/>
+
+
+
+
+
+  <title>Gradle学习（五） - 打包发布 | taccisum 😉</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/css/prism-ghcolors.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">taccisum 😉</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="Searching..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://taccisum.github.io/learn_gradle_5.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="taccisum">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/Avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="taccisum 😉">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Gradle学习（五） - 打包发布</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-10-13T11:32:20+08:00">
+                2017-10-13
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/java/" itemprop="url" rel="index">
+                    <span itemprop="name">java</span>
+                  </a>
+                </span>
+
+                
+                
+                  , 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/java/gradle/" itemprop="url" rel="index">
+                    <span itemprop="name">gradle</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="发布到Maven仓库"><a href="#发布到Maven仓库" class="headerlink" title="发布到Maven仓库"></a>发布到Maven仓库</h2><h3 id="Maven-Publish插件"><a href="#Maven-Publish插件" class="headerlink" title="Maven-Publish插件"></a>Maven-Publish插件</h3><p>Gradle将项目发布到Maven仓库需要借助插件，<code>Maven-Publish</code>便是官方推荐的一款插件。<br><a href="https://docs.gradle.org/current/userguide/publishing_maven.html" target="_blank" rel="noopener">Maven-Publish</a></p>
+<h3 id="发布项目"><a href="#发布项目" class="headerlink" title="发布项目"></a>发布项目</h3><p>通过<code>&#39;maven-publish&#39;</code>引入插件<br><strong>build.gradle</strong></p>
+<pre class="line-numbers language-groovy"><code class="language-groovy">apply plugin<span class="token punctuation">:</span> <span class="token string">'maven-publish'</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<h4 id="发布到本地"><a href="#发布到本地" class="headerlink" title="发布到本地"></a>发布到本地</h4><p><strong>build.gradle</strong></p>
+<pre class="line-numbers language-groovy"><code class="language-groovy">apply plugin<span class="token punctuation">:</span> <span class="token string">'java'</span>
+apply plugin<span class="token punctuation">:</span> <span class="token string">'maven-publish'</span>
+
+group <span class="token operator">=</span> <span class="token string">'cn.tac.test'</span>
+version <span class="token operator">=</span> <span class="token string">'1.0'</span>
+
+publishing <span class="token punctuation">{</span>
+    publications <span class="token punctuation">{</span>
+        <span class="token function">mavenJava</span><span class="token punctuation">(</span>MavenPublication<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            from components<span class="token operator">.</span>java
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+publishing <span class="token punctuation">{</span>
+    repositories <span class="token punctuation">{</span>
+        maven <span class="token punctuation">{</span>
+            url <span class="token string">"$buildDir/repo"</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>在以上配置中</p>
+<ul>
+<li><code>publishing{}</code>是由插件为项目创建的扩展（PublishingExtension类型），这个扩展提供了两个block：<code>publications{}</code>（MavenPublication类型）和<code>repositories{}</code>（MavenArtifactRepository 类型），分别用于配置<code>要发布的内容</code>和<code>目标仓库</code>（均可配置多个）。</li>
+<li><code>mavenJava{}</code>被称为发布组件<code>Component</code>，用于配置一项要发布的内容，components.java表示这个组件是通过Java插件添加的<code>java</code>组件，可以简单地理解为就是将当前java项目作为发布内容。</li>
+<li><code>maven{}</code>指定了一个要发布的目标仓库，当前指定了当前项目的build目录下的<code>repo</code>目录，即发布到本地</li>
+</ul>
+<p>执行publishing -&gt; publish，可以看到项目成功发布到了<code>build/repo</code>目录中。<br><img src="/images/gradle_learn/publishing/build_repo.png" alt="build/repo"></p>
+<p><strong>tips</strong></p>
+<ul>
+<li>两个<code>publishing{}</code>块的内容也可以合在一起写</li>
+<li>mavenJava只是一个命名，并无特殊含义，你也可以将其更换为别的名称，但不能与其它发布组件名称重复</li>
+<li>mavenJava块中还可以配置要发布的artifact的<code>group</code>、<code>id</code>及<code>version</code>，如果不显式指定，则默认采用当前项目的配置</li>
+</ul>
+<h4 id="发布源码"><a href="#发布源码" class="headerlink" title="发布源码"></a>发布源码</h4><p>在上一步的基础上</p>
+<ol>
+<li>新增一个用于获取源码的task</li>
+<li>配置发布组件，使其发布的同时额外发布一个包含源码的<code>artifact</code></li>
+</ol>
+<p><strong>build.gradle</strong></p>
+<pre class="line-numbers language-groovy"><code class="language-groovy">……
+<span class="token comment" spellcheck="true">//这个task可以获取到源码</span>
+task <span class="token function">sourceJar</span><span class="token punctuation">(</span>type<span class="token punctuation">:</span> Jar<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    from sourceSets<span class="token operator">.</span>main<span class="token operator">.</span>allJava
+<span class="token punctuation">}</span>
+
+publishing <span class="token punctuation">{</span>
+    publications <span class="token punctuation">{</span>
+        <span class="token function">mavenJava</span><span class="token punctuation">(</span>MavenPublication<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            ……
+            <span class="token comment" spellcheck="true">//配置额外发布的artifact</span>
+            artifact sourceJar <span class="token punctuation">{</span>
+                <span class="token comment" spellcheck="true">//这个字符串会作为artifact文件的后缀</span>
+                classifier <span class="token string">"sources"</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+……
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>执行task<br><img src="/images/gradle_learn/publishing/build_repo_with_sources.png" alt="sources"></p>
+<h4 id="发布到远程仓库"><a href="#发布到远程仓库" class="headerlink" title="发布到远程仓库"></a>发布到远程仓库</h4><p>只需要修改url指向远程仓库即可。同时由于远程仓库大多需要认证，因此通常需要通过<code>credentials{}</code>指定用户名和密码</p>
+<p><strong>build.gradle</strong></p>
+<pre class="line-numbers language-groovy"><code class="language-groovy">……
+publishing <span class="token punctuation">{</span>
+    repositories <span class="token punctuation">{</span>
+        maven <span class="token punctuation">{</span>
+            url <span class="token string">"http://172.10.10.66:8081/nexus/content/repositories/releases/"</span>
+            credentials <span class="token punctuation">{</span>
+                username <span class="token operator">=</span> <span class="token string">"admin"</span>
+                password <span class="token operator">=</span> <span class="token string">"admin123"</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+……
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h4 id="条件发布"><a href="#条件发布" class="headerlink" title="条件发布"></a>条件发布</h4><p>这点相信会点groovy的同学都不会觉得难，用<code>if/else</code>就可以完成。例如下面的配置实现根据version后缀来决定是发布到<code>snapshots</code>还是<code>releases</code>仓库中</p>
+<p><strong>build.gralde</strong></p>
+<pre class="line-numbers language-groovy"><code class="language-groovy">……
+publishing <span class="token punctuation">{</span>
+    repositories <span class="token punctuation">{</span>
+        <span class="token keyword">def</span> NEXUS_URL <span class="token operator">=</span> <span class="token string">"http://172.10.10.66:8081/nexus/content/repositories/releases/"</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>project<span class="token operator">.</span>version<span class="token operator">.</span><span class="token function">endsWith</span><span class="token punctuation">(</span><span class="token string">"SNAPSHOT"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+            NEXUS_URL <span class="token operator">=</span> <span class="token string">"http://172.10.10.66:8081/nexus/content/repositories/snapshots/"</span>
+        <span class="token punctuation">}</span>
+        maven <span class="token punctuation">{</span>
+            url NEXUS_URL
+            credentials <span class="token punctuation">{</span>
+                username <span class="token operator">=</span> <span class="token string">"admin"</span>
+                password <span class="token operator">=</span> <span class="token string">"admin123"</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+……
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h4 id="发布多项目"><a href="#发布多项目" class="headerlink" title="发布多项目"></a>发布多项目</h4><p>父项目的task执行的同时会执行其所有子项目的同一task（最常见的如build任务），因此多项目发布只需要配置好所有子项目的发布配置即可。</p>
+<p><strong>build.gradle</strong></p>
+<pre class="line-numbers language-groovy"><code class="language-groovy">subprojects <span class="token punctuation">{</span>
+    apply plugin<span class="token punctuation">:</span> <span class="token string">'java'</span>
+    apply plugin<span class="token punctuation">:</span> <span class="token string">'maven-publish'</span>
+
+    group <span class="token string">"cn.tac.test"</span>
+    version <span class="token string">"1.0-SNAPSHOT"</span>
+
+    <span class="token comment" spellcheck="true">//因为父项目不需要发布，所以只需要配置子项目的发布配置即可</span>
+    publishing <span class="token punctuation">{</span>
+        publications <span class="token punctuation">{</span>
+            <span class="token function">mavenJava</span><span class="token punctuation">(</span>MavenPublication<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                from components<span class="token operator">.</span>java
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+    publishing <span class="token punctuation">{</span>
+        repositories <span class="token punctuation">{</span>
+            maven <span class="token punctuation">{</span>
+                url <span class="token string">"$buildDir/repo"</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>执行task，可以看到每个子项目都发布到了其对应的<code>build/repo</code>中。</p>
+<p><strong>tips</strong></p>
+<ul>
+<li>如果子模块之间互相有依赖，Gradle发布时会自动解析各模块的先后发布顺序，无需我们自己配置</li>
+</ul>
+<h3 id="常见问题"><a href="#常见问题" class="headerlink" title="常见问题"></a>常见问题</h3><h4 id="发布后pom-xml中项目的依赖scope为runtime的问题"><a href="#发布后pom-xml中项目的依赖scope为runtime的问题" class="headerlink" title="发布后pom.xml中项目的依赖scope为runtime的问题"></a>发布后pom.xml中项目的依赖scope为runtime的问题</h4><p>在发布的时候发现，项目中通过complie依赖的第三方库或其它模块，在发布后由Gradle生成的<code>pom.xml</code>文件中，依赖的scope默认变成了<code>runtime</code>，而非我们期望的<code>compile</code></p>
+<pre class="line-numbers language-xml"><code class="language-xml"><span class="token prolog">&lt;?xml version="1.0" encoding="UTF-8"?></span>
+  ……
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>groupId</span><span class="token punctuation">></span></span>cn.tac.test<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>groupId</span><span class="token punctuation">></span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>artifactId</span><span class="token punctuation">></span></span>publishing<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>artifactId</span><span class="token punctuation">></span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>version</span><span class="token punctuation">></span></span>1.0-SNAPSHOT<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>version</span><span class="token punctuation">></span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>dependencies</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>dependency</span><span class="token punctuation">></span></span>
+      <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>groupId</span><span class="token punctuation">></span></span>cn.tac.test<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>groupId</span><span class="token punctuation">></span></span>
+      <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>artifactId</span><span class="token punctuation">></span></span>module1<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>artifactId</span><span class="token punctuation">></span></span>
+      <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>version</span><span class="token punctuation">></span></span>1.0-SNAPSHOT<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>version</span><span class="token punctuation">></span></span>
+      <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>scope</span><span class="token punctuation">></span></span>runtime<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>scope</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>dependency</span><span class="token punctuation">></span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>dependencies</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>project</span><span class="token punctuation">></span></span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>为了达到期望的效果，只需要在发布配置中通过<code>withXML</code>对pom进行修改即可<br><strong>build.gradle</strong></p>
+<pre class="line-numbers language-groovy"><code class="language-groovy">publishing <span class="token punctuation">{</span>
+    publications <span class="token punctuation">{</span>
+        <span class="token function">mavenJava</span><span class="token punctuation">(</span>MavenPublication<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            from components<span class="token operator">.</span>java
+
+            pom<span class="token operator">.</span>withXml <span class="token punctuation">{</span>
+                <span class="token function">asNode</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">.</span>dependencies<span class="token operator">.</span><span class="token string">'*'</span><span class="token operator">.</span><span class="token function">findAll</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                    it<span class="token operator">.</span>scope<span class="token operator">.</span><span class="token function">text</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">==</span> <span class="token string">'runtime'</span> <span class="token operator">&amp;&amp;</span> project<span class="token operator">.</span>configurations<span class="token operator">.</span>compile<span class="token operator">.</span>allDependencies<span class="token operator">.</span>find <span class="token punctuation">{</span> dep <span class="token operator">-></span>
+                        dep<span class="token operator">.</span>name <span class="token operator">==</span> it<span class="token operator">.</span>artifactId<span class="token operator">.</span><span class="token function">text</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+                    <span class="token punctuation">}</span>
+                <span class="token punctuation">}</span><span class="token operator">.</span><span class="token function">each</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                    it<span class="token operator">.</span>scope<span class="token operator">*.</span>value <span class="token operator">=</span> <span class="token string">'compile'</span>
+                <span class="token punctuation">}</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>再次发布</p>
+<pre class="line-numbers language-xml"><code class="language-xml"><span class="token prolog">&lt;?xml version="1.0" encoding="UTF-8"?></span>
+  ……
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>groupId</span><span class="token punctuation">></span></span>cn.tac.test<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>groupId</span><span class="token punctuation">></span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>artifactId</span><span class="token punctuation">></span></span>publishing<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>artifactId</span><span class="token punctuation">></span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>version</span><span class="token punctuation">></span></span>1.0-SNAPSHOT<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>version</span><span class="token punctuation">></span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>dependencies</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>dependency</span><span class="token punctuation">></span></span>
+      <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>groupId</span><span class="token punctuation">></span></span>cn.tac.test<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>groupId</span><span class="token punctuation">></span></span>
+      <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>artifactId</span><span class="token punctuation">></span></span>module1<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>artifactId</span><span class="token punctuation">></span></span>
+      <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>version</span><span class="token punctuation">></span></span>1.0-SNAPSHOT<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>version</span><span class="token punctuation">></span></span>
+      <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>scope</span><span class="token punctuation">></span></span>compile<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>scope</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>dependency</span><span class="token punctuation">></span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>dependencies</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>project</span><span class="token punctuation">></span></span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p><strong>tips</strong></p>
+<ul>
+<li>参考链接 <a href="https://stackoverflow.com/questions/31069666/how-to-change-artifactory-runtime-scope-to-compile-scope" target="_blank" rel="noopener">How to change artifactory runtime scope to compile scope?</a></li>
+<li><a href="https://docs.gradle.org/current/dsl/org.gradle.api.publish.maven.MavenPom.html#org.gradle.api.publish.maven.MavenPom:withXml(org.gradle.api.Action" target="_blank" rel="noopener">更多withXML的信息</a></li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/know_crawler.html" rel="next" title="了解爬虫">
+                <i class="fa fa-chevron-left"></i> 了解爬虫
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/instantiationexception_on_mybatistest.html" rel="prev" title="在@MybatisTest中使用通用Mapper出现InstantiationException的问题">
+                在@MybatisTest中使用通用Mapper出现InstantiationException的问题 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/Avatar.jpg"
+               alt="taccisum" />
+          <p class="site-author-name" itemprop="name">taccisum</p>
+           
+              <p class="site-description motion-element" itemprop="description">el psy congroo.</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">29</span>
+                <span class="site-state-item-name">posts</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">23</span>
+                <span class="site-state-item-name">categories</span>
+              </a>
+            </div>
+          
+
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/taccisum" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                    
+                      GitHub
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://gitee.com/taccisum/projects" target="_blank" title="Gitee">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                    
+                      Gitee
+                    
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#发布到Maven仓库"><span class="nav-number">1.</span> <span class="nav-text">发布到Maven仓库</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Maven-Publish插件"><span class="nav-number">1.1.</span> <span class="nav-text">Maven-Publish插件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#发布项目"><span class="nav-number">1.2.</span> <span class="nav-text">发布项目</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#发布到本地"><span class="nav-number">1.2.1.</span> <span class="nav-text">发布到本地</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#发布源码"><span class="nav-number">1.2.2.</span> <span class="nav-text">发布源码</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#发布到远程仓库"><span class="nav-number">1.2.3.</span> <span class="nav-text">发布到远程仓库</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#条件发布"><span class="nav-number">1.2.4.</span> <span class="nav-text">条件发布</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#发布多项目"><span class="nav-number">1.2.5.</span> <span class="nav-text">发布多项目</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#常见问题"><span class="nav-number">1.3.</span> <span class="nav-text">常见问题</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#发布后pom-xml中项目的依赖scope为runtime的问题"><span class="nav-number">1.3.1.</span> <span class="nav-text">发布后pom.xml中项目的依赖scope为runtime的问题</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">taccisum</span>
+</div>
+
+<div>
+  <span class="post-count">28.0k words</span>
+</div>
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

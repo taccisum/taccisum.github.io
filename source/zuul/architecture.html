@@ -1,0 +1,1359 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="工作原理关于zuul架构，官方的How-it-Works已经讲得很清楚了，这里简单地翻译一下： Zuul的核心就是一系列的过滤器，能够在HTTP请求和响应的过程中进行一系列的操作。Zuul提供了一个可以在运行时动态地读取、编译并运行这些过滤器的框架。以下是过滤器的一些重要属性：    类型：通常定义了过滤器会作用在路由的哪个阶段 执行顺序：当同一阶段存在多个过滤器时，决定了这些过滤器的执行顺序 执">
+<meta property="og:type" content="article">
+<meta property="og:title" content="zuul源码解析 —— zuul整体架构">
+<meta property="og:url" content="https://taccisum.github.io/source/zuul/architecture.html">
+<meta property="og:site_name" content="taccisum 😉">
+<meta property="og:description" content="工作原理关于zuul架构，官方的How-it-Works已经讲得很清楚了，这里简单地翻译一下： Zuul的核心就是一系列的过滤器，能够在HTTP请求和响应的过程中进行一系列的操作。Zuul提供了一个可以在运行时动态地读取、编译并运行这些过滤器的框架。以下是过滤器的一些重要属性：    类型：通常定义了过滤器会作用在路由的哪个阶段 执行顺序：当同一阶段存在多个过滤器时，决定了这些过滤器的执行顺序 执">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="https://taccisum.github.io/images/zuul/architecture.png">
+<meta property="og:image" content="https://camo.githubusercontent.com/4eb7754152028cdebd5c09d1c6f5acc7683f0094/687474703a2f2f6e6574666c69782e6769746875622e696f2f7a75756c2f696d616765732f7a75756c2d726571756573742d6c6966656379636c652e706e67">
+<meta property="og:updated_time" content="2020-03-13T10:05:01.364Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="zuul源码解析 —— zuul整体架构">
+<meta name="twitter:description" content="工作原理关于zuul架构，官方的How-it-Works已经讲得很清楚了，这里简单地翻译一下： Zuul的核心就是一系列的过滤器，能够在HTTP请求和响应的过程中进行一系列的操作。Zuul提供了一个可以在运行时动态地读取、编译并运行这些过滤器的框架。以下是过滤器的一些重要属性：    类型：通常定义了过滤器会作用在路由的哪个阶段 执行顺序：当同一阶段存在多个过滤器时，决定了这些过滤器的执行顺序 执">
+<meta name="twitter:image" content="https://taccisum.github.io/images/zuul/architecture.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://taccisum.github.io/source/zuul/architecture.html"/>
+
+
+
+
+
+  <title>zuul源码解析 —— zuul整体架构 | taccisum 😉</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/css/prism-ghcolors.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">taccisum 😉</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="Searching..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://taccisum.github.io/source/zuul/architecture.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="taccisum">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/Avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="taccisum 😉">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">zuul源码解析 —— zuul整体架构</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-11-29T10:55:13+08:00">
+                2018-11-29
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/source/" itemprop="url" rel="index">
+                    <span itemprop="name">source</span>
+                  </a>
+                </span>
+
+                
+                
+                  , 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/source/zuul/" itemprop="url" rel="index">
+                    <span itemprop="name">zuul</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="工作原理"><a href="#工作原理" class="headerlink" title="工作原理"></a>工作原理</h2><p>关于zuul架构，官方的<a href="https://github.com/Netflix/zuul/wiki/How-it-Works" target="_blank" rel="noopener">How-it-Works</a>已经讲得很清楚了，这里简单地翻译一下：</p>
+<p>Zuul的核心就是一系列的过滤器，能够在HTTP请求和响应的过程中进行一系列的操作。Zuul提供了一个可以在运行时动态地读取、编译并运行这些过滤器的框架。<br>以下是过滤器的一些重要属性：  </p>
+<ul>
+<li><strong>类型</strong>：通常定义了过滤器会作用在路由的哪个阶段</li>
+<li><strong>执行顺序</strong>：当同一阶段存在多个过滤器时，决定了这些过滤器的执行顺序</li>
+<li><strong>执行条件</strong>：决定过滤器是否被执行</li>
+<li><strong>行为</strong>：当符合条件的时候执行的操作</li>
+</ul>
+<p>过滤器之间不会直接进行通信，而是通过每个请求唯一对应的RequestContext实例进行状态共享。<br>过滤器目前只能通过Groovy语言编写（指的是动态过滤器），尽管从理论上来说Zuul支持所有以JVM为执行环境的语言。<br>过滤器的源码应该写到指定的目录中，Zuul Server会周期性地检查这些目录的变化。一旦某些过滤器有更新，它们将会被Zuul读取并动态地编译到运行时环境中，在随后到来的每个请求中都将被Zuul调用。</p>
+<p><img src="/images/zuul/architecture.png" alt="zuul_architecture"></p>
+<blockquote>
+<p>图片来源 - <a href="https://medium.com/netflix-techblog/announcing-zuul-edge-service-in-the-cloud-ab3af5be08ee" target="_blank" rel="noopener">netflix techblog</a></p>
+</blockquote>
+<h2 id="核心类"><a href="#核心类" class="headerlink" title="核心类"></a>核心类</h2><h3 id="ZuulServlet"><a href="#ZuulServlet" class="headerlink" title="ZuulServlet"></a>ZuulServlet</h3><pre class="line-numbers language-xml"><code class="language-xml"><span class="token comment" spellcheck="true">&lt;!-- web.xml --></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>servlet</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>servlet-name</span><span class="token punctuation">></span></span>ZuulServlet<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>servlet-name</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>servlet-class</span><span class="token punctuation">></span></span>com.netflix.zuul.http.ZuulServlet<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>servlet-class</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>servlet</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>servlet-mapping</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>servlet-name</span><span class="token punctuation">></span></span>ZuulServlet<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>servlet-name</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>url-pattern</span><span class="token punctuation">></span></span>/*<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>url-pattern</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>servlet-mapping</span><span class="token punctuation">></span></span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>Zuul是一个web应用，在web.xml中其使用的Servlet实现是ZuulServlet。因此毫无疑问的，ZuulServlet就是整个Zuul的核心。</p>
+<p>来看看servier方法</p>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token comment" spellcheck="true">// ZuulServlet.java</span>
+
+<span class="token annotation punctuation">@Override</span>
+<span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">service</span><span class="token punctuation">(</span>javax<span class="token punctuation">.</span>servlet<span class="token punctuation">.</span>ServletRequest servletRequest<span class="token punctuation">,</span> javax<span class="token punctuation">.</span>servlet<span class="token punctuation">.</span>ServletResponse servletResponse<span class="token punctuation">)</span> <span class="token keyword">throws</span> ServletException<span class="token punctuation">,</span> IOException <span class="token punctuation">{</span>
+    <span class="token keyword">try</span> <span class="token punctuation">{</span>
+        <span class="token comment" spellcheck="true">// 初始化当前的zuul request context，将request和response放入上下文中</span>
+        <span class="token function">init</span><span class="token punctuation">(</span><span class="token punctuation">(</span>HttpServletRequest<span class="token punctuation">)</span> servletRequest<span class="token punctuation">,</span> <span class="token punctuation">(</span>HttpServletResponse<span class="token punctuation">)</span> servletResponse<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token comment" spellcheck="true">// Marks this request as having passed through the "Zuul engine", as opposed to servlets</span>
+        <span class="token comment" spellcheck="true">// explicitly bound in web.xml, for which requests will not have the same data attached</span>
+        RequestContext context <span class="token operator">=</span> RequestContext<span class="token punctuation">.</span><span class="token function">getCurrentContext</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token comment" spellcheck="true">// 为此次请求设置标识</span>
+        context<span class="token punctuation">.</span><span class="token function">setZuulEngineRan</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token comment" spellcheck="true">// zuul对请求的处理流程 start</span>
+        <span class="token comment" spellcheck="true">// 以下几个try块部分是zuul对一个请求的处理流程：pre -> route -> post</span>
+        <span class="token comment" spellcheck="true">// 可以看到：</span>
+        <span class="token comment" spellcheck="true">// 1. post是必然执行的（可以类比finally块），但如果在post中抛出了异常，交由error处理完后就结束，避免无限循环</span>
+        <span class="token comment" spellcheck="true">// 2. 任何阶段抛出了ZuulException，都会交由error处理</span>
+        <span class="token comment" spellcheck="true">// 3. 非ZuulException会被封装后交给error处理</span>
+        <span class="token keyword">try</span> <span class="token punctuation">{</span>
+            <span class="token function">preRoute</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">ZuulException</span> e<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token function">error</span><span class="token punctuation">(</span>e<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token function">postRoute</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token keyword">return</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        <span class="token keyword">try</span> <span class="token punctuation">{</span>
+            <span class="token function">route</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">ZuulException</span> e<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token function">error</span><span class="token punctuation">(</span>e<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token function">postRoute</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token keyword">return</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        <span class="token keyword">try</span> <span class="token punctuation">{</span>
+            <span class="token function">postRoute</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">ZuulException</span> e<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token function">error</span><span class="token punctuation">(</span>e<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token keyword">return</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        <span class="token comment" spellcheck="true">// zuul对请求的处理流程 end</span>
+
+    <span class="token punctuation">}</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">Throwable</span> e<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token function">error</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">ZuulException</span><span class="token punctuation">(</span>e<span class="token punctuation">,</span> <span class="token number">500</span><span class="token punctuation">,</span> <span class="token string">"UNHANDLED_EXCEPTION_"</span> <span class="token operator">+</span> e<span class="token punctuation">.</span><span class="token function">getClass</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getName</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span> <span class="token keyword">finally</span> <span class="token punctuation">{</span>
+        <span class="token comment" spellcheck="true">// 此次请求完成，移除相应的上下文对象</span>
+        RequestContext<span class="token punctuation">.</span><span class="token function">getCurrentContext</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">unset</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>上面代码逻辑正好zuul官方的架构图相对应</p>
+<p><img src="https://camo.githubusercontent.com/4eb7754152028cdebd5c09d1c6f5acc7683f0094/687474703a2f2f6e6574666c69782e6769746875622e696f2f7a75756c2f696d616765732f7a75756c2d726571756573742d6c6966656379636c652e706e67" alt="zuul_architecture1"></p>
+<h3 id="RequestContext"><a href="#RequestContext" class="headerlink" title="RequestContext"></a>RequestContext</h3><p>RequestContext是各filter之间进行消息传递的介质，其本质上是一个Map，这样就可以在上下文中存储任何kv pair。</p>
+<p><strong>TODO::</strong> 这里有一个疑问，为什么RequestContext是继承自ConcurrentHashMap？因为理论上来说RequestContext对象是绝对线程安全的（线程隔离）。</p>
+<p>RequestContext包含一个类变量threadLocal，</p>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token keyword">protected</span> <span class="token keyword">static</span> <span class="token keyword">final</span> ThreadLocal<span class="token operator">&lt;</span><span class="token operator">?</span> <span class="token keyword">extends</span> <span class="token class-name">RequestContext</span><span class="token operator">></span> threadLocal <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ThreadLocal</span><span class="token operator">&lt;</span>RequestContext<span class="token operator">></span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token annotation punctuation">@Override</span>
+    <span class="token keyword">protected</span> RequestContext <span class="token function">initialValue</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">try</span> <span class="token punctuation">{</span>
+            <span class="token comment" spellcheck="true">// 上下文实例类型取决于contextClass，例如在NFRequestContext中就改写了contextClass</span>
+            <span class="token keyword">return</span> contextClass<span class="token punctuation">.</span><span class="token function">newInstance</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">Throwable</span> e<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">RuntimeException</span><span class="token punctuation">(</span>e<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>在代码的任何地方都可以通过静态方法getCurrentContext获取到属于当前线程（实际上经过zuul的处理，context实例是按请求隔离的）的RequestContext实例</p>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">static</span> RequestContext <span class="token function">getCurrentContext</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>testContext <span class="token operator">!=</span> null<span class="token punctuation">)</span> <span class="token keyword">return</span> testContext<span class="token punctuation">;</span>
+
+    RequestContext context <span class="token operator">=</span> threadLocal<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">return</span> context<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h4 id="NFRequestContext"><a href="#NFRequestContext" class="headerlink" title="NFRequestContext"></a>NFRequestContext</h4><p><code>NFRequestContext</code>继承自RequestContext，定义了一些与netflix其它组件有关的特定概念和数据的key，例如eureka VIP，Ribbon client返回的repsonse等。它有一个静态方法</p>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token comment" spellcheck="true">// NFRequestContext.java</span>
+<span class="token keyword">static</span> <span class="token punctuation">{</span>
+    RequestContext<span class="token punctuation">.</span><span class="token function">setContextClass</span><span class="token punctuation">(</span>NFRequestContext<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+<p>也就是说，只要加载了类NFRequestContext，应用中所有RequestContext的实例都将是NFRequestContext类型。</p>
+<h3 id="ZuulRunner"><a href="#ZuulRunner" class="headerlink" title="ZuulRunner"></a>ZuulRunner</h3><p>ZuulServlet并不做任何实际的操作，而是将所有操作交给ZuulRunner完成。</p>
+<p>而事实上ZuulRunner的大部分操作也是委托给FilterProcessor去完成的，除了init方法。</p>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token comment" spellcheck="true">// ZuulRunner.java</span>
+<span class="token comment" spellcheck="true">/**
+ * sets HttpServlet request and HttpResponse
+ */</span>
+<span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">init</span><span class="token punctuation">(</span>HttpServletRequest servletRequest<span class="token punctuation">,</span> HttpServletResponse servletResponse<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    RequestContext ctx <span class="token operator">=</span> RequestContext<span class="token punctuation">.</span><span class="token function">getCurrentContext</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>bufferRequests<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token comment" spellcheck="true">// wrap request并缓存其body</span>
+        <span class="token comment" spellcheck="true">// 所谓buffer是指将其内容缓存起来，使得可以安全地重复调用getReader(), getInputStream()等方法</span>
+        <span class="token comment" spellcheck="true">// 因为一般来说，流操作一次之后就不能重复操作了</span>
+        <span class="token comment" spellcheck="true">// 类com.netflix.zuul.http.HttpServletRequestWrapper注释上有详解</span>
+        ctx<span class="token punctuation">.</span><span class="token function">setRequest</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">HttpServletRequestWrapper</span><span class="token punctuation">(</span>servletRequest<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+        ctx<span class="token punctuation">.</span><span class="token function">setRequest</span><span class="token punctuation">(</span>servletRequest<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment" spellcheck="true">// response没得选，肯定是wrap过的</span>
+    ctx<span class="token punctuation">.</span><span class="token function">setResponse</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">HttpServletResponseWrapper</span><span class="token punctuation">(</span>servletResponse<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h3 id="FilterProcessor"><a href="#FilterProcessor" class="headerlink" title="FilterProcessor"></a>FilterProcessor</h3><p>FilterProcessor是个单例，通过getInstance()方法获取。</p>
+<p>FilterProcessor的核心方法有两个：runFilters和processZuulFilter</p>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token comment" spellcheck="true">// FilterProcessor.java</span>
+<span class="token comment" spellcheck="true">/**
+ * 这个是真正执行filter的方法，每调用一次都会执行同一类型的所有filter
+ * runs all filters of the filterType sType/ Use this method within filters to run custom filters by type
+ *
+ * @param sType the filterType.
+ * @throws Throwable throws up an arbitrary exception
+ */</span>
+<span class="token keyword">public</span> Object <span class="token function">runFilters</span><span class="token punctuation">(</span>String sType<span class="token punctuation">)</span> <span class="token keyword">throws</span> Throwable <span class="token punctuation">{</span>
+    <span class="token comment" spellcheck="true">// 添加debug信息</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>RequestContext<span class="token punctuation">.</span><span class="token function">getCurrentContext</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">debugRouting</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        Debug<span class="token punctuation">.</span><span class="token function">addRoutingDebug</span><span class="token punctuation">(</span><span class="token string">"Invoking {"</span> <span class="token operator">+</span> sType <span class="token operator">+</span> <span class="token string">"} type filters"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">boolean</span> bResult <span class="token operator">=</span> <span class="token boolean">false</span><span class="token punctuation">;</span>
+    <span class="token comment" spellcheck="true">// 通过FilterLoader获取指定类型的所有filter</span>
+    List<span class="token operator">&lt;</span>ZuulFilter<span class="token operator">></span> list <span class="token operator">=</span> FilterLoader<span class="token punctuation">.</span><span class="token function">getInstance</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getFiltersByType</span><span class="token punctuation">(</span>sType<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>list <span class="token operator">!=</span> null<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token comment" spellcheck="true">// 这里没有进行try...catch... 意味着只要任何一个filter执行失败了整个过程就会中断掉</span>
+        <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> list<span class="token punctuation">.</span><span class="token function">size</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            ZuulFilter zuulFilter <span class="token operator">=</span> list<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span>i<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            Object result <span class="token operator">=</span> <span class="token function">processZuulFilter</span><span class="token punctuation">(</span>zuulFilter<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token keyword">if</span> <span class="token punctuation">(</span>result <span class="token operator">!=</span> null <span class="token operator">&amp;&amp;</span> result <span class="token keyword">instanceof</span> <span class="token class-name">Boolean</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                <span class="token comment" spellcheck="true">// 注意这里写的是|=不是!=</span>
+                <span class="token comment" spellcheck="true">// TODO:: 为什么要用这种写法？既然只有result为boolean类型时才执行，直接赋值不行吗</span>
+                bResult <span class="token operator">|=</span> <span class="token punctuation">(</span><span class="token punctuation">(</span>Boolean<span class="token punctuation">)</span> result<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">return</span> bResult<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token comment" spellcheck="true">// FilterProcessor.java</span>
+<span class="token comment" spellcheck="true">/**
+ * 执行单个zuul filter
+ * Processes an individual ZuulFilter. This method adds Debug information. Any uncaught Thowables are caught by this method and converted to a ZuulException with a 500 status code.
+ *
+ * @param filter
+ * @return the return value for that filter
+ * @throws ZuulException
+ */</span>
+<span class="token keyword">public</span> Object <span class="token function">processZuulFilter</span><span class="token punctuation">(</span>ZuulFilter filter<span class="token punctuation">)</span> <span class="token keyword">throws</span> ZuulException <span class="token punctuation">{</span>
+
+    RequestContext ctx <span class="token operator">=</span> RequestContext<span class="token punctuation">.</span><span class="token function">getCurrentContext</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">boolean</span> bDebug <span class="token operator">=</span> ctx<span class="token punctuation">.</span><span class="token function">debugRouting</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">final</span> String metricPrefix <span class="token operator">=</span> <span class="token string">"zuul.filter-"</span><span class="token punctuation">;</span>     <span class="token comment" spellcheck="true">// 这个变量没有用到...</span>
+    <span class="token keyword">long</span> execTime <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+    String filterName <span class="token operator">=</span> <span class="token string">""</span><span class="token punctuation">;</span>
+    <span class="token keyword">try</span> <span class="token punctuation">{</span>
+        <span class="token keyword">long</span> ltime <span class="token operator">=</span> System<span class="token punctuation">.</span><span class="token function">currentTimeMillis</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        filterName <span class="token operator">=</span> filter<span class="token punctuation">.</span><span class="token function">getClass</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getSimpleName</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        RequestContext copy <span class="token operator">=</span> null<span class="token punctuation">;</span>
+        Object o <span class="token operator">=</span> null<span class="token punctuation">;</span>
+        Throwable t <span class="token operator">=</span> null<span class="token punctuation">;</span>
+
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>bDebug<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            Debug<span class="token punctuation">.</span><span class="token function">addRoutingDebug</span><span class="token punctuation">(</span><span class="token string">"Filter "</span> <span class="token operator">+</span> filter<span class="token punctuation">.</span><span class="token function">filterType</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token string">" "</span> <span class="token operator">+</span> filter<span class="token punctuation">.</span><span class="token function">filterOrder</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token string">" "</span> <span class="token operator">+</span> filterName<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token comment" spellcheck="true">// copy了一份context用于debug</span>
+            copy <span class="token operator">=</span> ctx<span class="token punctuation">.</span><span class="token function">copy</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        ZuulFilterResult result <span class="token operator">=</span> filter<span class="token punctuation">.</span><span class="token function">runFilter</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        ExecutionStatus s <span class="token operator">=</span> result<span class="token punctuation">.</span><span class="token function">getStatus</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token comment" spellcheck="true">// 统计执行时间</span>
+        execTime <span class="token operator">=</span> System<span class="token punctuation">.</span><span class="token function">currentTimeMillis</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">-</span> ltime<span class="token punctuation">;</span>
+
+        <span class="token comment" spellcheck="true">// 这段对过滤器的执行状态进行记录</span>
+        <span class="token keyword">switch</span> <span class="token punctuation">(</span>s<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">case</span> FAILED<span class="token operator">:</span>
+                t <span class="token operator">=</span> result<span class="token punctuation">.</span><span class="token function">getException</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                ctx<span class="token punctuation">.</span><span class="token function">addFilterExecutionSummary</span><span class="token punctuation">(</span>filterName<span class="token punctuation">,</span> ExecutionStatus<span class="token punctuation">.</span>FAILED<span class="token punctuation">.</span><span class="token function">name</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> execTime<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token keyword">break</span><span class="token punctuation">;</span>
+            <span class="token keyword">case</span> SUCCESS<span class="token operator">:</span>
+                o <span class="token operator">=</span> result<span class="token punctuation">.</span><span class="token function">getResult</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                ctx<span class="token punctuation">.</span><span class="token function">addFilterExecutionSummary</span><span class="token punctuation">(</span>filterName<span class="token punctuation">,</span> ExecutionStatus<span class="token punctuation">.</span>SUCCESS<span class="token punctuation">.</span><span class="token function">name</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> execTime<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token keyword">if</span> <span class="token punctuation">(</span>bDebug<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                    Debug<span class="token punctuation">.</span><span class="token function">addRoutingDebug</span><span class="token punctuation">(</span><span class="token string">"Filter {"</span> <span class="token operator">+</span> filterName <span class="token operator">+</span> <span class="token string">" TYPE:"</span> <span class="token operator">+</span> filter<span class="token punctuation">.</span><span class="token function">filterType</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token string">" ORDER:"</span> <span class="token operator">+</span> filter<span class="token punctuation">.</span><span class="token function">filterOrder</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token string">"} Execution time = "</span> <span class="token operator">+</span> execTime <span class="token operator">+</span> <span class="token string">"ms"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                    Debug<span class="token punctuation">.</span><span class="token function">compareContextState</span><span class="token punctuation">(</span>filterName<span class="token punctuation">,</span> copy<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span>
+                <span class="token keyword">break</span><span class="token punctuation">;</span>
+            <span class="token keyword">default</span><span class="token operator">:</span>
+                <span class="token keyword">break</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>t <span class="token operator">!=</span> null<span class="token punctuation">)</span> <span class="token keyword">throw</span> t<span class="token punctuation">;</span>
+
+        <span class="token comment" spellcheck="true">// 触发一个filter usage回调</span>
+        <span class="token comment" spellcheck="true">// 当前notifier的实现固定是BasicFilterUsageNotifier，通过Servo统计filter的调用</span>
+        usageNotifier<span class="token punctuation">.</span><span class="token function">notify</span><span class="token punctuation">(</span>filter<span class="token punctuation">,</span> s<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">return</span> o<span class="token punctuation">;</span>
+
+    <span class="token punctuation">}</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">Throwable</span> e<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>bDebug<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            Debug<span class="token punctuation">.</span><span class="token function">addRoutingDebug</span><span class="token punctuation">(</span><span class="token string">"Running Filter failed "</span> <span class="token operator">+</span> filterName <span class="token operator">+</span> <span class="token string">" type:"</span> <span class="token operator">+</span> filter<span class="token punctuation">.</span><span class="token function">filterType</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token string">" order:"</span> <span class="token operator">+</span> filter<span class="token punctuation">.</span><span class="token function">filterOrder</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token string">" "</span> <span class="token operator">+</span> e<span class="token punctuation">.</span><span class="token function">getMessage</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        usageNotifier<span class="token punctuation">.</span><span class="token function">notify</span><span class="token punctuation">(</span>filter<span class="token punctuation">,</span> ExecutionStatus<span class="token punctuation">.</span>FAILED<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>e <span class="token keyword">instanceof</span> <span class="token class-name">ZuulException</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">throw</span> <span class="token punctuation">(</span>ZuulException<span class="token punctuation">)</span> e<span class="token punctuation">;</span>
+        <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+            ZuulException ex <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ZuulException</span><span class="token punctuation">(</span>e<span class="token punctuation">,</span> <span class="token string">"Filter threw Exception"</span><span class="token punctuation">,</span> <span class="token number">500</span><span class="token punctuation">,</span> filter<span class="token punctuation">.</span><span class="token function">filterType</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token string">":"</span> <span class="token operator">+</span> filterName<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token comment" spellcheck="true">// 如果在line35之前抛出了异常，这个execTime的值会是0</span>
+            <span class="token comment" spellcheck="true">// 不过ZuulFilter.runFilter()中做了try...catch...处理，理论上来说不会出现异常</span>
+            ctx<span class="token punctuation">.</span><span class="token function">addFilterExecutionSummary</span><span class="token punctuation">(</span>filterName<span class="token punctuation">,</span> ExecutionStatus<span class="token punctuation">.</span>FAILED<span class="token punctuation">.</span><span class="token function">name</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> execTime<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token keyword">throw</span> ex<span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token comment" spellcheck="true">// FilterProcessor.java</span>
+<span class="token comment" spellcheck="true">/**
+ * Publishes a counter metric for each filter on each use.
+ */</span>
+<span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">class</span> <span class="token class-name">BasicFilterUsageNotifier</span> <span class="token keyword">implements</span> <span class="token class-name">FilterUsageNotifier</span> <span class="token punctuation">{</span>
+    <span class="token keyword">private</span> <span class="token keyword">static</span> <span class="token keyword">final</span> String METRIC_PREFIX <span class="token operator">=</span> <span class="token string">"zuul.filter-"</span><span class="token punctuation">;</span>
+
+    <span class="token annotation punctuation">@Override</span>
+    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">notify</span><span class="token punctuation">(</span>ZuulFilter filter<span class="token punctuation">,</span> ExecutionStatus status<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token comment" spellcheck="true">// 通过Netflix Servo对每个filter进行调用计数</span>
+        DynamicCounter<span class="token punctuation">.</span><span class="token function">increment</span><span class="token punctuation">(</span>METRIC_PREFIX <span class="token operator">+</span> filter<span class="token punctuation">.</span><span class="token function">getClass</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getSimpleName</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token string">"status"</span><span class="token punctuation">,</span> status<span class="token punctuation">.</span><span class="token function">name</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token string">"filtertype"</span><span class="token punctuation">,</span> filter<span class="token punctuation">.</span><span class="token function">filterType</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h3 id="StartServer"><a href="#StartServer" class="headerlink" title="StartServer"></a>StartServer</h3><p>StartServer是一个ServletContextListener，负责在web应用启动后执行一些初始化操作</p>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token comment" spellcheck="true">// zuul-netflix-webapp</span>
+<span class="token comment" spellcheck="true">// StartServer.java</span>
+<span class="token keyword">protected</span> <span class="token keyword">void</span> <span class="token function">initialize</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">throws</span> Exception <span class="token punctuation">{</span>
+    <span class="token comment" spellcheck="true">// 这个操作是触发静态变量AmazonInfoHolder.INFO的初始化，并不是没有意义的</span>
+    AmazonInfoHolder<span class="token punctuation">.</span><span class="token function">getInfo</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token comment" spellcheck="true">// 监控、度量等初始化</span>
+    <span class="token function">initPlugins</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token comment" spellcheck="true">// 动态Filter等相关类的初始化</span>
+    <span class="token function">initZuul</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token comment" spellcheck="true">// cassandra初始化</span>
+    <span class="token function">initCassandra</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token comment" spellcheck="true">// NIWS: Netflix Internal Web Service</span>
+    <span class="token comment" spellcheck="true">// 主要是初始化ribbon的客户端之类的</span>
+    <span class="token function">initNIWS</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token comment" spellcheck="true">// 初始化完成，修改当前应用实例的状态为up</span>
+    ApplicationInfoManager<span class="token punctuation">.</span><span class="token function">getInstance</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">setInstanceStatus</span><span class="token punctuation">(</span>InstanceInfo<span class="token punctuation">.</span>InstanceStatus<span class="token punctuation">.</span>UP<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h4 id="相关链接"><a href="#相关链接" class="headerlink" title="相关链接"></a>相关链接</h4><ul>
+<li><a href="filter/dynamic_load.html#FilterLoader">FilterLoader工作方式</a></li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/source/zuul/debug_env.html" rel="next" title="zuul源码解析 —— 搭建调试环境">
+                <i class="fa fa-chevron-left"></i> zuul源码解析 —— 搭建调试环境
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/source/zuul/filters.html" rel="prev" title="zuul源码解析 —— 过滤器">
+                zuul源码解析 —— 过滤器 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/Avatar.jpg"
+               alt="taccisum" />
+          <p class="site-author-name" itemprop="name">taccisum</p>
+           
+              <p class="site-description motion-element" itemprop="description">el psy congroo.</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">29</span>
+                <span class="site-state-item-name">posts</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">23</span>
+                <span class="site-state-item-name">categories</span>
+              </a>
+            </div>
+          
+
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/taccisum" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                    
+                      GitHub
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://gitee.com/taccisum/projects" target="_blank" title="Gitee">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                    
+                      Gitee
+                    
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#工作原理"><span class="nav-number">1.</span> <span class="nav-text">工作原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#核心类"><span class="nav-number">2.</span> <span class="nav-text">核心类</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#ZuulServlet"><span class="nav-number">2.1.</span> <span class="nav-text">ZuulServlet</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RequestContext"><span class="nav-number">2.2.</span> <span class="nav-text">RequestContext</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#NFRequestContext"><span class="nav-number">2.2.1.</span> <span class="nav-text">NFRequestContext</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ZuulRunner"><span class="nav-number">2.3.</span> <span class="nav-text">ZuulRunner</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#FilterProcessor"><span class="nav-number">2.4.</span> <span class="nav-text">FilterProcessor</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#StartServer"><span class="nav-number">2.5.</span> <span class="nav-text">StartServer</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#相关链接"><span class="nav-number">2.5.1.</span> <span class="nav-text">相关链接</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">taccisum</span>
+</div>
+
+<div>
+  <span class="post-count">28.0k words</span>
+</div>
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
