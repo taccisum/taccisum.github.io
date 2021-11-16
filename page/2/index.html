@@ -308,920 +308,6 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://taccisum.github.io/source/zuul/filters.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="taccisum">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/Avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="taccisum 😉">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/source/zuul/filters.html" itemprop="url">zuul源码解析 —— 过滤器</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-12-01T14:12:30+08:00">
-                2018-12-01
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/source/" itemprop="url" rel="index">
-                    <span itemprop="name">source</span>
-                  </a>
-                </span>
-
-                
-                
-                  , 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/source/zuul/" itemprop="url" rel="index">
-                    <span itemprop="name">zuul</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>过滤器是zuul最重要的组件，几乎它所有功能都是通过过滤器来实现的。因此，理解各个过滤器的功能是阅读源码必不可少的环节。</p>
-<h2 id="过滤器的分类"><a href="#过滤器的分类" class="headerlink" title="过滤器的分类"></a>过滤器的分类</h2><h3 id="按功能分类"><a href="#按功能分类" class="headerlink" title="按功能分类"></a>按功能分类</h3><p>如果按照功能分类，过滤器主要有四大类：pre/route/post/error，它们之间的逻辑关系在<a href="architecture.html#ZuulServlet">ZuulServlet</a>中有描述。<br>除此之外你也可以自定义特殊类型的过滤器，比如源码中就有一个healthcheck类型。不过自定义类型的过滤器不会被zuul自动识别，需要使用者手动触发调用。</p>
-<h2 id="ZuulFilter"><a href="#ZuulFilter" class="headerlink" title="ZuulFilter"></a>ZuulFilter</h2><p><code>ZuulFilter</code>是所有过滤器的基类，其核心方法是runFilter，应用了模板方法模式，来看下代码</p>
-<pre class="line-numbers language-java"><code class="language-java"><span class="token comment" spellcheck="true">// ZuulFilter.java</span>
-<span class="token keyword">public</span> ZuulFilterResult <span class="token function">runFilter</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-    ZuulFilterResult zr <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ZuulFilterResult</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token comment" spellcheck="true">// 当前filter是否被禁用</span>
-    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span><span class="token function">isFilterDisabled</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        <span class="token comment" spellcheck="true">// 是否满足filter执行条件</span>
-        <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">shouldFilter</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-            Tracer t <span class="token operator">=</span> TracerFactory<span class="token punctuation">.</span><span class="token function">instance</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">startMicroTracer</span><span class="token punctuation">(</span><span class="token string">"ZUUL::"</span> <span class="token operator">+</span> <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">getClass</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getSimpleName</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-            <span class="token keyword">try</span> <span class="token punctuation">{</span>
-                <span class="token comment" spellcheck="true">// 具体的filter逻辑执行的地方</span>
-                Object res <span class="token operator">=</span> <span class="token function">run</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-                <span class="token comment" spellcheck="true">// wrap一下结果</span>
-                zr <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ZuulFilterResult</span><span class="token punctuation">(</span>res<span class="token punctuation">,</span> ExecutionStatus<span class="token punctuation">.</span>SUCCESS<span class="token punctuation">)</span><span class="token punctuation">;</span>
-            <span class="token punctuation">}</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">Throwable</span> e<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-                t<span class="token punctuation">.</span><span class="token function">setName</span><span class="token punctuation">(</span><span class="token string">"ZUUL::"</span> <span class="token operator">+</span> <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">getClass</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getSimpleName</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token string">" failed"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-                zr <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ZuulFilterResult</span><span class="token punctuation">(</span>ExecutionStatus<span class="token punctuation">.</span>FAILED<span class="token punctuation">)</span><span class="token punctuation">;</span>
-                zr<span class="token punctuation">.</span><span class="token function">setException</span><span class="token punctuation">(</span>e<span class="token punctuation">)</span><span class="token punctuation">;</span>
-            <span class="token punctuation">}</span> <span class="token keyword">finally</span> <span class="token punctuation">{</span>
-                t<span class="token punctuation">.</span><span class="token function">stopAndLog</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-            <span class="token punctuation">}</span>
-        <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
-            zr <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ZuulFilterResult</span><span class="token punctuation">(</span>ExecutionStatus<span class="token punctuation">.</span>SKIPPED<span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token punctuation">}</span>
-    <span class="token punctuation">}</span>
-<span class="token punctuation">}</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>上面代码中的关键方法有两个：shouldFilter()和run()。</p>
-<p>这两个方法都是抽象的，需要由具体的过滤器去实现。一般来说，我们在阅读过滤器源码时只需要重点关注这两个方法即可。</p>
-<h2 id="zuul-netflix-webapp提供的过滤器"><a href="#zuul-netflix-webapp提供的过滤器" class="headerlink" title="zuul-netflix-webapp提供的过滤器"></a>zuul-netflix-webapp提供的过滤器</h2><p><code>zuul-netflix-webapp</code>模块中提供了一些有用的过滤器，在src/main/groovy/filters目录下</p>
-<table>
-<thead>
-<tr>
-<th style="text-align:left"><strong>名称</strong></th>
-<th style="text-align:center"><strong>类别</strong></th>
-<th style="text-align:center"><strong>Order</strong></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left">DebugFilter</td>
-<td style="text-align:center"><code>pre</code></td>
-<td style="text-align:center">1</td>
-</tr>
-<tr>
-<td style="text-align:left">Routing</td>
-<td style="text-align:center"><code>pre</code></td>
-<td style="text-align:center">1</td>
-</tr>
-<tr>
-<td style="text-align:left">PreDecoration</td>
-<td style="text-align:center"><code>pre</code></td>
-<td style="text-align:center">20</td>
-</tr>
-<tr>
-<td style="text-align:left">WeightedLoadBalancer</td>
-<td style="text-align:center"><code>pre</code></td>
-<td style="text-align:center">30</td>
-</tr>
-<tr>
-<td style="text-align:left">DebugRequest</td>
-<td style="text-align:center"><code>pre</code></td>
-<td style="text-align:center">10000</td>
-</tr>
-<tr>
-<td style="text-align:left">ZuulNFRequest</td>
-<td style="text-align:center"><code>route</code></td>
-<td style="text-align:center">10</td>
-</tr>
-<tr>
-<td style="text-align:left">ZuulHostRequest</td>
-<td style="text-align:center"><code>route</code></td>
-<td style="text-align:center">100</td>
-</tr>
-<tr>
-<td style="text-align:left">Postfilter</td>
-<td style="text-align:center"><code>post</code></td>
-<td style="text-align:center">10</td>
-</tr>
-<tr>
-<td style="text-align:left">RequestEventInfoCollectorFilter</td>
-<td style="text-align:center"><code>post</code></td>
-<td style="text-align:center">99</td>
-</tr>
-<tr>
-<td style="text-align:left">sendResponse</td>
-<td style="text-align:center"><code>post</code></td>
-<td style="text-align:center">1000</td>
-</tr>
-<tr>
-<td style="text-align:left">Stats</td>
-<td style="text-align:center"><code>post</code></td>
-<td style="text-align:center">2000</td>
-</tr>
-<tr>
-<td style="text-align:left">ErrorResponse</td>
-<td style="text-align:center"><code>error</code></td>
-<td style="text-align:center">1</td>
-</tr>
-<tr>
-<td style="text-align:left">Options</td>
-<td style="text-align:center"><code>static</code></td>
-<td style="text-align:center">0</td>
-</tr>
-<tr>
-<td style="text-align:left">Healthcheck</td>
-<td style="text-align:center"><code>healthcheck</code></td>
-<td style="text-align:center">0</td>
-</tr>
-</tbody>
-</table>
-<p>由于篇幅关系，详细的代码分析拆分为以下三个章节：</p>
-<ul>
-<li><a href="filters/pre.html">Pre和其它类型过滤器</a></li>
-<li><a href="filters/route.html">Route类型过滤器</a></li>
-<li><a href="filters/post.html">Post类型过滤器</a></li>
-</ul>
-<h2 id="zuul-simple-webapp"><a href="#zuul-simple-webapp" class="headerlink" title="zuul-simple-webapp"></a>zuul-simple-webapp</h2><p><code>zuul-simple-webapp</code>提供的过滤器较为简单，实现的功能基本上就是<code>zuul-netfilx-webapp</code>功能的一个子集，因此这里就不列出来了。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://taccisum.github.io/source/zuul/architecture.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="taccisum">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/Avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="taccisum 😉">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/source/zuul/architecture.html" itemprop="url">zuul源码解析 —— zuul整体架构</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-11-29T10:55:13+08:00">
-                2018-11-29
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/source/" itemprop="url" rel="index">
-                    <span itemprop="name">source</span>
-                  </a>
-                </span>
-
-                
-                
-                  , 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/source/zuul/" itemprop="url" rel="index">
-                    <span itemprop="name">zuul</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="工作原理"><a href="#工作原理" class="headerlink" title="工作原理"></a>工作原理</h2><p>关于zuul架构，官方的<a href="https://github.com/Netflix/zuul/wiki/How-it-Works" target="_blank" rel="noopener">How-it-Works</a>已经讲得很清楚了，这里简单地翻译一下：</p>
-<p>Zuul的核心就是一系列的过滤器，能够在HTTP请求和响应的过程中进行一系列的操作。Zuul提供了一个可以在运行时动态地读取、编译并运行这些过滤器的框架。<br>以下是过滤器的一些重要属性：  </p>
-<ul>
-<li><strong>类型</strong>：通常定义了过滤器会作用在路由的哪个阶段</li>
-<li><strong>执行顺序</strong>：当同一阶段存在多个过滤器时，决定了这些过滤器的执行顺序</li>
-<li><strong>执行条件</strong>：决定过滤器是否被执行</li>
-<li><strong>行为</strong>：当符合条件的时候执行的操作</li>
-</ul>
-<p>过滤器之间不会直接进行通信，而是通过每个请求唯一对应的RequestContext实例进行状态共享。<br>过滤器目前只能通过Groovy语言编写（指的是动态过滤器），尽管从理论上来说Zuul支持所有以JVM为执行环境的语言。<br>过滤器的源码应该写到指定的目录中，Zuul Server会周期性地检查这些目录的变化。一旦某些过滤器有更新，它们将会被Zuul读取并动态地编译到运行时环境中，在随后到来的每个请求中都将被Zuul调用。</p>
-<p><img src="/images/zuul/architecture.png" alt="zuul_architecture"></p>
-<blockquote>
-<p>图片来源 - <a href="https://medium.com/netflix-techblog/announcing-zuul-edge-service-in-the-cloud-ab3af5be08ee" target="_blank" rel="noopener">netflix techblog</a></p>
-</blockquote>
-<h2 id="核心类"><a href="#核心类" class="headerlink" title="核心类"></a>核心类</h2><h3 id="ZuulServlet"><a href="#ZuulServlet" class="headerlink" title="ZuulServlet"></a>ZuulServlet</h3><pre class="line-numbers language-xml"><code class="language-xml"><span class="token comment" spellcheck="true">&lt;!-- web.xml --></span>
-<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>servlet</span><span class="token punctuation">></span></span>
-    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>servlet-name</span><span class="token punctuation">></span></span>ZuulServlet<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>servlet-name</span><span class="token punctuation">></span></span>
-    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>servlet-class</span><span class="token punctuation">></span></span>com.netflix.zuul.http.ZuulServlet<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>servlet-class</span><span class="token punctuation">></span></span>
-<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>servlet</span><span class="token punctuation">></span></span>
-<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>servlet-mapping</span><span class="token punctuation">></span></span>
-    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>servlet-name</span><span class="token punctuation">></span></span>ZuulServlet<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>servlet-name</span><span class="token punctuation">></span></span>
-    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>url-pattern</span><span class="token punctuation">></span></span>/*<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>url-pattern</span><span class="token punctuation">></span></span>
-<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>servlet-mapping</span><span class="token punctuation">></span></span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>Zuul是一个web应用，在web.xml中其使用的Servlet实现是ZuulServlet。因此毫无疑问的，ZuulServlet就是整个Zuul的核心。</p>
-<p>来看看servier方法</p>
-<pre class="line-numbers language-java"><code class="language-java"><span class="token comment" spellcheck="true">// ZuulServlet.java</span>
-
-<span class="token annotation punctuation">@Override</span>
-<span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">service</span><span class="token punctuation">(</span>javax<span class="token punctuation">.</span>servlet<span class="token punctuation">.</span>ServletRequest servletRequest<span class="token punctuation">,</span> javax<span class="token punctuation">.</span>servlet<span class="token punctuation">.</span>ServletResponse servletResponse<span class="token punctuation">)</span> <span class="token keyword">throws</span> ServletException<span class="token punctuation">,</span> IOException <span class="token punctuation">{</span>
-    <span class="token keyword">try</span> <span class="token punctuation">{</span>
-        <span class="token comment" spellcheck="true">// 初始化当前的zuul request context，将request和response放入上下文中</span>
-        <span class="token function">init</span><span class="token punctuation">(</span><span class="token punctuation">(</span>HttpServletRequest<span class="token punctuation">)</span> servletRequest<span class="token punctuation">,</span> <span class="token punctuation">(</span>HttpServletResponse<span class="token punctuation">)</span> servletResponse<span class="token punctuation">)</span><span class="token punctuation">;</span>
-
-        <span class="token comment" spellcheck="true">// Marks this request as having passed through the "Zuul engine", as opposed to servlets</span>
-        <span class="token comment" spellcheck="true">// explicitly bound in web.xml, for which requests will not have the same data attached</span>
-        RequestContext context <span class="token operator">=</span> RequestContext<span class="token punctuation">.</span><span class="token function">getCurrentContext</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token comment" spellcheck="true">// 为此次请求设置标识</span>
-        context<span class="token punctuation">.</span><span class="token function">setZuulEngineRan</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-
-        <span class="token comment" spellcheck="true">// zuul对请求的处理流程 start</span>
-        <span class="token comment" spellcheck="true">// 以下几个try块部分是zuul对一个请求的处理流程：pre -> route -> post</span>
-        <span class="token comment" spellcheck="true">// 可以看到：</span>
-        <span class="token comment" spellcheck="true">// 1. post是必然执行的（可以类比finally块），但如果在post中抛出了异常，交由error处理完后就结束，避免无限循环</span>
-        <span class="token comment" spellcheck="true">// 2. 任何阶段抛出了ZuulException，都会交由error处理</span>
-        <span class="token comment" spellcheck="true">// 3. 非ZuulException会被封装后交给error处理</span>
-        <span class="token keyword">try</span> <span class="token punctuation">{</span>
-            <span class="token function">preRoute</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token punctuation">}</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">ZuulException</span> e<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-            <span class="token function">error</span><span class="token punctuation">(</span>e<span class="token punctuation">)</span><span class="token punctuation">;</span>
-            <span class="token function">postRoute</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-            <span class="token keyword">return</span><span class="token punctuation">;</span>
-        <span class="token punctuation">}</span>
-        <span class="token keyword">try</span> <span class="token punctuation">{</span>
-            <span class="token function">route</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token punctuation">}</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">ZuulException</span> e<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-            <span class="token function">error</span><span class="token punctuation">(</span>e<span class="token punctuation">)</span><span class="token punctuation">;</span>
-            <span class="token function">postRoute</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-            <span class="token keyword">return</span><span class="token punctuation">;</span>
-        <span class="token punctuation">}</span>
-        <span class="token keyword">try</span> <span class="token punctuation">{</span>
-            <span class="token function">postRoute</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token punctuation">}</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">ZuulException</span> e<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-            <span class="token function">error</span><span class="token punctuation">(</span>e<span class="token punctuation">)</span><span class="token punctuation">;</span>
-            <span class="token keyword">return</span><span class="token punctuation">;</span>
-        <span class="token punctuation">}</span>
-        <span class="token comment" spellcheck="true">// zuul对请求的处理流程 end</span>
-
-    <span class="token punctuation">}</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">Throwable</span> e<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        <span class="token function">error</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">ZuulException</span><span class="token punctuation">(</span>e<span class="token punctuation">,</span> <span class="token number">500</span><span class="token punctuation">,</span> <span class="token string">"UNHANDLED_EXCEPTION_"</span> <span class="token operator">+</span> e<span class="token punctuation">.</span><span class="token function">getClass</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getName</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token punctuation">}</span> <span class="token keyword">finally</span> <span class="token punctuation">{</span>
-        <span class="token comment" spellcheck="true">// 此次请求完成，移除相应的上下文对象</span>
-        RequestContext<span class="token punctuation">.</span><span class="token function">getCurrentContext</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">unset</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-<span class="token punctuation">}</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>上面代码逻辑正好zuul官方的架构图相对应</p>
-<p><img src="https://camo.githubusercontent.com/4eb7754152028cdebd5c09d1c6f5acc7683f0094/687474703a2f2f6e6574666c69782e6769746875622e696f2f7a75756c2f696d616765732f7a75756c2d726571756573742d6c6966656379636c652e706e67" alt="zuul_architecture1"></p>
-<h3 id="RequestContext"><a href="#RequestContext" class="headerlink" title="RequestContext"></a>RequestContext</h3><p>RequestContext是各filter之间进行消息传递的介质，其本质上是一个Map，这样就可以在上下文中存储任何kv pair。</p>
-<p><strong>TODO::</strong> 这里有一个疑问，为什么RequestContext是继承自ConcurrentHashMap？因为理论上来说RequestContext对象是绝对线程安全的（线程隔离）。</p>
-<p>RequestContext包含一个类变量threadLocal，</p>
-<pre class="line-numbers language-java"><code class="language-java"><span class="token keyword">protected</span> <span class="token keyword">static</span> <span class="token keyword">final</span> ThreadLocal<span class="token operator">&lt;</span><span class="token operator">?</span> <span class="token keyword">extends</span> <span class="token class-name">RequestContext</span><span class="token operator">></span> threadLocal <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ThreadLocal</span><span class="token operator">&lt;</span>RequestContext<span class="token operator">></span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-    <span class="token annotation punctuation">@Override</span>
-    <span class="token keyword">protected</span> RequestContext <span class="token function">initialValue</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        <span class="token keyword">try</span> <span class="token punctuation">{</span>
-            <span class="token comment" spellcheck="true">// 上下文实例类型取决于contextClass，例如在NFRequestContext中就改写了contextClass</span>
-            <span class="token keyword">return</span> contextClass<span class="token punctuation">.</span><span class="token function">newInstance</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token punctuation">}</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">Throwable</span> e<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-            <span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">RuntimeException</span><span class="token punctuation">(</span>e<span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token punctuation">}</span>
-    <span class="token punctuation">}</span>
-<span class="token punctuation">}</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>在代码的任何地方都可以通过静态方法getCurrentContext获取到属于当前线程（实际上经过zuul的处理，context实例是按请求隔离的）的RequestContext实例</p>
-<pre class="line-numbers language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">static</span> RequestContext <span class="token function">getCurrentContext</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-    <span class="token keyword">if</span> <span class="token punctuation">(</span>testContext <span class="token operator">!=</span> null<span class="token punctuation">)</span> <span class="token keyword">return</span> testContext<span class="token punctuation">;</span>
-
-    RequestContext context <span class="token operator">=</span> threadLocal<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token keyword">return</span> context<span class="token punctuation">;</span>
-<span class="token punctuation">}</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<h4 id="NFRequestContext"><a href="#NFRequestContext" class="headerlink" title="NFRequestContext"></a>NFRequestContext</h4><p><code>NFRequestContext</code>继承自RequestContext，定义了一些与netflix其它组件有关的特定概念和数据的key，例如eureka VIP，Ribbon client返回的repsonse等。它有一个静态方法</p>
-<pre class="line-numbers language-java"><code class="language-java"><span class="token comment" spellcheck="true">// NFRequestContext.java</span>
-<span class="token keyword">static</span> <span class="token punctuation">{</span>
-    RequestContext<span class="token punctuation">.</span><span class="token function">setContextClass</span><span class="token punctuation">(</span>NFRequestContext<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-<span class="token punctuation">}</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
-<p>也就是说，只要加载了类NFRequestContext，应用中所有RequestContext的实例都将是NFRequestContext类型。</p>
-<h3 id="ZuulRunner"><a href="#ZuulRunner" class="headerlink" title="ZuulRunner"></a>ZuulRunner</h3><p>ZuulServlet并不做任何实际的操作，而是将所有操作交给ZuulRunner完成。</p>
-<p>而事实上ZuulRunner的大部分操作也是委托给FilterProcessor去完成的，除了init方法。</p>
-<pre class="line-numbers language-java"><code class="language-java"><span class="token comment" spellcheck="true">// ZuulRunner.java</span>
-<span class="token comment" spellcheck="true">/**
- * sets HttpServlet request and HttpResponse
- */</span>
-<span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">init</span><span class="token punctuation">(</span>HttpServletRequest servletRequest<span class="token punctuation">,</span> HttpServletResponse servletResponse<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-    RequestContext ctx <span class="token operator">=</span> RequestContext<span class="token punctuation">.</span><span class="token function">getCurrentContext</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token keyword">if</span> <span class="token punctuation">(</span>bufferRequests<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        <span class="token comment" spellcheck="true">// wrap request并缓存其body</span>
-        <span class="token comment" spellcheck="true">// 所谓buffer是指将其内容缓存起来，使得可以安全地重复调用getReader(), getInputStream()等方法</span>
-        <span class="token comment" spellcheck="true">// 因为一般来说，流操作一次之后就不能重复操作了</span>
-        <span class="token comment" spellcheck="true">// 类com.netflix.zuul.http.HttpServletRequestWrapper注释上有详解</span>
-        ctx<span class="token punctuation">.</span><span class="token function">setRequest</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">HttpServletRequestWrapper</span><span class="token punctuation">(</span>servletRequest<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
-        ctx<span class="token punctuation">.</span><span class="token function">setRequest</span><span class="token punctuation">(</span>servletRequest<span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-
-    <span class="token comment" spellcheck="true">// response没得选，肯定是wrap过的</span>
-    ctx<span class="token punctuation">.</span><span class="token function">setResponse</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">HttpServletResponseWrapper</span><span class="token punctuation">(</span>servletResponse<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-<span class="token punctuation">}</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<h3 id="FilterProcessor"><a href="#FilterProcessor" class="headerlink" title="FilterProcessor"></a>FilterProcessor</h3><p>FilterProcessor是个单例，通过getInstance()方法获取。</p>
-<p>FilterProcessor的核心方法有两个：runFilters和processZuulFilter</p>
-<pre class="line-numbers language-java"><code class="language-java"><span class="token comment" spellcheck="true">// FilterProcessor.java</span>
-<span class="token comment" spellcheck="true">/**
- * 这个是真正执行filter的方法，每调用一次都会执行同一类型的所有filter
- * runs all filters of the filterType sType/ Use this method within filters to run custom filters by type
- *
- * @param sType the filterType.
- * @throws Throwable throws up an arbitrary exception
- */</span>
-<span class="token keyword">public</span> Object <span class="token function">runFilters</span><span class="token punctuation">(</span>String sType<span class="token punctuation">)</span> <span class="token keyword">throws</span> Throwable <span class="token punctuation">{</span>
-    <span class="token comment" spellcheck="true">// 添加debug信息</span>
-    <span class="token keyword">if</span> <span class="token punctuation">(</span>RequestContext<span class="token punctuation">.</span><span class="token function">getCurrentContext</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">debugRouting</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        Debug<span class="token punctuation">.</span><span class="token function">addRoutingDebug</span><span class="token punctuation">(</span><span class="token string">"Invoking {"</span> <span class="token operator">+</span> sType <span class="token operator">+</span> <span class="token string">"} type filters"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-    <span class="token keyword">boolean</span> bResult <span class="token operator">=</span> <span class="token boolean">false</span><span class="token punctuation">;</span>
-    <span class="token comment" spellcheck="true">// 通过FilterLoader获取指定类型的所有filter</span>
-    List<span class="token operator">&lt;</span>ZuulFilter<span class="token operator">></span> list <span class="token operator">=</span> FilterLoader<span class="token punctuation">.</span><span class="token function">getInstance</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getFiltersByType</span><span class="token punctuation">(</span>sType<span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token keyword">if</span> <span class="token punctuation">(</span>list <span class="token operator">!=</span> null<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        <span class="token comment" spellcheck="true">// 这里没有进行try...catch... 意味着只要任何一个filter执行失败了整个过程就会中断掉</span>
-        <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> list<span class="token punctuation">.</span><span class="token function">size</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-            ZuulFilter zuulFilter <span class="token operator">=</span> list<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span>i<span class="token punctuation">)</span><span class="token punctuation">;</span>
-            Object result <span class="token operator">=</span> <span class="token function">processZuulFilter</span><span class="token punctuation">(</span>zuulFilter<span class="token punctuation">)</span><span class="token punctuation">;</span>
-            <span class="token keyword">if</span> <span class="token punctuation">(</span>result <span class="token operator">!=</span> null <span class="token operator">&amp;&amp;</span> result <span class="token keyword">instanceof</span> <span class="token class-name">Boolean</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-                <span class="token comment" spellcheck="true">// 注意这里写的是|=不是!=</span>
-                <span class="token comment" spellcheck="true">// TODO:: 为什么要用这种写法？既然只有result为boolean类型时才执行，直接赋值不行吗</span>
-                bResult <span class="token operator">|=</span> <span class="token punctuation">(</span><span class="token punctuation">(</span>Boolean<span class="token punctuation">)</span> result<span class="token punctuation">)</span><span class="token punctuation">;</span>
-            <span class="token punctuation">}</span>
-        <span class="token punctuation">}</span>
-    <span class="token punctuation">}</span>
-    <span class="token keyword">return</span> bResult<span class="token punctuation">;</span>
-<span class="token punctuation">}</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<pre class="line-numbers language-java"><code class="language-java"><span class="token comment" spellcheck="true">// FilterProcessor.java</span>
-<span class="token comment" spellcheck="true">/**
- * 执行单个zuul filter
- * Processes an individual ZuulFilter. This method adds Debug information. Any uncaught Thowables are caught by this method and converted to a ZuulException with a 500 status code.
- *
- * @param filter
- * @return the return value for that filter
- * @throws ZuulException
- */</span>
-<span class="token keyword">public</span> Object <span class="token function">processZuulFilter</span><span class="token punctuation">(</span>ZuulFilter filter<span class="token punctuation">)</span> <span class="token keyword">throws</span> ZuulException <span class="token punctuation">{</span>
-
-    RequestContext ctx <span class="token operator">=</span> RequestContext<span class="token punctuation">.</span><span class="token function">getCurrentContext</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token keyword">boolean</span> bDebug <span class="token operator">=</span> ctx<span class="token punctuation">.</span><span class="token function">debugRouting</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token keyword">final</span> String metricPrefix <span class="token operator">=</span> <span class="token string">"zuul.filter-"</span><span class="token punctuation">;</span>     <span class="token comment" spellcheck="true">// 这个变量没有用到...</span>
-    <span class="token keyword">long</span> execTime <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
-    String filterName <span class="token operator">=</span> <span class="token string">""</span><span class="token punctuation">;</span>
-    <span class="token keyword">try</span> <span class="token punctuation">{</span>
-        <span class="token keyword">long</span> ltime <span class="token operator">=</span> System<span class="token punctuation">.</span><span class="token function">currentTimeMillis</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        filterName <span class="token operator">=</span> filter<span class="token punctuation">.</span><span class="token function">getClass</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getSimpleName</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-
-        RequestContext copy <span class="token operator">=</span> null<span class="token punctuation">;</span>
-        Object o <span class="token operator">=</span> null<span class="token punctuation">;</span>
-        Throwable t <span class="token operator">=</span> null<span class="token punctuation">;</span>
-
-        <span class="token keyword">if</span> <span class="token punctuation">(</span>bDebug<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-            Debug<span class="token punctuation">.</span><span class="token function">addRoutingDebug</span><span class="token punctuation">(</span><span class="token string">"Filter "</span> <span class="token operator">+</span> filter<span class="token punctuation">.</span><span class="token function">filterType</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token string">" "</span> <span class="token operator">+</span> filter<span class="token punctuation">.</span><span class="token function">filterOrder</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token string">" "</span> <span class="token operator">+</span> filterName<span class="token punctuation">)</span><span class="token punctuation">;</span>
-            <span class="token comment" spellcheck="true">// copy了一份context用于debug</span>
-            copy <span class="token operator">=</span> ctx<span class="token punctuation">.</span><span class="token function">copy</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token punctuation">}</span>
-
-        ZuulFilterResult result <span class="token operator">=</span> filter<span class="token punctuation">.</span><span class="token function">runFilter</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        ExecutionStatus s <span class="token operator">=</span> result<span class="token punctuation">.</span><span class="token function">getStatus</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-
-        <span class="token comment" spellcheck="true">// 统计执行时间</span>
-        execTime <span class="token operator">=</span> System<span class="token punctuation">.</span><span class="token function">currentTimeMillis</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">-</span> ltime<span class="token punctuation">;</span>
-
-        <span class="token comment" spellcheck="true">// 这段对过滤器的执行状态进行记录</span>
-        <span class="token keyword">switch</span> <span class="token punctuation">(</span>s<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-            <span class="token keyword">case</span> FAILED<span class="token operator">:</span>
-                t <span class="token operator">=</span> result<span class="token punctuation">.</span><span class="token function">getException</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-                ctx<span class="token punctuation">.</span><span class="token function">addFilterExecutionSummary</span><span class="token punctuation">(</span>filterName<span class="token punctuation">,</span> ExecutionStatus<span class="token punctuation">.</span>FAILED<span class="token punctuation">.</span><span class="token function">name</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> execTime<span class="token punctuation">)</span><span class="token punctuation">;</span>
-                <span class="token keyword">break</span><span class="token punctuation">;</span>
-            <span class="token keyword">case</span> SUCCESS<span class="token operator">:</span>
-                o <span class="token operator">=</span> result<span class="token punctuation">.</span><span class="token function">getResult</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-                ctx<span class="token punctuation">.</span><span class="token function">addFilterExecutionSummary</span><span class="token punctuation">(</span>filterName<span class="token punctuation">,</span> ExecutionStatus<span class="token punctuation">.</span>SUCCESS<span class="token punctuation">.</span><span class="token function">name</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> execTime<span class="token punctuation">)</span><span class="token punctuation">;</span>
-                <span class="token keyword">if</span> <span class="token punctuation">(</span>bDebug<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-                    Debug<span class="token punctuation">.</span><span class="token function">addRoutingDebug</span><span class="token punctuation">(</span><span class="token string">"Filter {"</span> <span class="token operator">+</span> filterName <span class="token operator">+</span> <span class="token string">" TYPE:"</span> <span class="token operator">+</span> filter<span class="token punctuation">.</span><span class="token function">filterType</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token string">" ORDER:"</span> <span class="token operator">+</span> filter<span class="token punctuation">.</span><span class="token function">filterOrder</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token string">"} Execution time = "</span> <span class="token operator">+</span> execTime <span class="token operator">+</span> <span class="token string">"ms"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-                    Debug<span class="token punctuation">.</span><span class="token function">compareContextState</span><span class="token punctuation">(</span>filterName<span class="token punctuation">,</span> copy<span class="token punctuation">)</span><span class="token punctuation">;</span>
-                <span class="token punctuation">}</span>
-                <span class="token keyword">break</span><span class="token punctuation">;</span>
-            <span class="token keyword">default</span><span class="token operator">:</span>
-                <span class="token keyword">break</span><span class="token punctuation">;</span>
-        <span class="token punctuation">}</span>
-
-        <span class="token keyword">if</span> <span class="token punctuation">(</span>t <span class="token operator">!=</span> null<span class="token punctuation">)</span> <span class="token keyword">throw</span> t<span class="token punctuation">;</span>
-
-        <span class="token comment" spellcheck="true">// 触发一个filter usage回调</span>
-        <span class="token comment" spellcheck="true">// 当前notifier的实现固定是BasicFilterUsageNotifier，通过Servo统计filter的调用</span>
-        usageNotifier<span class="token punctuation">.</span><span class="token function">notify</span><span class="token punctuation">(</span>filter<span class="token punctuation">,</span> s<span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token keyword">return</span> o<span class="token punctuation">;</span>
-
-    <span class="token punctuation">}</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">Throwable</span> e<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        <span class="token keyword">if</span> <span class="token punctuation">(</span>bDebug<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-            Debug<span class="token punctuation">.</span><span class="token function">addRoutingDebug</span><span class="token punctuation">(</span><span class="token string">"Running Filter failed "</span> <span class="token operator">+</span> filterName <span class="token operator">+</span> <span class="token string">" type:"</span> <span class="token operator">+</span> filter<span class="token punctuation">.</span><span class="token function">filterType</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token string">" order:"</span> <span class="token operator">+</span> filter<span class="token punctuation">.</span><span class="token function">filterOrder</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token string">" "</span> <span class="token operator">+</span> e<span class="token punctuation">.</span><span class="token function">getMessage</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token punctuation">}</span>
-        usageNotifier<span class="token punctuation">.</span><span class="token function">notify</span><span class="token punctuation">(</span>filter<span class="token punctuation">,</span> ExecutionStatus<span class="token punctuation">.</span>FAILED<span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token keyword">if</span> <span class="token punctuation">(</span>e <span class="token keyword">instanceof</span> <span class="token class-name">ZuulException</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-            <span class="token keyword">throw</span> <span class="token punctuation">(</span>ZuulException<span class="token punctuation">)</span> e<span class="token punctuation">;</span>
-        <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
-            ZuulException ex <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ZuulException</span><span class="token punctuation">(</span>e<span class="token punctuation">,</span> <span class="token string">"Filter threw Exception"</span><span class="token punctuation">,</span> <span class="token number">500</span><span class="token punctuation">,</span> filter<span class="token punctuation">.</span><span class="token function">filterType</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token string">":"</span> <span class="token operator">+</span> filterName<span class="token punctuation">)</span><span class="token punctuation">;</span>
-            <span class="token comment" spellcheck="true">// 如果在line35之前抛出了异常，这个execTime的值会是0</span>
-            <span class="token comment" spellcheck="true">// 不过ZuulFilter.runFilter()中做了try...catch...处理，理论上来说不会出现异常</span>
-            ctx<span class="token punctuation">.</span><span class="token function">addFilterExecutionSummary</span><span class="token punctuation">(</span>filterName<span class="token punctuation">,</span> ExecutionStatus<span class="token punctuation">.</span>FAILED<span class="token punctuation">.</span><span class="token function">name</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> execTime<span class="token punctuation">)</span><span class="token punctuation">;</span>
-            <span class="token keyword">throw</span> ex<span class="token punctuation">;</span>
-        <span class="token punctuation">}</span>
-    <span class="token punctuation">}</span>
-<span class="token punctuation">}</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<pre class="line-numbers language-java"><code class="language-java"><span class="token comment" spellcheck="true">// FilterProcessor.java</span>
-<span class="token comment" spellcheck="true">/**
- * Publishes a counter metric for each filter on each use.
- */</span>
-<span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">class</span> <span class="token class-name">BasicFilterUsageNotifier</span> <span class="token keyword">implements</span> <span class="token class-name">FilterUsageNotifier</span> <span class="token punctuation">{</span>
-    <span class="token keyword">private</span> <span class="token keyword">static</span> <span class="token keyword">final</span> String METRIC_PREFIX <span class="token operator">=</span> <span class="token string">"zuul.filter-"</span><span class="token punctuation">;</span>
-
-    <span class="token annotation punctuation">@Override</span>
-    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">notify</span><span class="token punctuation">(</span>ZuulFilter filter<span class="token punctuation">,</span> ExecutionStatus status<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        <span class="token comment" spellcheck="true">// 通过Netflix Servo对每个filter进行调用计数</span>
-        DynamicCounter<span class="token punctuation">.</span><span class="token function">increment</span><span class="token punctuation">(</span>METRIC_PREFIX <span class="token operator">+</span> filter<span class="token punctuation">.</span><span class="token function">getClass</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getSimpleName</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token string">"status"</span><span class="token punctuation">,</span> status<span class="token punctuation">.</span><span class="token function">name</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token string">"filtertype"</span><span class="token punctuation">,</span> filter<span class="token punctuation">.</span><span class="token function">filterType</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-<span class="token punctuation">}</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<h3 id="StartServer"><a href="#StartServer" class="headerlink" title="StartServer"></a>StartServer</h3><p>StartServer是一个ServletContextListener，负责在web应用启动后执行一些初始化操作</p>
-<pre class="line-numbers language-java"><code class="language-java"><span class="token comment" spellcheck="true">// zuul-netflix-webapp</span>
-<span class="token comment" spellcheck="true">// StartServer.java</span>
-<span class="token keyword">protected</span> <span class="token keyword">void</span> <span class="token function">initialize</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">throws</span> Exception <span class="token punctuation">{</span>
-    <span class="token comment" spellcheck="true">// 这个操作是触发静态变量AmazonInfoHolder.INFO的初始化，并不是没有意义的</span>
-    AmazonInfoHolder<span class="token punctuation">.</span><span class="token function">getInfo</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token comment" spellcheck="true">// 监控、度量等初始化</span>
-    <span class="token function">initPlugins</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token comment" spellcheck="true">// 动态Filter等相关类的初始化</span>
-    <span class="token function">initZuul</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token comment" spellcheck="true">// cassandra初始化</span>
-    <span class="token function">initCassandra</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token comment" spellcheck="true">// NIWS: Netflix Internal Web Service</span>
-    <span class="token comment" spellcheck="true">// 主要是初始化ribbon的客户端之类的</span>
-    <span class="token function">initNIWS</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-
-    <span class="token comment" spellcheck="true">// 初始化完成，修改当前应用实例的状态为up</span>
-    ApplicationInfoManager<span class="token punctuation">.</span><span class="token function">getInstance</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">setInstanceStatus</span><span class="token punctuation">(</span>InstanceInfo<span class="token punctuation">.</span>InstanceStatus<span class="token punctuation">.</span>UP<span class="token punctuation">)</span><span class="token punctuation">;</span>
-<span class="token punctuation">}</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<h4 id="相关链接"><a href="#相关链接" class="headerlink" title="相关链接"></a>相关链接</h4><ul>
-<li><a href="filter/dynamic_load.html#FilterLoader">FilterLoader工作方式</a></li>
-</ul>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://taccisum.github.io/source/zuul/debug_env.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="taccisum">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/Avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="taccisum 😉">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/source/zuul/debug_env.html" itemprop="url">zuul源码解析 —— 搭建调试环境</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-11-29T10:49:29+08:00">
-                2018-11-29
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/source/" itemprop="url" rel="index">
-                    <span itemprop="name">source</span>
-                  </a>
-                </span>
-
-                
-                
-                  , 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/source/zuul/" itemprop="url" rel="index">
-                    <span itemprop="name">zuul</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="下载源码"><a href="#下载源码" class="headerlink" title="下载源码"></a>下载源码</h2><blockquote>
-<p><a href="https://github.com/Netflix/zuul" target="_blank" rel="noopener">netflix-zuul</a></p>
-</blockquote>
-<p>建议fork一份，方便阅读时随手写些注释提交。</p>
-<h2 id="zuul模块介绍"><a href="#zuul模块介绍" class="headerlink" title="zuul模块介绍"></a>zuul模块介绍</h2><ul>
-<li>zuul-core: 确立zuul整体架构及重要类的api</li>
-<li>zuul-netflix: 提供了对netflix其它组件的集成相关实现，如hystrix, ribbon等。此外还有一些工具，如统计工具。主要是为zuul-netflix-webapp提供支持</li>
-<li>zuul-netflix-webapp: Netflix提供的一个可用于生产环境的应用实现，包括Filter的具体实现，监控，动态Filter管理等功能</li>
-<li>zuul-simple-webapp: 一个简单的示例app，功能比较简单，没有太大的研究价值</li>
-</ul>
-<h2 id="运行zuul-simple-webapp"><a href="#运行zuul-simple-webapp" class="headerlink" title="运行zuul-simple-webapp"></a>运行zuul-simple-webapp</h2><p>直接运行以下命令即可</p>
-<pre class="line-numbers language-bash"><code class="language-bash">$ <span class="token function">cd</span> zuul-simple-webapp
-$ <span class="token punctuation">..</span>/gradlew jettyRun
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
-<p>然后可以通过 <a href="http://localhost:8080" target="_blank" rel="noopener">http://localhost:8080</a> 访问<a href="http://localhost:8080" target="_blank" rel="noopener">httpbin</a>。</p>
-<blockquote>
-<p>详细可以参考<a href="https://github.com/Netflix/zuul/wiki/zuul-simple-webapp" target="_blank" rel="noopener">zuul-simple-webapp</a></p>
-</blockquote>
-<h3 id="什么是httpbin"><a href="#什么是httpbin" class="headerlink" title="什么是httpbin"></a>什么是httpbin</h3><blockquote>
-<p>A simple HTTP Request &amp; Response Service</p>
-</blockquote>
-<p>简单来说就是一个方便测试HTTP请求和响应的各种信息,比如cookie, ip, headers和登录验证等的工具。</p>
-<h2 id="运行zuul-netflix-webapp"><a href="#运行zuul-netflix-webapp" class="headerlink" title="运行zuul-netflix-webapp"></a>运行zuul-netflix-webapp</h2><p>由于这是一个可用于生产环境的应用，在其中集成了eureka等，因此需要运行起来还需要做一定的配置</p>
-<p>配置zuul.properties，位于zuul-netflix-webapp/src/resources，这里只列出一些必须要覆盖的项</p>
-<pre class="line-numbers language-properties"><code class="language-properties"><span class="token comment" spellcheck="true"># zuul.properties</span>
-<span class="token attr-name">eureka.serviceUrl.default</span><span class="token punctuation">=</span><span class="token attr-value">{你的eureka server注册地址}</span>
-
-<span class="token comment" spellcheck="true"># 指定filter存放的目录，由于只是调试代码，直接使用zuul提供的filter就好</span>
-<span class="token attr-name">zuul.filter.pre.path</span><span class="token punctuation">=</span><span class="token attr-value">src/main/groovy/filters/pre</span>
-<span class="token attr-name">zuul.filter.routing.path</span><span class="token punctuation">=</span><span class="token attr-value">src/main/groovy/filters/route</span>
-<span class="token attr-name">zuul.filter.post.path</span><span class="token punctuation">=</span><span class="token attr-value">src/main/groovy/filters/post</span>
-
-<span class="token comment" spellcheck="true"># origin client对应的eureka VIP</span>
-<span class="token attr-name">origin.zuul.client.DeploymentContextBasedVipAddresses</span><span class="token punctuation">=</span><span class="token attr-value">foo</span>
-<span class="token attr-name">origin.zuul.client.Port</span><span class="token punctuation">=</span><span class="token attr-value">8080</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>此外，建议修改代码打开debug开关</p>
-<pre class="line-numbers language-java"><code class="language-java"><span class="token comment" spellcheck="true">// Debug.groovy</span>
-<span class="token keyword">boolean</span> <span class="token function">shouldFilter</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-    <span class="token keyword">return</span> <span class="token boolean">true</span><span class="token punctuation">;</span>
-<span class="token punctuation">}</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
-<p>然后运行</p>
-<pre class="line-numbers language-bash"><code class="language-bash">$ <span class="token function">cd</span> zuul-netflix-webapp
-$ <span class="token punctuation">..</span>/gradlew jettyRun
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
-<p>不出意外的话，此时你的zuul应用应该已经注册到eureka server中了。<br>访问 <a href="http://localhost:8080/healthcheck" target="_blank" rel="noopener">http://localhost:8080/healthcheck</a> ，如果出现ok，说明应用已运行成功<br>访问 <a href="http://localhost:8080/path" target="_blank" rel="noopener">http://localhost:8080/path</a> 可以路由到你的foo服务的path路径中</p>
-<h2 id="debug运行-IntelliJ-IDEA"><a href="#debug运行-IntelliJ-IDEA" class="headerlink" title="debug运行(IntelliJ IDEA)"></a>debug运行(IntelliJ IDEA)</h2><p>上面的操作可以运行zuul的webapp，但是还没办法进入断点调试，接下来我们尝试配置用IntelliJ IDEA来进行断点调试。</p>
-<h3 id="添加gradle-run-debug配置"><a href="#添加gradle-run-debug配置" class="headerlink" title="添加gradle run/debug配置"></a>添加gradle run/debug配置</h3><p>在IDEA的run/debug configurations添加一个Gradle配置，参数如下</p>
-<ul>
-<li><strong>Gradle project</strong>: zuul-simple-webapp或zuul-netflix-webapp</li>
-<li><strong>Tasks</strong>: jettyRun</li>
-<li><strong>VM Options</strong>: -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=7777</li>
-</ul>
-<p>然后运行，这时应用会进入无限等待remote连接的状态，因此需要再添加一个remote配置。</p>
-<h3 id="添加remote-run-debug配置"><a href="#添加remote-run-debug配置" class="headerlink" title="添加remote run/debug配置"></a>添加remote run/debug配置</h3><p>在IDEA的run/debug configrations添加一个Remote配置，参数如下</p>
-<ul>
-<li><strong>Host</strong>: localhost</li>
-<li><strong>Port</strong>: 7777（即之前Gradle配置中VM Options的address）</li>
-</ul>
-<p>然后debug运行，就可以愉快地进行调试了。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://taccisum.github.io/source/zuul/home.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2840,6 +1926,819 @@ Subscriber<span class="token operator">&lt;</span>R<span class="token operator">
 
 
     
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://taccisum.github.io/instantiationexception_on_mybatistest.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="taccisum">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/Avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="taccisum 😉">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/instantiationexception_on_mybatistest.html" itemprop="url">在@MybatisTest中使用通用Mapper出现InstantiationException的问题</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-11-15T11:42:36+08:00">
+                2017-11-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/java/" itemprop="url" rel="index">
+                    <span itemprop="name">java</span>
+                  </a>
+                </span>
+
+                
+                
+                  , 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/java/踩坑日记/" itemprop="url" rel="index">
+                    <span itemprop="name">踩坑日记</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h2><p>在Spring Boot环境中使用<a href="http://www.mybatis.org/spring-boot-starter/mybatis-spring-boot-test-autoconfigure/" target="_blank" rel="noopener">@MybatisTest</a>注解针对Mapper写单元测试的时候，由于同时引入了<a href="https://github.com/abel533/Mapper" target="_blank" rel="noopener">通用Mapper</a>，在单元测试中调用通用Mapper的方法进行CRUD时会出现<code>InstantiationException</code>异常</p>
+<pre class="line-numbers language-java"><code class="language-java">org<span class="token punctuation">.</span>mybatis<span class="token punctuation">.</span>spring<span class="token punctuation">.</span>MyBatisSystemException<span class="token operator">:</span> nested exception is org<span class="token punctuation">.</span>apache<span class="token punctuation">.</span>ibatis<span class="token punctuation">.</span>builder<span class="token punctuation">.</span>BuilderException<span class="token operator">:</span> Error invoking SqlProvider <span class="token function">method</span> <span class="token punctuation">(</span>tk<span class="token punctuation">.</span>mybatis<span class="token punctuation">.</span>mapper<span class="token punctuation">.</span>provider<span class="token punctuation">.</span>base<span class="token punctuation">.</span>BaseSelectProvider<span class="token punctuation">.</span>dynamicSQL<span class="token punctuation">)</span><span class="token punctuation">.</span>  Cause<span class="token operator">:</span> java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>InstantiationException<span class="token operator">:</span> tk<span class="token punctuation">.</span>mybatis<span class="token punctuation">.</span>mapper<span class="token punctuation">.</span>provider<span class="token punctuation">.</span>base<span class="token punctuation">.</span>BaseSelectProvider
+
+    at org<span class="token punctuation">.</span>mybatis<span class="token punctuation">.</span>spring<span class="token punctuation">.</span>MyBatisExceptionTranslator<span class="token punctuation">.</span><span class="token function">translateExceptionIfPossible</span><span class="token punctuation">(</span>MyBatisExceptionTranslator<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">77</span><span class="token punctuation">)</span>
+    at org<span class="token punctuation">.</span>mybatis<span class="token punctuation">.</span>spring<span class="token punctuation">.</span>SqlSessionTemplate$SqlSessionInterceptor<span class="token punctuation">.</span><span class="token function">invoke</span><span class="token punctuation">(</span>SqlSessionTemplate<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">446</span><span class="token punctuation">)</span>
+    at com<span class="token punctuation">.</span>sun<span class="token punctuation">.</span>proxy<span class="token punctuation">.</span>$Proxy89<span class="token punctuation">.</span><span class="token function">selectOne</span><span class="token punctuation">(</span>Unknown Source<span class="token punctuation">)</span>
+    at org<span class="token punctuation">.</span>mybatis<span class="token punctuation">.</span>spring<span class="token punctuation">.</span>SqlSessionTemplate<span class="token punctuation">.</span><span class="token function">selectOne</span><span class="token punctuation">(</span>SqlSessionTemplate<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">166</span><span class="token punctuation">)</span>
+    at org<span class="token punctuation">.</span>apache<span class="token punctuation">.</span>ibatis<span class="token punctuation">.</span>binding<span class="token punctuation">.</span>MapperMethod<span class="token punctuation">.</span><span class="token function">execute</span><span class="token punctuation">(</span>MapperMethod<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">82</span><span class="token punctuation">)</span>
+    at org<span class="token punctuation">.</span>apache<span class="token punctuation">.</span>ibatis<span class="token punctuation">.</span>binding<span class="token punctuation">.</span>MapperProxy<span class="token punctuation">.</span><span class="token function">invoke</span><span class="token punctuation">(</span>MapperProxy<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">59</span><span class="token punctuation">)</span>
+    at com<span class="token punctuation">.</span>sun<span class="token punctuation">.</span>proxy<span class="token punctuation">.</span>$Proxy91<span class="token punctuation">.</span><span class="token function">selectByPrimaryKey</span><span class="token punctuation">(</span>Unknown Source<span class="token punctuation">)</span>
+    at com<span class="token punctuation">.</span>ikentop<span class="token punctuation">.</span>biz<span class="token punctuation">.</span>provider<span class="token punctuation">.</span>mapper<span class="token punctuation">.</span>hh<span class="token punctuation">.</span>ImageRecordMapperTest<span class="token punctuation">.</span><span class="token function">testSimply</span><span class="token punctuation">(</span>ImageRecordMapperTest<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">33</span><span class="token punctuation">)</span>
+    at sun<span class="token punctuation">.</span>reflect<span class="token punctuation">.</span>NativeMethodAccessorImpl<span class="token punctuation">.</span><span class="token function">invoke0</span><span class="token punctuation">(</span>Native Method<span class="token punctuation">)</span>
+    at sun<span class="token punctuation">.</span>reflect<span class="token punctuation">.</span>NativeMethodAccessorImpl<span class="token punctuation">.</span><span class="token function">invoke</span><span class="token punctuation">(</span>NativeMethodAccessorImpl<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">62</span><span class="token punctuation">)</span>
+    at sun<span class="token punctuation">.</span>reflect<span class="token punctuation">.</span>DelegatingMethodAccessorImpl<span class="token punctuation">.</span><span class="token function">invoke</span><span class="token punctuation">(</span>DelegatingMethodAccessorImpl<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">43</span><span class="token punctuation">)</span>
+    at java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>reflect<span class="token punctuation">.</span>Method<span class="token punctuation">.</span><span class="token function">invoke</span><span class="token punctuation">(</span>Method<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">498</span><span class="token punctuation">)</span>
+    at org<span class="token punctuation">.</span>junit<span class="token punctuation">.</span>runners<span class="token punctuation">.</span>model<span class="token punctuation">.</span>FrameworkMethod$<span class="token number">1</span><span class="token punctuation">.</span><span class="token function">runReflectiveCall</span><span class="token punctuation">(</span>FrameworkMethod<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">50</span><span class="token punctuation">)</span>
+    at org<span class="token punctuation">.</span>junit<span class="token punctuation">.</span>internal<span class="token punctuation">.</span>runners<span class="token punctuation">.</span>model<span class="token punctuation">.</span>ReflectiveCallable<span class="token punctuation">.</span><span class="token function">run</span><span class="token punctuation">(</span>ReflectiveCallable<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">12</span><span class="token punctuation">)</span>
+    at org<span class="token punctuation">.</span>junit<span class="token punctuation">.</span>runners<span class="token punctuation">.</span>model<span class="token punctuation">.</span>FrameworkMethod<span class="token punctuation">.</span><span class="token function">invokeExplosively</span><span class="token punctuation">(</span>FrameworkMethod<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">47</span><span class="token punctuation">)</span>
+    at org<span class="token punctuation">.</span>junit<span class="token punctuation">.</span>internal<span class="token punctuation">.</span>runners<span class="token punctuation">.</span>statements<span class="token punctuation">.</span>InvokeMethod<span class="token punctuation">.</span><span class="token function">evaluate</span><span class="token punctuation">(</span>InvokeMethod<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">17</span><span class="token punctuation">)</span>
+    at org<span class="token punctuation">.</span>springframework<span class="token punctuation">.</span>test<span class="token punctuation">.</span>context<span class="token punctuation">.</span>junit4<span class="token punctuation">.</span>statements<span class="token punctuation">.</span>RunBeforeTestMethodCallbacks<span class="token punctuation">.</span><span class="token function">evaluate</span><span class="token punctuation">(</span>RunBeforeTestMethodCallbacks<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">75</span><span class="token punctuation">)</span>
+    at org<span class="token punctuation">.</span>springframework<span class="token punctuation">.</span>test<span class="token punctuation">.</span>context<span class="token punctuation">.</span>junit4<span class="token punctuation">.</span>statements<span class="token punctuation">.</span>RunAfterTestMethodCallbacks<span class="token punctuation">.</span><span class="token function">evaluate</span><span class="token punctuation">(</span>RunAfterTestMethodCallbacks<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">86</span><span class="token punctuation">)</span>
+    at org<span class="token punctuation">.</span>springframework<span class="token punctuation">.</span>test<span class="token punctuation">.</span>context<span class="token punctuation">.</span>junit4<span class="token punctuation">.</span>statements<span class="token punctuation">.</span>SpringRepeat<span class="token punctuation">.</span><span class="token function">evaluate</span><span class="token punctuation">(</span>SpringRepeat<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">84</span><span class="token punctuation">)</span>
+    at org<span class="token punctuation">.</span>junit<span class="token punctuation">.</span>runners<span class="token punctuation">.</span>ParentRunner<span class="token punctuation">.</span><span class="token function">runLeaf</span><span class="token punctuation">(</span>ParentRunner<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">325</span><span class="token punctuation">)</span>
+    at org<span class="token punctuation">.</span>springframework<span class="token punctuation">.</span>test<span class="token punctuation">.</span>context<span class="token punctuation">.</span>junit4<span class="token punctuation">.</span>SpringJUnit4ClassRunner<span class="token punctuation">.</span><span class="token function">runChild</span><span class="token punctuation">(</span>SpringJUnit4ClassRunner<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">252</span><span class="token punctuation">)</span>
+    at org<span class="token punctuation">.</span>springframework<span class="token punctuation">.</span>test<span class="token punctuation">.</span>context<span class="token punctuation">.</span>junit4<span class="token punctuation">.</span>SpringJUnit4ClassRunner<span class="token punctuation">.</span><span class="token function">runChild</span><span class="token punctuation">(</span>SpringJUnit4ClassRunner<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">94</span><span class="token punctuation">)</span>
+    at org<span class="token punctuation">.</span>junit<span class="token punctuation">.</span>runners<span class="token punctuation">.</span>ParentRunner$<span class="token number">3</span><span class="token punctuation">.</span><span class="token function">run</span><span class="token punctuation">(</span>ParentRunner<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">290</span><span class="token punctuation">)</span>
+    at org<span class="token punctuation">.</span>junit<span class="token punctuation">.</span>runners<span class="token punctuation">.</span>ParentRunner$<span class="token number">1</span><span class="token punctuation">.</span><span class="token function">schedule</span><span class="token punctuation">(</span>ParentRunner<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">71</span><span class="token punctuation">)</span>
+    at org<span class="token punctuation">.</span>junit<span class="token punctuation">.</span>runners<span class="token punctuation">.</span>ParentRunner<span class="token punctuation">.</span><span class="token function">runChildren</span><span class="token punctuation">(</span>ParentRunner<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">288</span><span class="token punctuation">)</span>
+    at org<span class="token punctuation">.</span>junit<span class="token punctuation">.</span>runners<span class="token punctuation">.</span>ParentRunner<span class="token punctuation">.</span>access$<span class="token function">000</span><span class="token punctuation">(</span>ParentRunner<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">58</span><span class="token punctuation">)</span>
+    at org<span class="token punctuation">.</span>junit<span class="token punctuation">.</span>runners<span class="token punctuation">.</span>ParentRunner$<span class="token number">2</span><span class="token punctuation">.</span><span class="token function">evaluate</span><span class="token punctuation">(</span>ParentRunner<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">268</span><span class="token punctuation">)</span>
+    at org<span class="token punctuation">.</span>springframework<span class="token punctuation">.</span>test<span class="token punctuation">.</span>context<span class="token punctuation">.</span>junit4<span class="token punctuation">.</span>statements<span class="token punctuation">.</span>RunBeforeTestClassCallbacks<span class="token punctuation">.</span><span class="token function">evaluate</span><span class="token punctuation">(</span>RunBeforeTestClassCallbacks<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">61</span><span class="token punctuation">)</span>
+    at org<span class="token punctuation">.</span>springframework<span class="token punctuation">.</span>test<span class="token punctuation">.</span>context<span class="token punctuation">.</span>junit4<span class="token punctuation">.</span>statements<span class="token punctuation">.</span>RunAfterTestClassCallbacks<span class="token punctuation">.</span><span class="token function">evaluate</span><span class="token punctuation">(</span>RunAfterTestClassCallbacks<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">70</span><span class="token punctuation">)</span>
+    at org<span class="token punctuation">.</span>junit<span class="token punctuation">.</span>runners<span class="token punctuation">.</span>ParentRunner<span class="token punctuation">.</span><span class="token function">run</span><span class="token punctuation">(</span>ParentRunner<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">363</span><span class="token punctuation">)</span>
+    at org<span class="token punctuation">.</span>springframework<span class="token punctuation">.</span>test<span class="token punctuation">.</span>context<span class="token punctuation">.</span>junit4<span class="token punctuation">.</span>SpringJUnit4ClassRunner<span class="token punctuation">.</span><span class="token function">run</span><span class="token punctuation">(</span>SpringJUnit4ClassRunner<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">191</span><span class="token punctuation">)</span>
+    at org<span class="token punctuation">.</span>junit<span class="token punctuation">.</span>runner<span class="token punctuation">.</span>JUnitCore<span class="token punctuation">.</span><span class="token function">run</span><span class="token punctuation">(</span>JUnitCore<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">137</span><span class="token punctuation">)</span>
+    at com<span class="token punctuation">.</span>intellij<span class="token punctuation">.</span>junit4<span class="token punctuation">.</span>JUnit4IdeaTestRunner<span class="token punctuation">.</span><span class="token function">startRunnerWithArgs</span><span class="token punctuation">(</span>JUnit4IdeaTestRunner<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">68</span><span class="token punctuation">)</span>
+    at com<span class="token punctuation">.</span>intellij<span class="token punctuation">.</span>rt<span class="token punctuation">.</span>execution<span class="token punctuation">.</span>junit<span class="token punctuation">.</span>IdeaTestRunner$Repeater<span class="token punctuation">.</span><span class="token function">startRunnerWithArgs</span><span class="token punctuation">(</span>IdeaTestRunner<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">51</span><span class="token punctuation">)</span>
+    at com<span class="token punctuation">.</span>intellij<span class="token punctuation">.</span>rt<span class="token punctuation">.</span>execution<span class="token punctuation">.</span>junit<span class="token punctuation">.</span>JUnitStarter<span class="token punctuation">.</span><span class="token function">prepareStreamsAndStart</span><span class="token punctuation">(</span>JUnitStarter<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">237</span><span class="token punctuation">)</span>
+    at com<span class="token punctuation">.</span>intellij<span class="token punctuation">.</span>rt<span class="token punctuation">.</span>execution<span class="token punctuation">.</span>junit<span class="token punctuation">.</span>JUnitStarter<span class="token punctuation">.</span><span class="token function">main</span><span class="token punctuation">(</span>JUnitStarter<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">70</span><span class="token punctuation">)</span>
+Caused by<span class="token operator">:</span> org<span class="token punctuation">.</span>apache<span class="token punctuation">.</span>ibatis<span class="token punctuation">.</span>builder<span class="token punctuation">.</span>BuilderException<span class="token operator">:</span> Error invoking SqlProvider <span class="token function">method</span> <span class="token punctuation">(</span>tk<span class="token punctuation">.</span>mybatis<span class="token punctuation">.</span>mapper<span class="token punctuation">.</span>provider<span class="token punctuation">.</span>base<span class="token punctuation">.</span>BaseSelectProvider<span class="token punctuation">.</span>dynamicSQL<span class="token punctuation">)</span><span class="token punctuation">.</span>  Cause<span class="token operator">:</span> java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>InstantiationException<span class="token operator">:</span> tk<span class="token punctuation">.</span>mybatis<span class="token punctuation">.</span>mapper<span class="token punctuation">.</span>provider<span class="token punctuation">.</span>base<span class="token punctuation">.</span>BaseSelectProvider
+    at org<span class="token punctuation">.</span>apache<span class="token punctuation">.</span>ibatis<span class="token punctuation">.</span>builder<span class="token punctuation">.</span>annotation<span class="token punctuation">.</span>ProviderSqlSource<span class="token punctuation">.</span><span class="token function">createSqlSource</span><span class="token punctuation">(</span>ProviderSqlSource<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">103</span><span class="token punctuation">)</span>
+    at org<span class="token punctuation">.</span>apache<span class="token punctuation">.</span>ibatis<span class="token punctuation">.</span>builder<span class="token punctuation">.</span>annotation<span class="token punctuation">.</span>ProviderSqlSource<span class="token punctuation">.</span><span class="token function">getBoundSql</span><span class="token punctuation">(</span>ProviderSqlSource<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">73</span><span class="token punctuation">)</span>
+    at org<span class="token punctuation">.</span>apache<span class="token punctuation">.</span>ibatis<span class="token punctuation">.</span>mapping<span class="token punctuation">.</span>MappedStatement<span class="token punctuation">.</span><span class="token function">getBoundSql</span><span class="token punctuation">(</span>MappedStatement<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">292</span><span class="token punctuation">)</span>
+    at org<span class="token punctuation">.</span>apache<span class="token punctuation">.</span>ibatis<span class="token punctuation">.</span>executor<span class="token punctuation">.</span>CachingExecutor<span class="token punctuation">.</span><span class="token function">query</span><span class="token punctuation">(</span>CachingExecutor<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">81</span><span class="token punctuation">)</span>
+    at org<span class="token punctuation">.</span>apache<span class="token punctuation">.</span>ibatis<span class="token punctuation">.</span>session<span class="token punctuation">.</span>defaults<span class="token punctuation">.</span>DefaultSqlSession<span class="token punctuation">.</span><span class="token function">selectList</span><span class="token punctuation">(</span>DefaultSqlSession<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">148</span><span class="token punctuation">)</span>
+    at org<span class="token punctuation">.</span>apache<span class="token punctuation">.</span>ibatis<span class="token punctuation">.</span>session<span class="token punctuation">.</span>defaults<span class="token punctuation">.</span>DefaultSqlSession<span class="token punctuation">.</span><span class="token function">selectList</span><span class="token punctuation">(</span>DefaultSqlSession<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">141</span><span class="token punctuation">)</span>
+    at org<span class="token punctuation">.</span>apache<span class="token punctuation">.</span>ibatis<span class="token punctuation">.</span>session<span class="token punctuation">.</span>defaults<span class="token punctuation">.</span>DefaultSqlSession<span class="token punctuation">.</span><span class="token function">selectOne</span><span class="token punctuation">(</span>DefaultSqlSession<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">77</span><span class="token punctuation">)</span>
+    at sun<span class="token punctuation">.</span>reflect<span class="token punctuation">.</span>NativeMethodAccessorImpl<span class="token punctuation">.</span><span class="token function">invoke0</span><span class="token punctuation">(</span>Native Method<span class="token punctuation">)</span>
+    at sun<span class="token punctuation">.</span>reflect<span class="token punctuation">.</span>NativeMethodAccessorImpl<span class="token punctuation">.</span><span class="token function">invoke</span><span class="token punctuation">(</span>NativeMethodAccessorImpl<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">62</span><span class="token punctuation">)</span>
+    at sun<span class="token punctuation">.</span>reflect<span class="token punctuation">.</span>DelegatingMethodAccessorImpl<span class="token punctuation">.</span><span class="token function">invoke</span><span class="token punctuation">(</span>DelegatingMethodAccessorImpl<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">43</span><span class="token punctuation">)</span>
+    at java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>reflect<span class="token punctuation">.</span>Method<span class="token punctuation">.</span><span class="token function">invoke</span><span class="token punctuation">(</span>Method<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">498</span><span class="token punctuation">)</span>
+    at org<span class="token punctuation">.</span>mybatis<span class="token punctuation">.</span>spring<span class="token punctuation">.</span>SqlSessionTemplate$SqlSessionInterceptor<span class="token punctuation">.</span><span class="token function">invoke</span><span class="token punctuation">(</span>SqlSessionTemplate<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">433</span><span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span> <span class="token number">34</span> more
+Caused by<span class="token operator">:</span> java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>InstantiationException<span class="token operator">:</span> tk<span class="token punctuation">.</span>mybatis<span class="token punctuation">.</span>mapper<span class="token punctuation">.</span>provider<span class="token punctuation">.</span>base<span class="token punctuation">.</span>BaseSelectProvider
+    at java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>Class<span class="token punctuation">.</span><span class="token function">newInstance</span><span class="token punctuation">(</span>Class<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">427</span><span class="token punctuation">)</span>
+    at org<span class="token punctuation">.</span>apache<span class="token punctuation">.</span>ibatis<span class="token punctuation">.</span>builder<span class="token punctuation">.</span>annotation<span class="token punctuation">.</span>ProviderSqlSource<span class="token punctuation">.</span><span class="token function">createSqlSource</span><span class="token punctuation">(</span>ProviderSqlSource<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">85</span><span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span> <span class="token number">45</span> more
+Caused by<span class="token operator">:</span> java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>NoSuchMethodException<span class="token operator">:</span> tk<span class="token punctuation">.</span>mybatis<span class="token punctuation">.</span>mapper<span class="token punctuation">.</span>provider<span class="token punctuation">.</span>base<span class="token punctuation">.</span>BaseSelectProvider<span class="token punctuation">.</span>&lt;init<span class="token operator">></span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    at java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>Class<span class="token punctuation">.</span><span class="token function">getConstructor0</span><span class="token punctuation">(</span>Class<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">3082</span><span class="token punctuation">)</span>
+    at java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>Class<span class="token punctuation">.</span><span class="token function">newInstance</span><span class="token punctuation">(</span>Class<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">412</span><span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span> <span class="token number">46</span> more
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>单元测试代码如下：</p>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token annotation punctuation">@RunWith</span><span class="token punctuation">(</span>SpringRunner<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">)</span>
+<span class="token annotation punctuation">@MybatisTest</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">ImageRecordMapperTest</span> <span class="token punctuation">{</span>
+    <span class="token annotation punctuation">@Autowired</span>
+    <span class="token keyword">private</span> ImageRecordMapper mapper<span class="token punctuation">;</span>
+
+    <span class="token annotation punctuation">@Test</span>
+    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">testSimply</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        ImageRecord record <span class="token operator">=</span> mapper<span class="token punctuation">.</span><span class="token function">selectByPrimaryKey</span><span class="token punctuation">(</span><span class="token string">"1"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        Assert<span class="token punctuation">.</span><span class="token function">assertNotNull</span><span class="token punctuation">(</span>record<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        Assert<span class="token punctuation">.</span><span class="token function">assertEquals</span><span class="token punctuation">(</span><span class="token string">"taccisum"</span><span class="token punctuation">,</span> record<span class="token punctuation">.</span><span class="token function">getBucket</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        Assert<span class="token punctuation">.</span><span class="token function">assertEquals</span><span class="token punctuation">(</span><span class="token string">"image1"</span><span class="token punctuation">,</span> record<span class="token punctuation">.</span><span class="token function">getKey</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        Assert<span class="token punctuation">.</span><span class="token function">assertEquals</span><span class="token punctuation">(</span><span class="token string">"hash1"</span><span class="token punctuation">,</span> record<span class="token punctuation">.</span><span class="token function">getHash</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h2 id="分析原因"><a href="#分析原因" class="headerlink" title="分析原因"></a>分析原因</h2><p>在github上mapper的<a href="https://github.com/abel533/MyBatis-Spring-Boot/issues/34" target="_blank" rel="noopener">issue</a>中有一段作者的回复，说此异常是由于<code>通用方法没有被正确初始化</code>导致。<br>我这边的情况虽然和这个issue不同，但根本原因是一样的。<br>查阅<code>Mybatis-Test</code>的文档可知，<code>@MybatisTest</code>注解不同于<code>@SpringBootTest</code>，它只加载保证Mybatis正常运行所需要的configuration。显然通用Mapper作为Mybatis第三方的扩展，并没有被纳入其中，因而默认情况下通用Mapper的starter是不会被加载的，也就导致通用方法不会被初始化。</p>
+<blockquote>
+<p>The @MybatisTest can be used if you want to test MyBatis components(Mapper interface and SqlSession). By default it will configure MyBatis(MyBatis-Spring) components(SqlSessionFactory and SqlSessionTemplate), configure MyBatis mapper interfaces and configure an in-memory embedded database. MyBatis tests are transactional and rollback at the end of each test by default, for more details refer to the relevant section in the Spring Reference Documentation. Also regular @Component beans will not be loaded into the ApplicationContext.<br>以上是来自<a href="http://www.mybatis.org/spring-boot-starter/mybatis-spring-boot-test-autoconfigure/" target="_blank" rel="noopener">mybatis-spring-boot-test-autoconfigure</a>官方文档的描述</p>
+</blockquote>
+<h2 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h2><p>显然，只要让Mapper的starter在MybatisTest的单元测试启动时得以加载即可解决我们的问题。那么如何做呢？<br>Spring Boot提供了一个<code>@ImportAutoConfiguration</code>的注解，因此只需要在单元测试的目标类上使用该注解将MapperAutoConfiguration导入即可</p>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token annotation punctuation">@RunWith</span><span class="token punctuation">(</span>SpringRunner<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">)</span>
+<span class="token annotation punctuation">@ImportAutoConfiguration</span><span class="token punctuation">(</span>MapperAutoConfiguration<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">)</span>
+<span class="token annotation punctuation">@MybatisTest</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">ImageRecordMapperTest</span> <span class="token punctuation">{</span>
+    ……
+<span class="token punctuation">}</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>其中<code>MapperAutoConfiguration</code>是通用Mapper的starter的auto-configure类。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://taccisum.github.io/learn_gradle_5.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="taccisum">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/Avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="taccisum 😉">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/learn_gradle_5.html" itemprop="url">Gradle学习（五） - 打包发布</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-10-13T11:32:20+08:00">
+                2017-10-13
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/java/" itemprop="url" rel="index">
+                    <span itemprop="name">java</span>
+                  </a>
+                </span>
+
+                
+                
+                  , 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/java/gradle/" itemprop="url" rel="index">
+                    <span itemprop="name">gradle</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="发布到Maven仓库"><a href="#发布到Maven仓库" class="headerlink" title="发布到Maven仓库"></a>发布到Maven仓库</h2><h3 id="Maven-Publish插件"><a href="#Maven-Publish插件" class="headerlink" title="Maven-Publish插件"></a>Maven-Publish插件</h3><p>Gradle将项目发布到Maven仓库需要借助插件，<code>Maven-Publish</code>便是官方推荐的一款插件。<br><a href="https://docs.gradle.org/current/userguide/publishing_maven.html" target="_blank" rel="noopener">Maven-Publish</a></p>
+<h3 id="发布项目"><a href="#发布项目" class="headerlink" title="发布项目"></a>发布项目</h3><p>通过<code>&#39;maven-publish&#39;</code>引入插件<br><strong>build.gradle</strong></p>
+<pre class="line-numbers language-groovy"><code class="language-groovy">apply plugin<span class="token punctuation">:</span> <span class="token string">'maven-publish'</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<h4 id="发布到本地"><a href="#发布到本地" class="headerlink" title="发布到本地"></a>发布到本地</h4><p><strong>build.gradle</strong></p>
+<pre class="line-numbers language-groovy"><code class="language-groovy">apply plugin<span class="token punctuation">:</span> <span class="token string">'java'</span>
+apply plugin<span class="token punctuation">:</span> <span class="token string">'maven-publish'</span>
+
+group <span class="token operator">=</span> <span class="token string">'cn.tac.test'</span>
+version <span class="token operator">=</span> <span class="token string">'1.0'</span>
+
+publishing <span class="token punctuation">{</span>
+    publications <span class="token punctuation">{</span>
+        <span class="token function">mavenJava</span><span class="token punctuation">(</span>MavenPublication<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            from components<span class="token operator">.</span>java
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+publishing <span class="token punctuation">{</span>
+    repositories <span class="token punctuation">{</span>
+        maven <span class="token punctuation">{</span>
+            url <span class="token string">"$buildDir/repo"</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>在以上配置中</p>
+<ul>
+<li><code>publishing{}</code>是由插件为项目创建的扩展（PublishingExtension类型），这个扩展提供了两个block：<code>publications{}</code>（MavenPublication类型）和<code>repositories{}</code>（MavenArtifactRepository 类型），分别用于配置<code>要发布的内容</code>和<code>目标仓库</code>（均可配置多个）。</li>
+<li><code>mavenJava{}</code>被称为发布组件<code>Component</code>，用于配置一项要发布的内容，components.java表示这个组件是通过Java插件添加的<code>java</code>组件，可以简单地理解为就是将当前java项目作为发布内容。</li>
+<li><code>maven{}</code>指定了一个要发布的目标仓库，当前指定了当前项目的build目录下的<code>repo</code>目录，即发布到本地</li>
+</ul>
+<p>执行publishing -&gt; publish，可以看到项目成功发布到了<code>build/repo</code>目录中。<br><img src="/images/gradle_learn/publishing/build_repo.png" alt="build/repo"></p>
+<p><strong>tips</strong></p>
+<ul>
+<li>两个<code>publishing{}</code>块的内容也可以合在一起写</li>
+<li>mavenJava只是一个命名，并无特殊含义，你也可以将其更换为别的名称，但不能与其它发布组件名称重复</li>
+<li>mavenJava块中还可以配置要发布的artifact的<code>group</code>、<code>id</code>及<code>version</code>，如果不显式指定，则默认采用当前项目的配置</li>
+</ul>
+<h4 id="发布源码"><a href="#发布源码" class="headerlink" title="发布源码"></a>发布源码</h4><p>在上一步的基础上</p>
+<ol>
+<li>新增一个用于获取源码的task</li>
+<li>配置发布组件，使其发布的同时额外发布一个包含源码的<code>artifact</code></li>
+</ol>
+<p><strong>build.gradle</strong></p>
+<pre class="line-numbers language-groovy"><code class="language-groovy">……
+<span class="token comment" spellcheck="true">//这个task可以获取到源码</span>
+task <span class="token function">sourceJar</span><span class="token punctuation">(</span>type<span class="token punctuation">:</span> Jar<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    from sourceSets<span class="token operator">.</span>main<span class="token operator">.</span>allJava
+<span class="token punctuation">}</span>
+
+publishing <span class="token punctuation">{</span>
+    publications <span class="token punctuation">{</span>
+        <span class="token function">mavenJava</span><span class="token punctuation">(</span>MavenPublication<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            ……
+            <span class="token comment" spellcheck="true">//配置额外发布的artifact</span>
+            artifact sourceJar <span class="token punctuation">{</span>
+                <span class="token comment" spellcheck="true">//这个字符串会作为artifact文件的后缀</span>
+                classifier <span class="token string">"sources"</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+……
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>执行task<br><img src="/images/gradle_learn/publishing/build_repo_with_sources.png" alt="sources"></p>
+<h4 id="发布到远程仓库"><a href="#发布到远程仓库" class="headerlink" title="发布到远程仓库"></a>发布到远程仓库</h4><p>只需要修改url指向远程仓库即可。同时由于远程仓库大多需要认证，因此通常需要通过<code>credentials{}</code>指定用户名和密码</p>
+<p><strong>build.gradle</strong></p>
+<pre class="line-numbers language-groovy"><code class="language-groovy">……
+publishing <span class="token punctuation">{</span>
+    repositories <span class="token punctuation">{</span>
+        maven <span class="token punctuation">{</span>
+            url <span class="token string">"http://172.10.10.66:8081/nexus/content/repositories/releases/"</span>
+            credentials <span class="token punctuation">{</span>
+                username <span class="token operator">=</span> <span class="token string">"admin"</span>
+                password <span class="token operator">=</span> <span class="token string">"admin123"</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+……
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h4 id="条件发布"><a href="#条件发布" class="headerlink" title="条件发布"></a>条件发布</h4><p>这点相信会点groovy的同学都不会觉得难，用<code>if/else</code>就可以完成。例如下面的配置实现根据version后缀来决定是发布到<code>snapshots</code>还是<code>releases</code>仓库中</p>
+<p><strong>build.gralde</strong></p>
+<pre class="line-numbers language-groovy"><code class="language-groovy">……
+publishing <span class="token punctuation">{</span>
+    repositories <span class="token punctuation">{</span>
+        <span class="token keyword">def</span> NEXUS_URL <span class="token operator">=</span> <span class="token string">"http://172.10.10.66:8081/nexus/content/repositories/releases/"</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>project<span class="token operator">.</span>version<span class="token operator">.</span><span class="token function">endsWith</span><span class="token punctuation">(</span><span class="token string">"SNAPSHOT"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+            NEXUS_URL <span class="token operator">=</span> <span class="token string">"http://172.10.10.66:8081/nexus/content/repositories/snapshots/"</span>
+        <span class="token punctuation">}</span>
+        maven <span class="token punctuation">{</span>
+            url NEXUS_URL
+            credentials <span class="token punctuation">{</span>
+                username <span class="token operator">=</span> <span class="token string">"admin"</span>
+                password <span class="token operator">=</span> <span class="token string">"admin123"</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+……
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h4 id="发布多项目"><a href="#发布多项目" class="headerlink" title="发布多项目"></a>发布多项目</h4><p>父项目的task执行的同时会执行其所有子项目的同一task（最常见的如build任务），因此多项目发布只需要配置好所有子项目的发布配置即可。</p>
+<p><strong>build.gradle</strong></p>
+<pre class="line-numbers language-groovy"><code class="language-groovy">subprojects <span class="token punctuation">{</span>
+    apply plugin<span class="token punctuation">:</span> <span class="token string">'java'</span>
+    apply plugin<span class="token punctuation">:</span> <span class="token string">'maven-publish'</span>
+
+    group <span class="token string">"cn.tac.test"</span>
+    version <span class="token string">"1.0-SNAPSHOT"</span>
+
+    <span class="token comment" spellcheck="true">//因为父项目不需要发布，所以只需要配置子项目的发布配置即可</span>
+    publishing <span class="token punctuation">{</span>
+        publications <span class="token punctuation">{</span>
+            <span class="token function">mavenJava</span><span class="token punctuation">(</span>MavenPublication<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                from components<span class="token operator">.</span>java
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+    publishing <span class="token punctuation">{</span>
+        repositories <span class="token punctuation">{</span>
+            maven <span class="token punctuation">{</span>
+                url <span class="token string">"$buildDir/repo"</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>执行task，可以看到每个子项目都发布到了其对应的<code>build/repo</code>中。</p>
+<p><strong>tips</strong></p>
+<ul>
+<li>如果子模块之间互相有依赖，Gradle发布时会自动解析各模块的先后发布顺序，无需我们自己配置</li>
+</ul>
+<h3 id="常见问题"><a href="#常见问题" class="headerlink" title="常见问题"></a>常见问题</h3><h4 id="发布后pom-xml中项目的依赖scope为runtime的问题"><a href="#发布后pom-xml中项目的依赖scope为runtime的问题" class="headerlink" title="发布后pom.xml中项目的依赖scope为runtime的问题"></a>发布后pom.xml中项目的依赖scope为runtime的问题</h4><p>在发布的时候发现，项目中通过complie依赖的第三方库或其它模块，在发布后由Gradle生成的<code>pom.xml</code>文件中，依赖的scope默认变成了<code>runtime</code>，而非我们期望的<code>compile</code></p>
+<pre class="line-numbers language-xml"><code class="language-xml"><span class="token prolog">&lt;?xml version="1.0" encoding="UTF-8"?></span>
+  ……
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>groupId</span><span class="token punctuation">></span></span>cn.tac.test<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>groupId</span><span class="token punctuation">></span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>artifactId</span><span class="token punctuation">></span></span>publishing<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>artifactId</span><span class="token punctuation">></span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>version</span><span class="token punctuation">></span></span>1.0-SNAPSHOT<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>version</span><span class="token punctuation">></span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>dependencies</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>dependency</span><span class="token punctuation">></span></span>
+      <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>groupId</span><span class="token punctuation">></span></span>cn.tac.test<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>groupId</span><span class="token punctuation">></span></span>
+      <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>artifactId</span><span class="token punctuation">></span></span>module1<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>artifactId</span><span class="token punctuation">></span></span>
+      <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>version</span><span class="token punctuation">></span></span>1.0-SNAPSHOT<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>version</span><span class="token punctuation">></span></span>
+      <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>scope</span><span class="token punctuation">></span></span>runtime<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>scope</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>dependency</span><span class="token punctuation">></span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>dependencies</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>project</span><span class="token punctuation">></span></span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>为了达到期望的效果，只需要在发布配置中通过<code>withXML</code>对pom进行修改即可<br><strong>build.gradle</strong></p>
+<pre class="line-numbers language-groovy"><code class="language-groovy">publishing <span class="token punctuation">{</span>
+    publications <span class="token punctuation">{</span>
+        <span class="token function">mavenJava</span><span class="token punctuation">(</span>MavenPublication<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            from components<span class="token operator">.</span>java
+
+            pom<span class="token operator">.</span>withXml <span class="token punctuation">{</span>
+                <span class="token function">asNode</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">.</span>dependencies<span class="token operator">.</span><span class="token string">'*'</span><span class="token operator">.</span><span class="token function">findAll</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                    it<span class="token operator">.</span>scope<span class="token operator">.</span><span class="token function">text</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">==</span> <span class="token string">'runtime'</span> <span class="token operator">&amp;&amp;</span> project<span class="token operator">.</span>configurations<span class="token operator">.</span>compile<span class="token operator">.</span>allDependencies<span class="token operator">.</span>find <span class="token punctuation">{</span> dep <span class="token operator">-></span>
+                        dep<span class="token operator">.</span>name <span class="token operator">==</span> it<span class="token operator">.</span>artifactId<span class="token operator">.</span><span class="token function">text</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+                    <span class="token punctuation">}</span>
+                <span class="token punctuation">}</span><span class="token operator">.</span><span class="token function">each</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                    it<span class="token operator">.</span>scope<span class="token operator">*.</span>value <span class="token operator">=</span> <span class="token string">'compile'</span>
+                <span class="token punctuation">}</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>再次发布</p>
+<pre class="line-numbers language-xml"><code class="language-xml"><span class="token prolog">&lt;?xml version="1.0" encoding="UTF-8"?></span>
+  ……
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>groupId</span><span class="token punctuation">></span></span>cn.tac.test<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>groupId</span><span class="token punctuation">></span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>artifactId</span><span class="token punctuation">></span></span>publishing<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>artifactId</span><span class="token punctuation">></span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>version</span><span class="token punctuation">></span></span>1.0-SNAPSHOT<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>version</span><span class="token punctuation">></span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>dependencies</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>dependency</span><span class="token punctuation">></span></span>
+      <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>groupId</span><span class="token punctuation">></span></span>cn.tac.test<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>groupId</span><span class="token punctuation">></span></span>
+      <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>artifactId</span><span class="token punctuation">></span></span>module1<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>artifactId</span><span class="token punctuation">></span></span>
+      <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>version</span><span class="token punctuation">></span></span>1.0-SNAPSHOT<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>version</span><span class="token punctuation">></span></span>
+      <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>scope</span><span class="token punctuation">></span></span>compile<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>scope</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>dependency</span><span class="token punctuation">></span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>dependencies</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>project</span><span class="token punctuation">></span></span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p><strong>tips</strong></p>
+<ul>
+<li>参考链接 <a href="https://stackoverflow.com/questions/31069666/how-to-change-artifactory-runtime-scope-to-compile-scope" target="_blank" rel="noopener">How to change artifactory runtime scope to compile scope?</a></li>
+<li><a href="https://docs.gradle.org/current/dsl/org.gradle.api.publish.maven.MavenPom.html#org.gradle.api.publish.maven.MavenPom:withXml(org.gradle.api.Action" target="_blank" rel="noopener">更多withXML的信息</a></li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://taccisum.github.io/know_crawler.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="taccisum">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/Avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="taccisum 😉">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/know_crawler.html" itemprop="url">了解爬虫</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-10-01T23:08:55+08:00">
+                2017-10-01
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/python/" itemprop="url" rel="index">
+                    <span itemprop="name">python</span>
+                  </a>
+                </span>
+
+                
+                
+                  , 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/python/爬虫/" itemprop="url" rel="index">
+                    <span itemprop="name">爬虫</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="什么是爬虫"><a href="#什么是爬虫" class="headerlink" title="什么是爬虫"></a>什么是爬虫</h2><h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><p>爬虫（Web Crawler），也叫<code>网络蜘蛛</code>（Splider），是一种用来自动浏览<code>www网页</code>的程序。<br>爬虫一般从一个URL出发，访问所有<code>关联的URL</code>，并从中提取出感兴趣的内容。<br>爬虫访问网站的过程会<code>消耗目标系统资源</code>，所以有不少网络系统并不默许爬虫工作。因此爬虫要考虑到<code>规划</code>、<code>负载</code>，并且要讲『礼貌』（参考<a href="https://zh.wikipedia.org/wiki/Robots.txt" target="_blank" rel="noopener">robots.txt</a>）。</p>
+<p><a href="https://zh.wikipedia.org/wiki/%E7%B6%B2%E8%B7%AF%E7%88%AC%E8%9F%B2" target="_blank" rel="noopener">网络爬虫</a></p>
+<h3 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h3><p>爬虫主要有以下应用场景</p>
+<ul>
+<li>科学研究<blockquote>
+<p>如数据挖掘、机器学习、图片处理等</p>
+</blockquote>
+</li>
+<li>Web安全<blockquote>
+<p>如使用爬虫对网站是否存在某一漏洞进行批量验证、利用</p>
+</blockquote>
+</li>
+<li>产品研发<blockquote>
+<p>如采集各个商城物品价格，为用户提供市场最低价</p>
+</blockquote>
+</li>
+<li>舆情监控<blockquote>
+<p>如抓取、分析某社交平台的数据，从而识别出某用户是否为水军</p>
+</blockquote>
+</li>
+<li>搜索引擎<blockquote>
+<p>爬虫是搜索引擎的核心组成部分</p>
+</blockquote>
+</li>
+</ul>
+<h3 id="爬虫策略"><a href="#爬虫策略" class="headerlink" title="爬虫策略"></a>爬虫策略</h3><p>一个爬虫的实现主要由四大策略组成</p>
+<ul>
+<li>选择策略<blockquote>
+<p>指定页面下载的策略，可细分为<br><code>链接跟随限制</code>，指的是爬虫只搜索特定类型（如HTML）的资源，避免发出过多的请求。或者避免请求一些带有”?”的资源，避免从网站下载无限量的URL<br><code>URL规范化</code>，指的是以某种一致的方式修改和标准化URL的过程，避免资源的重复爬取<br><code>路径上移爬取</code>，指爬取每个URL里提示的每个路径，例如对于”http: //<a href="http://www.tac.cn/a/b/c.html&quot;，还会爬取&quot;/a/b&quot;、&quot;/a&quot;和&quot;/&quot;路径。" target="_blank" rel="noopener">www.tac.cn/a/b/c.html&quot;，还会爬取&quot;/a/b&quot;、&quot;/a&quot;和&quot;/&quot;路径。</a><br><code>主题爬取</code>，指有条件地进行爬取（例如只爬取与python相关的页面）。</p>
+</blockquote>
+</li>
+<li>重新访问策略<blockquote>
+<p>网站是经常动态变化的，需要估算URL的<code>新鲜度</code>和<code>过时性</code>，以确保是否需要重新访问。</p>
+</blockquote>
+</li>
+<li>平衡礼貌策略<blockquote>
+<p>使用爬虫可能导致一个<code>站点瘫痪</code>，因此爬虫需要遵守一些协议来避免这个问题。</p>
+</blockquote>
+</li>
+<li>并行策略<blockquote>
+<p>并行运行<code>多个进程</code>的爬虫时，为了避免重复下载页面，爬虫系统需要策略来处理爬虫运行时新发现的URL。</p>
+</blockquote>
+</li>
+</ul>
+<h3 id="简单架构"><a href="#简单架构" class="headerlink" title="简单架构"></a>简单架构</h3><p><img src="/images/crawler_learn/framework.jpg" alt="framework"></p>
+<p>如图，一个最简单的爬虫架构至少包括<code>爬虫调度端</code>、<code>URL管理器</code>、<code>网页下载器</code>、<code>网页解析器</code>。这几个模块相互作用，从而提取出<code>有价值的数据</code>。其时序图如下</p>
+<p><img src="/images/crawler_learn/sequence_chart.jpg" alt="framework"></p>
+<p>爬虫调度器从URL管理器中获取待爬取的URL，交由下载器进行下载。然后将下载器将下载的页面交由解析器进行解析，解析器又反过来将解析到的URL反馈给URL管理器。如此循环往复，直到没有待抓取的URL，则结束爬取。</p>
+<p>——以上图片来自慕课网<a href="http://www.imooc.com/learn/563" target="_blank" rel="noopener">Python开发简单爬虫</a></p>
+<h3 id="URL管理器"><a href="#URL管理器" class="headerlink" title="URL管理器"></a>URL管理器</h3><p>管理待抓取的URL集合和已抓取的URL集合，防止<code>重复抓取</code>、防止<code>循环抓取</code>。</p>
+<p>实现方式</p>
+<ul>
+<li>内存</li>
+<li>关系数据库</li>
+<li>NoSQL</li>
+</ul>
+<h3 id="网页下载器"><a href="#网页下载器" class="headerlink" title="网页下载器"></a>网页下载器</h3><ul>
+<li>urllib2 python官方 *</li>
+</ul>
+<ul>
+<li>requests 第三方</li>
+</ul>
+<p>网页下载分几种场景</p>
+<ul>
+<li>直接通过url下载</li>
+<li>需要添加请求参数，请求头（伪装浏览器）</li>
+<li>需要伪装特殊情景，如cookie、proxy、https、http redirect</li>
+</ul>
+<h3 id="页面解析器"><a href="#页面解析器" class="headerlink" title="页面解析器"></a>页面解析器</h3><p>从网页中提取有价值数据的工具</p>
+<p>python的网页解析器</p>
+<ul>
+<li>正则表达式</li>
+<li>html.parser python官方</li>
+<li>beautiful soup4 第三方 *</li>
+<li>lxml </li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
   </section>
 
   
@@ -2890,7 +2789,7 @@ Subscriber<span class="token operator">&lt;</span>R<span class="token operator">
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">29</span>
+                <span class="site-state-item-count">26</span>
                 <span class="site-state-item-name">posts</span>
               </a>
             </div>
@@ -2901,7 +2800,7 @@ Subscriber<span class="token operator">&lt;</span>R<span class="token operator">
             
             <div class="site-state-item site-state-categories">
               <a href="/categories/index.html">
-                <span class="site-state-item-count">23</span>
+                <span class="site-state-item-count">22</span>
                 <span class="site-state-item-name">categories</span>
               </a>
             </div>
@@ -2977,7 +2876,7 @@ Subscriber<span class="token operator">&lt;</span>R<span class="token operator">
 </div>
 
 <div>
-  <span class="post-count">28.0k words</span>
+  <span class="post-count">27.7k words</span>
 </div>
         
 
