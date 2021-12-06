@@ -2,6 +2,48 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://taccisum.github.io/thinking_about_cost_of_communication.html</loc>
+    
+    <lastmod>2021-12-06T03:06:59.003Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://taccisum.github.io/%E8%AE%BA%E5%A6%82%E4%BD%95%E6%94%B9%E4%B8%80%E5%9D%A8%E7%BF%94%E4%B8%80%E6%A0%B7%E7%9A%84%E4%BB%A3%E7%A0%81.html</loc>
+    
+    <lastmod>2021-12-06T02:51:33.234Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://taccisum.github.io/resume/index_advanced.html</loc>
+    
+    <lastmod>2021-11-29T02:01:29.931Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://taccisum.github.io/ddd_practice_in_java_server_side.html</loc>
+    
+    <lastmod>2021-11-16T10:51:10.814Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://taccisum.github.io/undefined.html</loc>
+    
+    <lastmod>2021-11-16T08:26:24.324Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://taccisum.github.io/ddd_practice_in_server_side.html</loc>
+    
+    <lastmod>2021-11-16T08:24:20.975Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>https://taccisum.github.io/resume/index.html</loc>
     
     <lastmod>2021-11-15T07:34:39.734Z</lastmod>
@@ -12,13 +54,6 @@
     <loc>https://taccisum.github.io/how_to_manage_a_complex_software_system.html</loc>
     
     <lastmod>2021-11-11T01:45:50.576Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>https://taccisum.github.io/resume/index_advanced.html</loc>
-    
-    <lastmod>2021-11-09T05:59:09.262Z</lastmod>
     
   </url>
   
@@ -79,13 +114,6 @@
   </url>
   
   <url>
-    <loc>https://taccisum.github.io/about_java.html</loc>
-    
-    <lastmod>2020-03-13T10:05:01.366Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>https://taccisum.github.io/know_crawler.html</loc>
     
     <lastmod>2020-03-13T10:05:01.366Z</lastmod>
@@ -93,7 +121,7 @@
   </url>
   
   <url>
-    <loc>https://taccisum.github.io/outbound_rule_invalid_cause_by_urlrewritefilter_and_shirofilter.html</loc>
+    <loc>https://taccisum.github.io/about_java.html</loc>
     
     <lastmod>2020-03-13T10:05:01.366Z</lastmod>
     
@@ -107,14 +135,21 @@
   </url>
   
   <url>
-    <loc>https://taccisum.github.io/source/zuul/home.html</loc>
+    <loc>https://taccisum.github.io/outbound_rule_invalid_cause_by_urlrewritefilter_and_shirofilter.html</loc>
+    
+    <lastmod>2020-03-13T10:05:01.366Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://taccisum.github.io/source/zuul/filters.html</loc>
     
     <lastmod>2020-03-13T10:05:01.365Z</lastmod>
     
   </url>
   
   <url>
-    <loc>https://taccisum.github.io/source/zuul/filters.html</loc>
+    <loc>https://taccisum.github.io/source/zuul/home.html</loc>
     
     <lastmod>2020-03-13T10:05:01.365Z</lastmod>
     
@@ -135,14 +170,14 @@
   </url>
   
   <url>
-    <loc>https://taccisum.github.io/source/zuul/filters/route.html</loc>
+    <loc>https://taccisum.github.io/source/zuul/filters/pre.html</loc>
     
     <lastmod>2020-03-13T10:05:01.364Z</lastmod>
     
   </url>
   
   <url>
-    <loc>https://taccisum.github.io/source/zuul/filters/pre.html</loc>
+    <loc>https://taccisum.github.io/source/zuul/filters/route.html</loc>
     
     <lastmod>2020-03-13T10:05:01.364Z</lastmod>
     
@@ -191,7 +226,7 @@
   </url>
   
   <url>
-    <loc>https://taccisum.github.io/learn_gradle_2.html</loc>
+    <loc>https://taccisum.github.io/learn_gradle_4.html</loc>
     
     <lastmod>2020-03-13T10:05:01.362Z</lastmod>
     
@@ -205,7 +240,7 @@
   </url>
   
   <url>
-    <loc>https://taccisum.github.io/learn_gradle_4.html</loc>
+    <loc>https://taccisum.github.io/learn_gradle_2.html</loc>
     
     <lastmod>2020-03-13T10:05:01.362Z</lastmod>
     
@@ -226,14 +261,14 @@
   </url>
   
   <url>
-    <loc>https://taccisum.github.io/learn_gradle_1.html</loc>
+    <loc>https://taccisum.github.io/learn_gradle_3.html</loc>
     
     <lastmod>2020-03-13T10:05:01.361Z</lastmod>
     
   </url>
   
   <url>
-    <loc>https://taccisum.github.io/learn_gradle_3.html</loc>
+    <loc>https://taccisum.github.io/learn_gradle_1.html</loc>
     
     <lastmod>2020-03-13T10:05:01.361Z</lastmod>
     
