@@ -192,954 +192,6 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://taccisum.github.io/openfeign_research_and_application.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="taccisum">
-      <meta itemprop="description" content="el psy congroo.">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Taccisum's blog 😉">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/openfeign_research_and_application.html" class="post-title-link" itemprop="url">声明式http客户端openfeign的研究与应用</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2018-06-21 05:54:42" itemprop="dateCreated datePublished" datetime="2018-06-21T05:54:42+08:00">2018-06-21</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-03-13 18:05:01" itemprop="dateModified" datetime="2020-03-13T18:05:01+08:00">2020-03-13</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/java/" itemprop="url" rel="index"><span itemprop="name">java</span></a>
-                </span>
-                  , 
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/java/spring-cloud/" itemprop="url" rel="index"><span itemprop="name">spring cloud</span></a>
-                </span>
-            </span>
-
-          
-            <span id="/openfeign_research_and_application.html" class="post-meta-item leancloud_visitors" data-flag-title="声明式http客户端openfeign的研究与应用" title="Views">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">Views: </span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Valine: </span>
-    
-    <a title="valine" href="/openfeign_research_and_application.html#valine-comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/openfeign_research_and_application.html" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><h2 id="openfeign"><a href="#openfeign" class="headerlink" title="openfeign"></a>openfeign</h2><p>openfeign，简称feign，是netflix开源的技术栈之一。<br>feign的主旨是使得编写java http客户端更容易。为了贯彻这个理念，feign采用了通过处理注解来自动生成请求的方式（官方称呼为<code>声明式</code>、<code>模板化</code>）。因此，基于feign编写的http客户端画风看起来是这样的</p>
-<pre class="line-numbers language-java"><code class="language-java"><span class="token keyword">interface</span> <span class="token class-name">Bank</span> <span class="token punctuation">{</span>
-  <span class="token annotation punctuation">@RequestLine</span><span class="token punctuation">(</span><span class="token string">"POST /account/{id}"</span><span class="token punctuation">)</span>
-  Account <span class="token function">getAccountInfo</span><span class="token punctuation">(</span><span class="token annotation punctuation">@Param</span><span class="token punctuation">(</span><span class="token string">"id"</span><span class="token punctuation">)</span> String id<span class="token punctuation">)</span><span class="token punctuation">;</span>
-<span class="token punctuation">}</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
-<p>然后通过一系列操作可以为Bank接口在运行时自动生成对应的实现。通过这个实现我们就可以在java中像调用一个本地方法一样完成一次http请求，大大减少了编码成本，同时提高了代码可读性。</p>
-<h2 id="spring-cloud-openfeign"><a href="#spring-cloud-openfeign" class="headerlink" title="spring-cloud-openfeign"></a>spring-cloud-openfeign</h2><p>spring-cloud-feign基于自动配置功能（autoconfiguration），为spring boot应用提供openfiegn的集成：</p>
-<ul>
-<li>支持通过<code>JAX-RS</code>或<code>Spring MVC annotations</code>来构建feign client</li>
-<li>自动使用Spring MVC的<code>HttpMessageConverters</code>来完成序列化反序列化</li>
-<li>集成了<code>ribbon</code>和<code>hystrix</code>，只要在项目中引入相关的依赖即可立即使用</li>
-<li>无需任何配置，开箱即用，秉承了spring-boot一贯的作风。</li>
-</ul>
-<blockquote>
-<p><a href="https://github.com/spring-cloud/spring-cloud-openfeign/blob/master/docs/src/main/asciidoc/spring-cloud-openfeign.adoc" target="_blank" rel="noopener">官方文档参考</a></p>
-</blockquote>
-<h1 id="常见问题及解决方案"><a href="#常见问题及解决方案" class="headerlink" title="常见问题及解决方案"></a>常见问题及解决方案</h1><h2 id="处理响应数据的通用部分"><a href="#处理响应数据的通用部分" class="headerlink" title="处理响应数据的通用部分"></a>处理响应数据的通用部分</h2><p>api响应数据格式，一般而言除实际的业务数据外是固定的格式，其中包括了对此次请求的处理信息描述。对于这部分数据，应由feign进行统一处理。</p>
-<h3 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h3><p>feignclient是通过Decoder来对请求响应进行处理的，因此可以使用自定义的Decoder来处理响应数据的通用部分。</p>
-<p>例如可以定义一个<code>UnwrapRestfulApiResponseSpringDecoder</code>来对<code>RestfulApiResponse</code>进行自动拆包操作，并通过<code>@FeignClient</code>的<code>configuration</code>属性配置其使用的Decoder。</p>
-<pre class="line-numbers language-java"><code class="language-java"><span class="token annotation punctuation">@FeignClient</span><span class="token punctuation">(</span>name <span class="token operator">=</span> AuthCenter<span class="token punctuation">.</span>SERVICE_NAME<span class="token punctuation">,</span> path <span class="token operator">=</span> RMIPath<span class="token punctuation">.</span>USER<span class="token punctuation">,</span> configuration <span class="token operator">=</span> TenantUserClient<span class="token punctuation">.</span>Configuration<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">)</span>
-<span class="token keyword">public</span> <span class="token keyword">interface</span> <span class="token class-name">TenantUserClient</span> <span class="token punctuation">{</span>
-    <span class="token keyword">class</span> <span class="token class-name">Configuration</span> <span class="token punctuation">{</span>
-        <span class="token annotation punctuation">@Autowired</span>
-        <span class="token keyword">private</span> ObjectFactory<span class="token operator">&lt;</span>HttpMessageConverters<span class="token operator">></span> messageConverters<span class="token punctuation">;</span>
-
-        <span class="token annotation punctuation">@Bean</span>
-        <span class="token keyword">public</span> Decoder <span class="token function">feignDecoder</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-            <span class="token keyword">return</span> <span class="token keyword">new</span> <span class="token class-name">ResponseEntityDecoder</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">UnwrapRestfulApiResponseSpringDecoder</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span>messageConverters<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token punctuation">}</span>
-    <span class="token punctuation">}</span>
-<span class="token punctuation">}</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<h2 id="本地调用需要注册到注册中心导致服务不可用的问题"><a href="#本地调用需要注册到注册中心导致服务不可用的问题" class="headerlink" title="本地调用需要注册到注册中心导致服务不可用的问题"></a>本地调用需要注册到注册中心导致服务不可用的问题</h2><p>在实际开发过程中，有时会出现需要在本地调用远程服务来进行调试的情况，此时我们需要将本地的应用注册到注册中心。而一旦这样做，会导致该服务存在多个节点（一个远程一个本地），从而导致依赖该服务的应用软负载均衡负载到本地节点时会失败。</p>
-<h3 id="解决方案-1"><a href="#解决方案-1" class="headerlink" title="解决方案"></a>解决方案</h3><h4 id="1-不通过注册中心获取信息，使用直接指定url的方式调用（✘不推荐）"><a href="#1-不通过注册中心获取信息，使用直接指定url的方式调用（✘不推荐）" class="headerlink" title="1. 不通过注册中心获取信息，使用直接指定url的方式调用（✘不推荐）"></a>1. 不通过注册中心获取信息，使用直接指定url的方式调用（✘不推荐）</h4><p><strong>参考代码</strong></p>
-<pre class="line-numbers language-java"><code class="language-java"><span class="token annotation punctuation">@FeignClient</span><span class="token punctuation">(</span>name <span class="token operator">=</span> <span class="token string">"sysinfo-service"</span> <span class="token punctuation">,</span>url <span class="token operator">=</span> <span class="token string">"http://49.4.7.72"</span><span class="token punctuation">,</span> path <span class="token operator">=</span> <span class="token string">"/"</span><span class="token punctuation">)</span>
-<span class="token keyword">public</span> <span class="token keyword">interface</span> <span class="token class-name">SysinfoClient</span> <span class="token punctuation">{</span>
-<span class="token punctuation">}</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
-<p>此方案优点是简单易用，但缺点也很明显：</p>
-<ol>
-<li>在应用实际上线时需要将调用方式修改为通过注册中心调用，否则client将无法进行负载均衡，因此需要频繁改动代码</li>
-<li>在特定环境下，即使忘记切换调用方式有时也不影响client的使用，会将问题隐藏，埋下隐患</li>
-<li>并没有与其它服务真正地解耦，一旦依赖的服务故障就会导致本地开发无法进行</li>
-</ol>
-<p>由于存在上述缺点，现一般<strong>不推荐</strong>使用该方案。</p>
-<h4 id="2-使用打桩的方式与远程服务解耦（✔推荐）"><a href="#2-使用打桩的方式与远程服务解耦（✔推荐）" class="headerlink" title="2. 使用打桩的方式与远程服务解耦（✔推荐）"></a>2. 使用打桩的方式与远程服务解耦（✔推荐）</h4><p>大致思路为，通过Spring的<code>@Profile</code>注解，在不同的环境为应用注册不同的client bean（例如在本地环境使用Hard Code bean，而在非本地环境则使用远程调用的client bean）。</p>
-<p><strong>参考代码</strong><br><strong>ClientConfiguration.java</strong></p>
-<pre class="line-numbers language-java"><code class="language-java"><span class="token annotation punctuation">@EnableAuthClient</span>
-<span class="token annotation punctuation">@EnableFeignClients</span><span class="token punctuation">(</span>basePackages <span class="token operator">=</span> <span class="token string">"com.cheegu.icm.biz.foo.client"</span><span class="token punctuation">)</span>
-<span class="token annotation punctuation">@Configuration</span>
-<span class="token annotation punctuation">@Profile</span><span class="token punctuation">(</span><span class="token punctuation">{</span>SpringProfiles<span class="token punctuation">.</span>DEV<span class="token punctuation">,</span> SpringProfiles<span class="token punctuation">.</span>TEST<span class="token punctuation">,</span> SpringProfiles<span class="token punctuation">.</span>PROD<span class="token punctuation">}</span><span class="token punctuation">)</span>
-<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">ClientConfiguration</span> <span class="token punctuation">{</span>
-<span class="token punctuation">}</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p><strong>MockClientConfiguration.java</strong></p>
-<pre class="line-numbers language-java"><code class="language-java"><span class="token annotation punctuation">@Configuration</span>
-<span class="token annotation punctuation">@Profile</span><span class="token punctuation">(</span>SpringProfiles<span class="token punctuation">.</span>LOCAL<span class="token punctuation">)</span>
-<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">MockClientConfiguration</span> <span class="token punctuation">{</span>
-    <span class="token annotation punctuation">@Bean</span>
-    <span class="token keyword">public</span> SysinfoClient <span class="token function">sysinfoClient</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        <span class="token keyword">return</span> <span class="token keyword">new</span> <span class="token class-name">SysinfoClient</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-            <span class="token annotation punctuation">@Override</span>
-            <span class="token keyword">public</span> UserInfoDto <span class="token function">user</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-                <span class="token keyword">return</span> <span class="token keyword">new</span> <span class="token class-name">UserInfoDto</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-            <span class="token punctuation">}</span>
-
-            <span class="token annotation punctuation">@Override</span>
-            <span class="token keyword">public</span> TableData<span class="token operator">&lt;</span>UserRowDto<span class="token operator">></span> <span class="token function">users</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-                <span class="token keyword">return</span> TableData<span class="token punctuation">.</span><span class="token function">empty</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-            <span class="token punctuation">}</span>
-        <span class="token punctuation">}</span><span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-
-    <span class="token annotation punctuation">@Bean</span>
-    <span class="token keyword">public</span> TenantUserClient <span class="token function">tenantUserClient</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        <span class="token keyword">return</span> <span class="token keyword">new</span> <span class="token class-name">TenantUserClient</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-            <span class="token annotation punctuation">@Override</span>
-            <span class="token keyword">public</span> List<span class="token operator">&lt;</span>ResourceInfoDto<span class="token operator">></span> <span class="token function">listMyAlResource</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-                <span class="token keyword">return</span> <span class="token keyword">new</span> <span class="token class-name">ArrayList</span><span class="token operator">&lt;</span><span class="token operator">></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-            <span class="token punctuation">}</span>
-        <span class="token punctuation">}</span><span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-<span class="token punctuation">}</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<h2 id="如何在调用时带上请求头"><a href="#如何在调用时带上请求头" class="headerlink" title="如何在调用时带上请求头"></a>如何在调用时带上请求头</h2><p>在使用客户端进行调用时，有时会需要带上某些请求头（例如认证token），但又不希望在代码中手动去做这些操作。</p>
-<h3 id="解决方案-2"><a href="#解决方案-2" class="headerlink" title="解决方案"></a>解决方案</h3><p>可以通过实现feign提供的<code>RequestInterceptor</code>接口来对请求进行切面处理。这样每次通过client发起请求时都会由feign interceptor进行拦截，为请求添加headers。</p>
-<p><strong>参考代码</strong></p>
-<pre class="line-numbers language-java"><code class="language-java"><span class="token annotation punctuation">@Configuration</span>
-<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">AppConfiguration</span> <span class="token keyword">implements</span> <span class="token class-name">EnvironmentAware</span> <span class="token punctuation">{</span>
-    <span class="token keyword">private</span> Environment environment<span class="token punctuation">;</span>
-
-    <span class="token annotation punctuation">@Bean</span>
-    <span class="token keyword">public</span> AuthorizationInfoForwardingInterceptor <span class="token function">authorizationInfoForwardingInterceptor</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        <span class="token comment" spellcheck="true">//这个interceptor会为请求自动带上认证token</span>
-        <span class="token keyword">return</span> <span class="token keyword">new</span> <span class="token class-name">AuthorizationInfoForwardingInterceptor</span><span class="token punctuation">(</span>environment<span class="token punctuation">.</span><span class="token function">getProperty</span><span class="token punctuation">(</span><span class="token string">"spring.application.name"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-
-    <span class="token annotation punctuation">@Override</span>
-    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">setEnvironment</span><span class="token punctuation">(</span>Environment environment<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        <span class="token keyword">this</span><span class="token punctuation">.</span>environment <span class="token operator">=</span> environment<span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-<span class="token punctuation">}</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<h2 id="指定了get方法，但feign仍然使用了post方法进行请求"><a href="#指定了get方法，但feign仍然使用了post方法进行请求" class="headerlink" title="指定了get方法，但feign仍然使用了post方法进行请求"></a>指定了get方法，但feign仍然使用了post方法进行请求</h2><p>如下代码所示</p>
-<pre class="line-numbers language-java"><code class="language-java"><span class="token annotation punctuation">@FeignClient</span><span class="token punctuation">(</span><span class="token string">"microservice-provider-user"</span><span class="token punctuation">)</span>
-<span class="token keyword">public</span> <span class="token keyword">interface</span> <span class="token class-name">UserFeignClient</span> <span class="token punctuation">{</span>
-  <span class="token annotation punctuation">@RequestMapping</span><span class="token punctuation">(</span>value <span class="token operator">=</span> <span class="token string">"/get"</span><span class="token punctuation">,</span> method <span class="token operator">=</span> RequestMethod<span class="token punctuation">.</span>GET<span class="token punctuation">)</span>
-  <span class="token keyword">public</span> User <span class="token function">get0</span><span class="token punctuation">(</span>User user<span class="token punctuation">)</span><span class="token punctuation">;</span>
-<span class="token punctuation">}</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>通过<code>@RequestMapping</code>的method属性指定了请求方法为GET，但实际运行会发现feign仍然使用了POST方法进行了调用。</p>
-<h3 id="解决方案-3"><a href="#解决方案-3" class="headerlink" title="解决方案"></a>解决方案</h3><p>这种写法并不正确，正确写法有二：</p>
-<h4 id="1-通过-RequestParam指定url参数名"><a href="#1-通过-RequestParam指定url参数名" class="headerlink" title="1. 通过@RequestParam指定url参数名"></a>1. 通过@RequestParam指定url参数名</h4><pre class="line-numbers language-java"><code class="language-java"><span class="token annotation punctuation">@FeignClient</span><span class="token punctuation">(</span>name <span class="token operator">=</span> <span class="token string">"microservice-provider-user"</span><span class="token punctuation">)</span>
-<span class="token keyword">public</span> <span class="token keyword">interface</span> <span class="token class-name">UserFeignClient</span> <span class="token punctuation">{</span>
-  <span class="token annotation punctuation">@RequestMapping</span><span class="token punctuation">(</span>value <span class="token operator">=</span> <span class="token string">"/get"</span><span class="token punctuation">,</span> method <span class="token operator">=</span> RequestMethod<span class="token punctuation">.</span>GET<span class="token punctuation">)</span>
-  <span class="token keyword">public</span> User <span class="token function">get1</span><span class="token punctuation">(</span><span class="token annotation punctuation">@RequestParam</span><span class="token punctuation">(</span><span class="token string">"id"</span><span class="token punctuation">)</span> Long id<span class="token punctuation">,</span> <span class="token annotation punctuation">@RequestParam</span><span class="token punctuation">(</span><span class="token string">"username"</span><span class="token punctuation">)</span> String username<span class="token punctuation">)</span><span class="token punctuation">;</span>
-<span class="token punctuation">}</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<h4 id="2-当目标url参数较多时，可使用map来构建"><a href="#2-当目标url参数较多时，可使用map来构建" class="headerlink" title="2. 当目标url参数较多时，可使用map来构建"></a>2. 当目标url参数较多时，可使用map来构建</h4><pre class="line-numbers language-java"><code class="language-java"><span class="token annotation punctuation">@FeignClient</span><span class="token punctuation">(</span>name <span class="token operator">=</span> <span class="token string">"microservice-provider-user"</span><span class="token punctuation">)</span>
-<span class="token keyword">public</span> <span class="token keyword">interface</span> <span class="token class-name">UserFeignClient</span> <span class="token punctuation">{</span>
-  <span class="token annotation punctuation">@RequestMapping</span><span class="token punctuation">(</span>value <span class="token operator">=</span> <span class="token string">"/get"</span><span class="token punctuation">,</span> method <span class="token operator">=</span> RequestMethod<span class="token punctuation">.</span>GET<span class="token punctuation">)</span>
-  <span class="token keyword">public</span> User <span class="token function">get2</span><span class="token punctuation">(</span><span class="token annotation punctuation">@RequestParam</span> Map<span class="token operator">&lt;</span>String<span class="token punctuation">,</span> Object<span class="token operator">></span> map<span class="token punctuation">)</span><span class="token punctuation">;</span>
-<span class="token punctuation">}</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<h2 id="使用MultipartFile类型作为请求参数"><a href="#使用MultipartFile类型作为请求参数" class="headerlink" title="使用MultipartFile类型作为请求参数"></a>使用MultipartFile类型作为请求参数</h2><p>有时对外提供的接口调用可能需要传送文件，此时需要对<code>MultipartFile</code>类型的参数进行处理</p>
-<h3 id="解决方案-4"><a href="#解决方案-4" class="headerlink" title="解决方案"></a>解决方案</h3><p><strong>待补充</strong></p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://taccisum.github.io/outbound_rule_invalid_cause_by_urlrewritefilter_and_shirofilter.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="taccisum">
-      <meta itemprop="description" content="el psy congroo.">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Taccisum's blog 😉">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/outbound_rule_invalid_cause_by_urlrewritefilter_and_shirofilter.html" class="post-title-link" itemprop="url">同时配置UrlRewriteFilter与ShiroFilter导致outbound rule失效的问题</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2017-12-21 16:10:51" itemprop="dateCreated datePublished" datetime="2017-12-21T16:10:51+08:00">2017-12-21</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-03-13 18:05:01" itemprop="dateModified" datetime="2020-03-13T18:05:01+08:00">2020-03-13</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/java/" itemprop="url" rel="index"><span itemprop="name">java</span></a>
-                </span>
-                  , 
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/java/踩坑日记/" itemprop="url" rel="index"><span itemprop="name">踩坑日记</span></a>
-                </span>
-            </span>
-
-          
-            <span id="/outbound_rule_invalid_cause_by_urlrewritefilter_and_shirofilter.html" class="post-meta-item leancloud_visitors" data-flag-title="同时配置UrlRewriteFilter与ShiroFilter导致outbound rule失效的问题" title="Views">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">Views: </span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Valine: </span>
-    
-    <a title="valine" href="/outbound_rule_invalid_cause_by_urlrewritefilter_and_shirofilter.html#valine-comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/outbound_rule_invalid_cause_by_urlrewritefilter_and_shirofilter.html" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="项目环境"><a href="#项目环境" class="headerlink" title="项目环境"></a>项目环境</h2><p>Spring Boot1.5.4 + Shiro1.4.0 + UrlRewriteFilter4.0.4</p>
-<h2 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h2><p>最近在项目中同时用到<a href="http://shiro.apache.org/" target="_blank" rel="noopener">Shiro</a>和<a href="http://www.tuckey.org/urlrewrite/" target="_blank" rel="noopener">UrlRewriteFilter</a>。由于在web环境下两者都是通过配置filter来实现功能的，因此导致出现了冲突——UrlRewriteFilter的outbound rule无法正常工作。具体表现为：</p>
-<p>在urlrewrite.xml中配置了</p>
-<pre class="line-numbers language-xml"><code class="language-xml"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>urlrewrite</span><span class="token punctuation">></span></span>
-    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>outbound-rule</span><span class="token punctuation">></span></span>
-        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>from</span><span class="token punctuation">></span></span>/in-rewrite\?type=(\w+)$<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>from</span><span class="token punctuation">></span></span>
-        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>to</span><span class="token punctuation">></span></span>/in/$1.html<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>to</span><span class="token punctuation">></span></span>
-    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>outbound-rule</span><span class="token punctuation">></span></span>
-<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>urlrewrite</span><span class="token punctuation">></span></span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>在java代码中定义action</p>
-<pre class="line-numbers language-java"><code class="language-java">    <span class="token annotation punctuation">@GetMapping</span><span class="token punctuation">(</span><span class="token string">"out-rewrite"</span><span class="token punctuation">)</span>
-    <span class="token annotation punctuation">@ResponseBody</span>
-    <span class="token keyword">public</span> String <span class="token function">out</span><span class="token punctuation">(</span>HttpServletRequest request<span class="token punctuation">,</span> HttpServletResponse response<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        <span class="token keyword">return</span> response<span class="token punctuation">.</span><span class="token function">encodeURL</span><span class="token punctuation">(</span><span class="token string">"localhost:8080/in-rewrite?type=233"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>       <span class="token comment" spellcheck="true">//will be rewrite to 'localhost:8080/in/233.html'</span>
-    <span class="token punctuation">}</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>正常来说，访问这个api应该返回”localhost:8080/in/233.html”才对，但却返回了未转换前的url，即”localhost:8080/in-rewrite?type=233”。</p>
-<h2 id="问题分析"><a href="#问题分析" class="headerlink" title="问题分析"></a>问题分析</h2><p>在调试源码的时候发现，同时配置了ShiroFilter和UrlRewriteFilter时，response的类型是<code>ShiroHttpServletResponse</code>，此时outbound rule是不起作用的。而把ShiroFilter的配置去掉，只留下UrlRewriteFilter时，response的类型则是<code>UrlRewriteWrappedResponse</code>，而此时outbound rule是起作用的。显然，两者在filter里面都对response进行了重新包装，而ShiroFilter执行在后，导致前者的部分功能失效。</p>
-<p>再查看上面两个response包装类的源码：</p>
-<p><strong>UrlRewriteWrappedResponse.java</strong></p>
-<pre class="line-numbers language-java"><code class="language-java"><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>
-    <span class="token keyword">public</span> String <span class="token function">encodeURL</span><span class="token punctuation">(</span>String s<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        RewrittenOutboundUrl rou <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">processPreEncodeURL</span><span class="token punctuation">(</span>s<span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token keyword">if</span><span class="token punctuation">(</span>rou <span class="token operator">==</span> null<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-            <span class="token keyword">return</span> <span class="token keyword">super</span><span class="token punctuation">.</span><span class="token function">encodeURL</span><span class="token punctuation">(</span>s<span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
-            <span class="token keyword">if</span><span class="token punctuation">(</span>rou<span class="token punctuation">.</span><span class="token function">isEncode</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-                rou<span class="token punctuation">.</span><span class="token function">setTarget</span><span class="token punctuation">(</span><span class="token keyword">super</span><span class="token punctuation">.</span><span class="token function">encodeURL</span><span class="token punctuation">(</span>rou<span class="token punctuation">.</span><span class="token function">getTarget</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-            <span class="token punctuation">}</span>
-
-            <span class="token keyword">return</span> <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">processPostEncodeURL</span><span class="token punctuation">(</span>rou<span class="token punctuation">.</span><span class="token function">getTarget</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getTarget</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token punctuation">}</span>
-    <span class="token punctuation">}</span>
-<span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p><strong>ShiroHttpServletResponse.java</strong></p>
-<pre class="line-numbers language-java"><code class="language-java"><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>
-    <span class="token keyword">public</span> String <span class="token function">encodeURL</span><span class="token punctuation">(</span>String url<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        String absolute <span class="token operator">=</span> <span class="token function">toAbsolute</span><span class="token punctuation">(</span>url<span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">isEncodeable</span><span class="token punctuation">(</span>absolute<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-            <span class="token comment" spellcheck="true">// W3c spec clearly said</span>
-            <span class="token keyword">if</span> <span class="token punctuation">(</span>url<span class="token punctuation">.</span><span class="token function">equalsIgnoreCase</span><span class="token punctuation">(</span><span class="token string">""</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-                url <span class="token operator">=</span> absolute<span class="token punctuation">;</span>
-            <span class="token punctuation">}</span>
-            <span class="token keyword">return</span> <span class="token function">toEncoded</span><span class="token punctuation">(</span>url<span class="token punctuation">,</span> request<span class="token punctuation">.</span><span class="token function">getSession</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getId</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
-            <span class="token keyword">return</span> url<span class="token punctuation">;</span>
-        <span class="token punctuation">}</span>
-    <span class="token punctuation">}</span>
-<span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>发现两者均对<code>encodeUrl</code>、<code>encodeRedirectUrl</code>等四个方法进行了改写。Shiro的包装类执行在后，导致<code>UrlRewriteWrappedResponse</code>的相关代码没有被执行。</p>
-<h2 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h2><h3 id="重排Filter的执行顺序"><a href="#重排Filter的执行顺序" class="headerlink" title="重排Filter的执行顺序"></a>重排Filter的执行顺序</h3><p>让<code>UrlRewriteWrappedResponse</code>的包装过程执行在后，避免encodeUrl方法被改写。</p>
-<p>显然这不是一个好的办法，原因如下：</p>
-<ol>
-<li>导致<code>ShiroHttpServletResponse</code>的方法被改写，可能引出其它未知问题，无异于拆东墙补西墙</li>
-<li>导致ShiroFilter执行在前，可能导致一些访问的url还未被重写，这次访问就被Shiro拦截了</li>
-</ol>
-<h3 id="自己实现encodeUrl的逻辑"><a href="#自己实现encodeUrl的逻辑" class="headerlink" title="自己实现encodeUrl的逻辑"></a>自己实现encodeUrl的逻辑</h3><p>让<code>ShiroHttpServletResponse</code>执行encode前先执行<code>UrlRewriteWrappedResponse</code>的encode代码。</p>
-<ol>
-<li><p>改写<code>ShiroHttpServletResponse</code>，重写其encode逻辑</p>
-<pre class="line-numbers language-java"><code class="language-java"> <span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">CustomShiroHttpServletResponse</span> <span class="token keyword">extends</span> <span class="token class-name">ShiroHttpServletResponse</span> <span class="token punctuation">{</span>
-     <span class="token keyword">private</span> HttpServletResponse wrapped<span class="token punctuation">;</span>
-
-     <span class="token keyword">public</span> <span class="token function">CustomShiroHttpServletResponse</span><span class="token punctuation">(</span>HttpServletResponse wrapped<span class="token punctuation">,</span> ServletContext context<span class="token punctuation">,</span> ShiroHttpServletRequest request<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-         <span class="token keyword">super</span><span class="token punctuation">(</span>wrapped<span class="token punctuation">,</span> context<span class="token punctuation">,</span> request<span class="token punctuation">)</span><span class="token punctuation">;</span>
-         <span class="token keyword">this</span><span class="token punctuation">.</span>wrapped <span class="token operator">=</span> wrapped<span class="token punctuation">;</span>
-     <span class="token punctuation">}</span>
-
-     <span class="token annotation punctuation">@Override</span>
-     <span class="token keyword">public</span> String <span class="token function">encodeRedirectURL</span><span class="token punctuation">(</span>String url<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-         <span class="token keyword">return</span> <span class="token keyword">super</span><span class="token punctuation">.</span><span class="token function">encodeRedirectURL</span><span class="token punctuation">(</span>wrapped<span class="token punctuation">.</span><span class="token function">encodeRedirectURL</span><span class="token punctuation">(</span>url<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-     <span class="token punctuation">}</span>
-
-     <span class="token annotation punctuation">@Override</span>
-     <span class="token keyword">public</span> String <span class="token function">encodeRedirectUrl</span><span class="token punctuation">(</span>String s<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-         <span class="token keyword">return</span> <span class="token keyword">super</span><span class="token punctuation">.</span><span class="token function">encodeRedirectUrl</span><span class="token punctuation">(</span>wrapped<span class="token punctuation">.</span><span class="token function">encodeRedirectUrl</span><span class="token punctuation">(</span>s<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-     <span class="token punctuation">}</span>
-
-     <span class="token annotation punctuation">@Override</span>
-     <span class="token keyword">public</span> String <span class="token function">encodeURL</span><span class="token punctuation">(</span>String url<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-         <span class="token keyword">return</span> <span class="token keyword">super</span><span class="token punctuation">.</span><span class="token function">encodeURL</span><span class="token punctuation">(</span>wrapped<span class="token punctuation">.</span><span class="token function">encodeURL</span><span class="token punctuation">(</span>url<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-     <span class="token punctuation">}</span>
-
-     <span class="token annotation punctuation">@Override</span>
-     <span class="token keyword">public</span> String <span class="token function">encodeUrl</span><span class="token punctuation">(</span>String s<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-         <span class="token keyword">return</span> <span class="token keyword">super</span><span class="token punctuation">.</span><span class="token function">encodeUrl</span><span class="token punctuation">(</span>wrapped<span class="token punctuation">.</span><span class="token function">encodeUrl</span><span class="token punctuation">(</span>s<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-     <span class="token punctuation">}</span>
- <span class="token punctuation">}</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-</li>
-<li><p>改写<code>ShiroFilter</code>，使用<code>CustomShiroHttpServletResponse</code>代替<code>ShiroHttpServletResponse</code></p>
-<pre class="line-numbers language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">CustomSpringShiroFilter</span> <span class="token keyword">extends</span> <span class="token class-name">AbstractShiroFilter</span> <span class="token punctuation">{</span>
- <span class="token keyword">protected</span> <span class="token function">CustomSpringShiroFilter</span><span class="token punctuation">(</span>WebSecurityManager webSecurityManager<span class="token punctuation">,</span> FilterChainResolver resolver<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-     <span class="token comment" spellcheck="true">//这段代码是copy了ShiroFilterFactoryBean$SpringShiroFilter的构造方法中的代码</span>
-     <span class="token keyword">super</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-     <span class="token keyword">if</span> <span class="token punctuation">(</span>webSecurityManager <span class="token operator">==</span> null<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-         <span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">IllegalArgumentException</span><span class="token punctuation">(</span><span class="token string">"WebSecurityManager property cannot be null."</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-     <span class="token punctuation">}</span>
-     <span class="token function">setSecurityManager</span><span class="token punctuation">(</span>webSecurityManager<span class="token punctuation">)</span><span class="token punctuation">;</span>
-     <span class="token keyword">if</span> <span class="token punctuation">(</span>resolver <span class="token operator">!=</span> null<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-         <span class="token function">setFilterChainResolver</span><span class="token punctuation">(</span>resolver<span class="token punctuation">)</span><span class="token punctuation">;</span>
-     <span class="token punctuation">}</span>
- <span class="token punctuation">}</span>
-
- <span class="token annotation punctuation">@Override</span>
- <span class="token keyword">protected</span> ServletResponse <span class="token function">wrapServletResponse</span><span class="token punctuation">(</span>HttpServletResponse orig<span class="token punctuation">,</span> ShiroHttpServletRequest request<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-     <span class="token comment" spellcheck="true">//使用CustomShiroHttpServletResponse代替原有的Response Wrapper</span>
-     <span class="token keyword">return</span> <span class="token keyword">new</span> <span class="token class-name">CustomShiroHttpServletResponse</span><span class="token punctuation">(</span>orig<span class="token punctuation">,</span> <span class="token function">getServletContext</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> request<span class="token punctuation">)</span><span class="token punctuation">;</span>
- <span class="token punctuation">}</span>
-<span class="token punctuation">}</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-</li>
-<li><p>然后改写<code>ShiroFilterFactoryBean</code>的createInstance方法，使用<code>CustomSpringShiroFilter</code>，代替原来的Filter</p>
-<pre class="line-numbers language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">CustomShiroFilterFactoryBean</span> <span class="token keyword">extends</span> <span class="token class-name">ShiroFilterFactoryBean</span> <span class="token punctuation">{</span>
- <span class="token keyword">private</span> <span class="token keyword">static</span> <span class="token keyword">transient</span> <span class="token keyword">final</span> Logger log <span class="token operator">=</span> LoggerFactory<span class="token punctuation">.</span><span class="token function">getLogger</span><span class="token punctuation">(</span>ShiroFilterFactoryBean<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-
- <span class="token annotation punctuation">@Override</span>
- <span class="token keyword">protected</span> AbstractShiroFilter <span class="token function">createInstance</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">throws</span> Exception <span class="token punctuation">{</span>
-     <span class="token comment" spellcheck="true">//这部分代码与父类相同</span>
-     log<span class="token punctuation">.</span><span class="token function">debug</span><span class="token punctuation">(</span><span class="token string">"Creating Shiro Filter instance."</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-
-     SecurityManager securityManager <span class="token operator">=</span> <span class="token function">getSecurityManager</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-     <span class="token keyword">if</span> <span class="token punctuation">(</span>securityManager <span class="token operator">==</span> null<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-         String msg <span class="token operator">=</span> <span class="token string">"SecurityManager property must be set."</span><span class="token punctuation">;</span>
-         <span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">BeanInitializationException</span><span class="token punctuation">(</span>msg<span class="token punctuation">)</span><span class="token punctuation">;</span>
-     <span class="token punctuation">}</span>
-
-     <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span><span class="token punctuation">(</span>securityManager <span class="token keyword">instanceof</span> <span class="token class-name">WebSecurityManager</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-         String msg <span class="token operator">=</span> <span class="token string">"The security manager does not implement the WebSecurityManager interface."</span><span class="token punctuation">;</span>
-         <span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">BeanInitializationException</span><span class="token punctuation">(</span>msg<span class="token punctuation">)</span><span class="token punctuation">;</span>
-     <span class="token punctuation">}</span>
-
-     FilterChainManager manager <span class="token operator">=</span> <span class="token function">createFilterChainManager</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-
-     PathMatchingFilterChainResolver chainResolver <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">PathMatchingFilterChainResolver</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-     chainResolver<span class="token punctuation">.</span><span class="token function">setFilterChainManager</span><span class="token punctuation">(</span>manager<span class="token punctuation">)</span><span class="token punctuation">;</span>
-
-     <span class="token comment" spellcheck="true">//使用CustomSpringShiroFilter代替SpringShiroFilter</span>
-     <span class="token keyword">return</span> <span class="token keyword">new</span> <span class="token class-name">CustomSpringShiroFilter</span><span class="token punctuation">(</span><span class="token punctuation">(</span>WebSecurityManager<span class="token punctuation">)</span> securityManager<span class="token punctuation">,</span> chainResolver<span class="token punctuation">)</span><span class="token punctuation">;</span>
- <span class="token punctuation">}</span>
-<span class="token punctuation">}</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-</li>
-<li><p>重启项目，访问”/out-rewrite”，结果如下<br><img src="/images/20171221/outbound.png" alt="outbound rule"></p>
-</li>
-</ol>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://taccisum.github.io/instantiationexception_on_mybatistest.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="taccisum">
-      <meta itemprop="description" content="el psy congroo.">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Taccisum's blog 😉">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/instantiationexception_on_mybatistest.html" class="post-title-link" itemprop="url">在@MybatisTest中使用通用Mapper出现InstantiationException的问题</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2017-11-15 11:42:36" itemprop="dateCreated datePublished" datetime="2017-11-15T11:42:36+08:00">2017-11-15</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-03-13 18:05:01" itemprop="dateModified" datetime="2020-03-13T18:05:01+08:00">2020-03-13</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/java/" itemprop="url" rel="index"><span itemprop="name">java</span></a>
-                </span>
-                  , 
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/java/踩坑日记/" itemprop="url" rel="index"><span itemprop="name">踩坑日记</span></a>
-                </span>
-            </span>
-
-          
-            <span id="/instantiationexception_on_mybatistest.html" class="post-meta-item leancloud_visitors" data-flag-title="在@MybatisTest中使用通用Mapper出现InstantiationException的问题" title="Views">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">Views: </span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Valine: </span>
-    
-    <a title="valine" href="/instantiationexception_on_mybatistest.html#valine-comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/instantiationexception_on_mybatistest.html" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h2><p>在Spring Boot环境中使用<a href="http://www.mybatis.org/spring-boot-starter/mybatis-spring-boot-test-autoconfigure/" target="_blank" rel="noopener">@MybatisTest</a>注解针对Mapper写单元测试的时候，由于同时引入了<a href="https://github.com/abel533/Mapper" target="_blank" rel="noopener">通用Mapper</a>，在单元测试中调用通用Mapper的方法进行CRUD时会出现<code>InstantiationException</code>异常</p>
-<pre class="line-numbers language-java"><code class="language-java">org<span class="token punctuation">.</span>mybatis<span class="token punctuation">.</span>spring<span class="token punctuation">.</span>MyBatisSystemException<span class="token operator">:</span> nested exception is org<span class="token punctuation">.</span>apache<span class="token punctuation">.</span>ibatis<span class="token punctuation">.</span>builder<span class="token punctuation">.</span>BuilderException<span class="token operator">:</span> Error invoking SqlProvider <span class="token function">method</span> <span class="token punctuation">(</span>tk<span class="token punctuation">.</span>mybatis<span class="token punctuation">.</span>mapper<span class="token punctuation">.</span>provider<span class="token punctuation">.</span>base<span class="token punctuation">.</span>BaseSelectProvider<span class="token punctuation">.</span>dynamicSQL<span class="token punctuation">)</span><span class="token punctuation">.</span>  Cause<span class="token operator">:</span> java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>InstantiationException<span class="token operator">:</span> tk<span class="token punctuation">.</span>mybatis<span class="token punctuation">.</span>mapper<span class="token punctuation">.</span>provider<span class="token punctuation">.</span>base<span class="token punctuation">.</span>BaseSelectProvider
-
-    at org<span class="token punctuation">.</span>mybatis<span class="token punctuation">.</span>spring<span class="token punctuation">.</span>MyBatisExceptionTranslator<span class="token punctuation">.</span><span class="token function">translateExceptionIfPossible</span><span class="token punctuation">(</span>MyBatisExceptionTranslator<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">77</span><span class="token punctuation">)</span>
-    at org<span class="token punctuation">.</span>mybatis<span class="token punctuation">.</span>spring<span class="token punctuation">.</span>SqlSessionTemplate$SqlSessionInterceptor<span class="token punctuation">.</span><span class="token function">invoke</span><span class="token punctuation">(</span>SqlSessionTemplate<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">446</span><span class="token punctuation">)</span>
-    at com<span class="token punctuation">.</span>sun<span class="token punctuation">.</span>proxy<span class="token punctuation">.</span>$Proxy89<span class="token punctuation">.</span><span class="token function">selectOne</span><span class="token punctuation">(</span>Unknown Source<span class="token punctuation">)</span>
-    at org<span class="token punctuation">.</span>mybatis<span class="token punctuation">.</span>spring<span class="token punctuation">.</span>SqlSessionTemplate<span class="token punctuation">.</span><span class="token function">selectOne</span><span class="token punctuation">(</span>SqlSessionTemplate<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">166</span><span class="token punctuation">)</span>
-    at org<span class="token punctuation">.</span>apache<span class="token punctuation">.</span>ibatis<span class="token punctuation">.</span>binding<span class="token punctuation">.</span>MapperMethod<span class="token punctuation">.</span><span class="token function">execute</span><span class="token punctuation">(</span>MapperMethod<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">82</span><span class="token punctuation">)</span>
-    at org<span class="token punctuation">.</span>apache<span class="token punctuation">.</span>ibatis<span class="token punctuation">.</span>binding<span class="token punctuation">.</span>MapperProxy<span class="token punctuation">.</span><span class="token function">invoke</span><span class="token punctuation">(</span>MapperProxy<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">59</span><span class="token punctuation">)</span>
-    at com<span class="token punctuation">.</span>sun<span class="token punctuation">.</span>proxy<span class="token punctuation">.</span>$Proxy91<span class="token punctuation">.</span><span class="token function">selectByPrimaryKey</span><span class="token punctuation">(</span>Unknown Source<span class="token punctuation">)</span>
-    at com<span class="token punctuation">.</span>ikentop<span class="token punctuation">.</span>biz<span class="token punctuation">.</span>provider<span class="token punctuation">.</span>mapper<span class="token punctuation">.</span>hh<span class="token punctuation">.</span>ImageRecordMapperTest<span class="token punctuation">.</span><span class="token function">testSimply</span><span class="token punctuation">(</span>ImageRecordMapperTest<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">33</span><span class="token punctuation">)</span>
-    at sun<span class="token punctuation">.</span>reflect<span class="token punctuation">.</span>NativeMethodAccessorImpl<span class="token punctuation">.</span><span class="token function">invoke0</span><span class="token punctuation">(</span>Native Method<span class="token punctuation">)</span>
-    at sun<span class="token punctuation">.</span>reflect<span class="token punctuation">.</span>NativeMethodAccessorImpl<span class="token punctuation">.</span><span class="token function">invoke</span><span class="token punctuation">(</span>NativeMethodAccessorImpl<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">62</span><span class="token punctuation">)</span>
-    at sun<span class="token punctuation">.</span>reflect<span class="token punctuation">.</span>DelegatingMethodAccessorImpl<span class="token punctuation">.</span><span class="token function">invoke</span><span class="token punctuation">(</span>DelegatingMethodAccessorImpl<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">43</span><span class="token punctuation">)</span>
-    at java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>reflect<span class="token punctuation">.</span>Method<span class="token punctuation">.</span><span class="token function">invoke</span><span class="token punctuation">(</span>Method<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">498</span><span class="token punctuation">)</span>
-    at org<span class="token punctuation">.</span>junit<span class="token punctuation">.</span>runners<span class="token punctuation">.</span>model<span class="token punctuation">.</span>FrameworkMethod$<span class="token number">1</span><span class="token punctuation">.</span><span class="token function">runReflectiveCall</span><span class="token punctuation">(</span>FrameworkMethod<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">50</span><span class="token punctuation">)</span>
-    at org<span class="token punctuation">.</span>junit<span class="token punctuation">.</span>internal<span class="token punctuation">.</span>runners<span class="token punctuation">.</span>model<span class="token punctuation">.</span>ReflectiveCallable<span class="token punctuation">.</span><span class="token function">run</span><span class="token punctuation">(</span>ReflectiveCallable<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">12</span><span class="token punctuation">)</span>
-    at org<span class="token punctuation">.</span>junit<span class="token punctuation">.</span>runners<span class="token punctuation">.</span>model<span class="token punctuation">.</span>FrameworkMethod<span class="token punctuation">.</span><span class="token function">invokeExplosively</span><span class="token punctuation">(</span>FrameworkMethod<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">47</span><span class="token punctuation">)</span>
-    at org<span class="token punctuation">.</span>junit<span class="token punctuation">.</span>internal<span class="token punctuation">.</span>runners<span class="token punctuation">.</span>statements<span class="token punctuation">.</span>InvokeMethod<span class="token punctuation">.</span><span class="token function">evaluate</span><span class="token punctuation">(</span>InvokeMethod<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">17</span><span class="token punctuation">)</span>
-    at org<span class="token punctuation">.</span>springframework<span class="token punctuation">.</span>test<span class="token punctuation">.</span>context<span class="token punctuation">.</span>junit4<span class="token punctuation">.</span>statements<span class="token punctuation">.</span>RunBeforeTestMethodCallbacks<span class="token punctuation">.</span><span class="token function">evaluate</span><span class="token punctuation">(</span>RunBeforeTestMethodCallbacks<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">75</span><span class="token punctuation">)</span>
-    at org<span class="token punctuation">.</span>springframework<span class="token punctuation">.</span>test<span class="token punctuation">.</span>context<span class="token punctuation">.</span>junit4<span class="token punctuation">.</span>statements<span class="token punctuation">.</span>RunAfterTestMethodCallbacks<span class="token punctuation">.</span><span class="token function">evaluate</span><span class="token punctuation">(</span>RunAfterTestMethodCallbacks<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">86</span><span class="token punctuation">)</span>
-    at org<span class="token punctuation">.</span>springframework<span class="token punctuation">.</span>test<span class="token punctuation">.</span>context<span class="token punctuation">.</span>junit4<span class="token punctuation">.</span>statements<span class="token punctuation">.</span>SpringRepeat<span class="token punctuation">.</span><span class="token function">evaluate</span><span class="token punctuation">(</span>SpringRepeat<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">84</span><span class="token punctuation">)</span>
-    at org<span class="token punctuation">.</span>junit<span class="token punctuation">.</span>runners<span class="token punctuation">.</span>ParentRunner<span class="token punctuation">.</span><span class="token function">runLeaf</span><span class="token punctuation">(</span>ParentRunner<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">325</span><span class="token punctuation">)</span>
-    at org<span class="token punctuation">.</span>springframework<span class="token punctuation">.</span>test<span class="token punctuation">.</span>context<span class="token punctuation">.</span>junit4<span class="token punctuation">.</span>SpringJUnit4ClassRunner<span class="token punctuation">.</span><span class="token function">runChild</span><span class="token punctuation">(</span>SpringJUnit4ClassRunner<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">252</span><span class="token punctuation">)</span>
-    at org<span class="token punctuation">.</span>springframework<span class="token punctuation">.</span>test<span class="token punctuation">.</span>context<span class="token punctuation">.</span>junit4<span class="token punctuation">.</span>SpringJUnit4ClassRunner<span class="token punctuation">.</span><span class="token function">runChild</span><span class="token punctuation">(</span>SpringJUnit4ClassRunner<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">94</span><span class="token punctuation">)</span>
-    at org<span class="token punctuation">.</span>junit<span class="token punctuation">.</span>runners<span class="token punctuation">.</span>ParentRunner$<span class="token number">3</span><span class="token punctuation">.</span><span class="token function">run</span><span class="token punctuation">(</span>ParentRunner<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">290</span><span class="token punctuation">)</span>
-    at org<span class="token punctuation">.</span>junit<span class="token punctuation">.</span>runners<span class="token punctuation">.</span>ParentRunner$<span class="token number">1</span><span class="token punctuation">.</span><span class="token function">schedule</span><span class="token punctuation">(</span>ParentRunner<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">71</span><span class="token punctuation">)</span>
-    at org<span class="token punctuation">.</span>junit<span class="token punctuation">.</span>runners<span class="token punctuation">.</span>ParentRunner<span class="token punctuation">.</span><span class="token function">runChildren</span><span class="token punctuation">(</span>ParentRunner<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">288</span><span class="token punctuation">)</span>
-    at org<span class="token punctuation">.</span>junit<span class="token punctuation">.</span>runners<span class="token punctuation">.</span>ParentRunner<span class="token punctuation">.</span>access$<span class="token function">000</span><span class="token punctuation">(</span>ParentRunner<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">58</span><span class="token punctuation">)</span>
-    at org<span class="token punctuation">.</span>junit<span class="token punctuation">.</span>runners<span class="token punctuation">.</span>ParentRunner$<span class="token number">2</span><span class="token punctuation">.</span><span class="token function">evaluate</span><span class="token punctuation">(</span>ParentRunner<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">268</span><span class="token punctuation">)</span>
-    at org<span class="token punctuation">.</span>springframework<span class="token punctuation">.</span>test<span class="token punctuation">.</span>context<span class="token punctuation">.</span>junit4<span class="token punctuation">.</span>statements<span class="token punctuation">.</span>RunBeforeTestClassCallbacks<span class="token punctuation">.</span><span class="token function">evaluate</span><span class="token punctuation">(</span>RunBeforeTestClassCallbacks<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">61</span><span class="token punctuation">)</span>
-    at org<span class="token punctuation">.</span>springframework<span class="token punctuation">.</span>test<span class="token punctuation">.</span>context<span class="token punctuation">.</span>junit4<span class="token punctuation">.</span>statements<span class="token punctuation">.</span>RunAfterTestClassCallbacks<span class="token punctuation">.</span><span class="token function">evaluate</span><span class="token punctuation">(</span>RunAfterTestClassCallbacks<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">70</span><span class="token punctuation">)</span>
-    at org<span class="token punctuation">.</span>junit<span class="token punctuation">.</span>runners<span class="token punctuation">.</span>ParentRunner<span class="token punctuation">.</span><span class="token function">run</span><span class="token punctuation">(</span>ParentRunner<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">363</span><span class="token punctuation">)</span>
-    at org<span class="token punctuation">.</span>springframework<span class="token punctuation">.</span>test<span class="token punctuation">.</span>context<span class="token punctuation">.</span>junit4<span class="token punctuation">.</span>SpringJUnit4ClassRunner<span class="token punctuation">.</span><span class="token function">run</span><span class="token punctuation">(</span>SpringJUnit4ClassRunner<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">191</span><span class="token punctuation">)</span>
-    at org<span class="token punctuation">.</span>junit<span class="token punctuation">.</span>runner<span class="token punctuation">.</span>JUnitCore<span class="token punctuation">.</span><span class="token function">run</span><span class="token punctuation">(</span>JUnitCore<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">137</span><span class="token punctuation">)</span>
-    at com<span class="token punctuation">.</span>intellij<span class="token punctuation">.</span>junit4<span class="token punctuation">.</span>JUnit4IdeaTestRunner<span class="token punctuation">.</span><span class="token function">startRunnerWithArgs</span><span class="token punctuation">(</span>JUnit4IdeaTestRunner<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">68</span><span class="token punctuation">)</span>
-    at com<span class="token punctuation">.</span>intellij<span class="token punctuation">.</span>rt<span class="token punctuation">.</span>execution<span class="token punctuation">.</span>junit<span class="token punctuation">.</span>IdeaTestRunner$Repeater<span class="token punctuation">.</span><span class="token function">startRunnerWithArgs</span><span class="token punctuation">(</span>IdeaTestRunner<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">51</span><span class="token punctuation">)</span>
-    at com<span class="token punctuation">.</span>intellij<span class="token punctuation">.</span>rt<span class="token punctuation">.</span>execution<span class="token punctuation">.</span>junit<span class="token punctuation">.</span>JUnitStarter<span class="token punctuation">.</span><span class="token function">prepareStreamsAndStart</span><span class="token punctuation">(</span>JUnitStarter<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">237</span><span class="token punctuation">)</span>
-    at com<span class="token punctuation">.</span>intellij<span class="token punctuation">.</span>rt<span class="token punctuation">.</span>execution<span class="token punctuation">.</span>junit<span class="token punctuation">.</span>JUnitStarter<span class="token punctuation">.</span><span class="token function">main</span><span class="token punctuation">(</span>JUnitStarter<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">70</span><span class="token punctuation">)</span>
-Caused by<span class="token operator">:</span> org<span class="token punctuation">.</span>apache<span class="token punctuation">.</span>ibatis<span class="token punctuation">.</span>builder<span class="token punctuation">.</span>BuilderException<span class="token operator">:</span> Error invoking SqlProvider <span class="token function">method</span> <span class="token punctuation">(</span>tk<span class="token punctuation">.</span>mybatis<span class="token punctuation">.</span>mapper<span class="token punctuation">.</span>provider<span class="token punctuation">.</span>base<span class="token punctuation">.</span>BaseSelectProvider<span class="token punctuation">.</span>dynamicSQL<span class="token punctuation">)</span><span class="token punctuation">.</span>  Cause<span class="token operator">:</span> java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>InstantiationException<span class="token operator">:</span> tk<span class="token punctuation">.</span>mybatis<span class="token punctuation">.</span>mapper<span class="token punctuation">.</span>provider<span class="token punctuation">.</span>base<span class="token punctuation">.</span>BaseSelectProvider
-    at org<span class="token punctuation">.</span>apache<span class="token punctuation">.</span>ibatis<span class="token punctuation">.</span>builder<span class="token punctuation">.</span>annotation<span class="token punctuation">.</span>ProviderSqlSource<span class="token punctuation">.</span><span class="token function">createSqlSource</span><span class="token punctuation">(</span>ProviderSqlSource<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">103</span><span class="token punctuation">)</span>
-    at org<span class="token punctuation">.</span>apache<span class="token punctuation">.</span>ibatis<span class="token punctuation">.</span>builder<span class="token punctuation">.</span>annotation<span class="token punctuation">.</span>ProviderSqlSource<span class="token punctuation">.</span><span class="token function">getBoundSql</span><span class="token punctuation">(</span>ProviderSqlSource<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">73</span><span class="token punctuation">)</span>
-    at org<span class="token punctuation">.</span>apache<span class="token punctuation">.</span>ibatis<span class="token punctuation">.</span>mapping<span class="token punctuation">.</span>MappedStatement<span class="token punctuation">.</span><span class="token function">getBoundSql</span><span class="token punctuation">(</span>MappedStatement<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">292</span><span class="token punctuation">)</span>
-    at org<span class="token punctuation">.</span>apache<span class="token punctuation">.</span>ibatis<span class="token punctuation">.</span>executor<span class="token punctuation">.</span>CachingExecutor<span class="token punctuation">.</span><span class="token function">query</span><span class="token punctuation">(</span>CachingExecutor<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">81</span><span class="token punctuation">)</span>
-    at org<span class="token punctuation">.</span>apache<span class="token punctuation">.</span>ibatis<span class="token punctuation">.</span>session<span class="token punctuation">.</span>defaults<span class="token punctuation">.</span>DefaultSqlSession<span class="token punctuation">.</span><span class="token function">selectList</span><span class="token punctuation">(</span>DefaultSqlSession<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">148</span><span class="token punctuation">)</span>
-    at org<span class="token punctuation">.</span>apache<span class="token punctuation">.</span>ibatis<span class="token punctuation">.</span>session<span class="token punctuation">.</span>defaults<span class="token punctuation">.</span>DefaultSqlSession<span class="token punctuation">.</span><span class="token function">selectList</span><span class="token punctuation">(</span>DefaultSqlSession<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">141</span><span class="token punctuation">)</span>
-    at org<span class="token punctuation">.</span>apache<span class="token punctuation">.</span>ibatis<span class="token punctuation">.</span>session<span class="token punctuation">.</span>defaults<span class="token punctuation">.</span>DefaultSqlSession<span class="token punctuation">.</span><span class="token function">selectOne</span><span class="token punctuation">(</span>DefaultSqlSession<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">77</span><span class="token punctuation">)</span>
-    at sun<span class="token punctuation">.</span>reflect<span class="token punctuation">.</span>NativeMethodAccessorImpl<span class="token punctuation">.</span><span class="token function">invoke0</span><span class="token punctuation">(</span>Native Method<span class="token punctuation">)</span>
-    at sun<span class="token punctuation">.</span>reflect<span class="token punctuation">.</span>NativeMethodAccessorImpl<span class="token punctuation">.</span><span class="token function">invoke</span><span class="token punctuation">(</span>NativeMethodAccessorImpl<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">62</span><span class="token punctuation">)</span>
-    at sun<span class="token punctuation">.</span>reflect<span class="token punctuation">.</span>DelegatingMethodAccessorImpl<span class="token punctuation">.</span><span class="token function">invoke</span><span class="token punctuation">(</span>DelegatingMethodAccessorImpl<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">43</span><span class="token punctuation">)</span>
-    at java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>reflect<span class="token punctuation">.</span>Method<span class="token punctuation">.</span><span class="token function">invoke</span><span class="token punctuation">(</span>Method<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">498</span><span class="token punctuation">)</span>
-    at org<span class="token punctuation">.</span>mybatis<span class="token punctuation">.</span>spring<span class="token punctuation">.</span>SqlSessionTemplate$SqlSessionInterceptor<span class="token punctuation">.</span><span class="token function">invoke</span><span class="token punctuation">(</span>SqlSessionTemplate<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">433</span><span class="token punctuation">)</span>
-    <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span> <span class="token number">34</span> more
-Caused by<span class="token operator">:</span> java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>InstantiationException<span class="token operator">:</span> tk<span class="token punctuation">.</span>mybatis<span class="token punctuation">.</span>mapper<span class="token punctuation">.</span>provider<span class="token punctuation">.</span>base<span class="token punctuation">.</span>BaseSelectProvider
-    at java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>Class<span class="token punctuation">.</span><span class="token function">newInstance</span><span class="token punctuation">(</span>Class<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">427</span><span class="token punctuation">)</span>
-    at org<span class="token punctuation">.</span>apache<span class="token punctuation">.</span>ibatis<span class="token punctuation">.</span>builder<span class="token punctuation">.</span>annotation<span class="token punctuation">.</span>ProviderSqlSource<span class="token punctuation">.</span><span class="token function">createSqlSource</span><span class="token punctuation">(</span>ProviderSqlSource<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">85</span><span class="token punctuation">)</span>
-    <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span> <span class="token number">45</span> more
-Caused by<span class="token operator">:</span> java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>NoSuchMethodException<span class="token operator">:</span> tk<span class="token punctuation">.</span>mybatis<span class="token punctuation">.</span>mapper<span class="token punctuation">.</span>provider<span class="token punctuation">.</span>base<span class="token punctuation">.</span>BaseSelectProvider<span class="token punctuation">.</span>&lt;init<span class="token operator">></span><span class="token punctuation">(</span><span class="token punctuation">)</span>
-    at java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>Class<span class="token punctuation">.</span><span class="token function">getConstructor0</span><span class="token punctuation">(</span>Class<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">3082</span><span class="token punctuation">)</span>
-    at java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>Class<span class="token punctuation">.</span><span class="token function">newInstance</span><span class="token punctuation">(</span>Class<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">412</span><span class="token punctuation">)</span>
-    <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span> <span class="token number">46</span> more
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>单元测试代码如下：</p>
-<pre class="line-numbers language-java"><code class="language-java"><span class="token annotation punctuation">@RunWith</span><span class="token punctuation">(</span>SpringRunner<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">)</span>
-<span class="token annotation punctuation">@MybatisTest</span>
-<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">ImageRecordMapperTest</span> <span class="token punctuation">{</span>
-    <span class="token annotation punctuation">@Autowired</span>
-    <span class="token keyword">private</span> ImageRecordMapper mapper<span class="token punctuation">;</span>
-
-    <span class="token annotation punctuation">@Test</span>
-    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">testSimply</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        ImageRecord record <span class="token operator">=</span> mapper<span class="token punctuation">.</span><span class="token function">selectByPrimaryKey</span><span class="token punctuation">(</span><span class="token string">"1"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        Assert<span class="token punctuation">.</span><span class="token function">assertNotNull</span><span class="token punctuation">(</span>record<span class="token punctuation">)</span><span class="token punctuation">;</span>
-        Assert<span class="token punctuation">.</span><span class="token function">assertEquals</span><span class="token punctuation">(</span><span class="token string">"taccisum"</span><span class="token punctuation">,</span> record<span class="token punctuation">.</span><span class="token function">getBucket</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        Assert<span class="token punctuation">.</span><span class="token function">assertEquals</span><span class="token punctuation">(</span><span class="token string">"image1"</span><span class="token punctuation">,</span> record<span class="token punctuation">.</span><span class="token function">getKey</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        Assert<span class="token punctuation">.</span><span class="token function">assertEquals</span><span class="token punctuation">(</span><span class="token string">"hash1"</span><span class="token punctuation">,</span> record<span class="token punctuation">.</span><span class="token function">getHash</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-<span class="token punctuation">}</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<h2 id="分析原因"><a href="#分析原因" class="headerlink" title="分析原因"></a>分析原因</h2><p>在github上mapper的<a href="https://github.com/abel533/MyBatis-Spring-Boot/issues/34" target="_blank" rel="noopener">issue</a>中有一段作者的回复，说此异常是由于<code>通用方法没有被正确初始化</code>导致。<br>我这边的情况虽然和这个issue不同，但根本原因是一样的。<br>查阅<code>Mybatis-Test</code>的文档可知，<code>@MybatisTest</code>注解不同于<code>@SpringBootTest</code>，它只加载保证Mybatis正常运行所需要的configuration。显然通用Mapper作为Mybatis第三方的扩展，并没有被纳入其中，因而默认情况下通用Mapper的starter是不会被加载的，也就导致通用方法不会被初始化。</p>
-<blockquote>
-<p>The @MybatisTest can be used if you want to test MyBatis components(Mapper interface and SqlSession). By default it will configure MyBatis(MyBatis-Spring) components(SqlSessionFactory and SqlSessionTemplate), configure MyBatis mapper interfaces and configure an in-memory embedded database. MyBatis tests are transactional and rollback at the end of each test by default, for more details refer to the relevant section in the Spring Reference Documentation. Also regular @Component beans will not be loaded into the ApplicationContext.<br>以上是来自<a href="http://www.mybatis.org/spring-boot-starter/mybatis-spring-boot-test-autoconfigure/" target="_blank" rel="noopener">mybatis-spring-boot-test-autoconfigure</a>官方文档的描述</p>
-</blockquote>
-<h2 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h2><p>显然，只要让Mapper的starter在MybatisTest的单元测试启动时得以加载即可解决我们的问题。那么如何做呢？<br>Spring Boot提供了一个<code>@ImportAutoConfiguration</code>的注解，因此只需要在单元测试的目标类上使用该注解将MapperAutoConfiguration导入即可</p>
-<pre class="line-numbers language-java"><code class="language-java"><span class="token annotation punctuation">@RunWith</span><span class="token punctuation">(</span>SpringRunner<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">)</span>
-<span class="token annotation punctuation">@ImportAutoConfiguration</span><span class="token punctuation">(</span>MapperAutoConfiguration<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">)</span>
-<span class="token annotation punctuation">@MybatisTest</span>
-<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">ImageRecordMapperTest</span> <span class="token punctuation">{</span>
-    ……
-<span class="token punctuation">}</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>其中<code>MapperAutoConfiguration</code>是通用Mapper的starter的auto-configure类。</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://taccisum.github.io/learn_gradle_5.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="taccisum">
-      <meta itemprop="description" content="el psy congroo.">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Taccisum's blog 😉">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/learn_gradle_5.html" class="post-title-link" itemprop="url">Gradle学习（五） - 打包发布</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2017-10-13 11:32:20" itemprop="dateCreated datePublished" datetime="2017-10-13T11:32:20+08:00">2017-10-13</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-03-13 18:05:01" itemprop="dateModified" datetime="2020-03-13T18:05:01+08:00">2020-03-13</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/java/" itemprop="url" rel="index"><span itemprop="name">java</span></a>
-                </span>
-                  , 
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/java/gradle/" itemprop="url" rel="index"><span itemprop="name">gradle</span></a>
-                </span>
-            </span>
-
-          
-            <span id="/learn_gradle_5.html" class="post-meta-item leancloud_visitors" data-flag-title="Gradle学习（五） - 打包发布" title="Views">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">Views: </span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Valine: </span>
-    
-    <a title="valine" href="/learn_gradle_5.html#valine-comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/learn_gradle_5.html" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="发布到Maven仓库"><a href="#发布到Maven仓库" class="headerlink" title="发布到Maven仓库"></a>发布到Maven仓库</h2><h3 id="Maven-Publish插件"><a href="#Maven-Publish插件" class="headerlink" title="Maven-Publish插件"></a>Maven-Publish插件</h3><p>Gradle将项目发布到Maven仓库需要借助插件，<code>Maven-Publish</code>便是官方推荐的一款插件。<br><a href="https://docs.gradle.org/current/userguide/publishing_maven.html" target="_blank" rel="noopener">Maven-Publish</a></p>
-<h3 id="发布项目"><a href="#发布项目" class="headerlink" title="发布项目"></a>发布项目</h3><p>通过<code>&#39;maven-publish&#39;</code>引入插件<br><strong>build.gradle</strong></p>
-<pre class="line-numbers language-groovy"><code class="language-groovy">apply plugin<span class="token punctuation">:</span> <span class="token string">'maven-publish'</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-<h4 id="发布到本地"><a href="#发布到本地" class="headerlink" title="发布到本地"></a>发布到本地</h4><p><strong>build.gradle</strong></p>
-<pre class="line-numbers language-groovy"><code class="language-groovy">apply plugin<span class="token punctuation">:</span> <span class="token string">'java'</span>
-apply plugin<span class="token punctuation">:</span> <span class="token string">'maven-publish'</span>
-
-group <span class="token operator">=</span> <span class="token string">'cn.tac.test'</span>
-version <span class="token operator">=</span> <span class="token string">'1.0'</span>
-
-publishing <span class="token punctuation">{</span>
-    publications <span class="token punctuation">{</span>
-        <span class="token function">mavenJava</span><span class="token punctuation">(</span>MavenPublication<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-            from components<span class="token operator">.</span>java
-        <span class="token punctuation">}</span>
-    <span class="token punctuation">}</span>
-<span class="token punctuation">}</span>
-publishing <span class="token punctuation">{</span>
-    repositories <span class="token punctuation">{</span>
-        maven <span class="token punctuation">{</span>
-            url <span class="token string">"$buildDir/repo"</span>
-        <span class="token punctuation">}</span>
-    <span class="token punctuation">}</span>
-<span class="token punctuation">}</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>在以上配置中</p>
-<ul>
-<li><code>publishing{}</code>是由插件为项目创建的扩展（PublishingExtension类型），这个扩展提供了两个block：<code>publications{}</code>（MavenPublication类型）和<code>repositories{}</code>（MavenArtifactRepository 类型），分别用于配置<code>要发布的内容</code>和<code>目标仓库</code>（均可配置多个）。</li>
-<li><code>mavenJava{}</code>被称为发布组件<code>Component</code>，用于配置一项要发布的内容，components.java表示这个组件是通过Java插件添加的<code>java</code>组件，可以简单地理解为就是将当前java项目作为发布内容。</li>
-<li><code>maven{}</code>指定了一个要发布的目标仓库，当前指定了当前项目的build目录下的<code>repo</code>目录，即发布到本地</li>
-</ul>
-<p>执行publishing -&gt; publish，可以看到项目成功发布到了<code>build/repo</code>目录中。<br><img src="/images/gradle_learn/publishing/build_repo.png" alt="build/repo"></p>
-<p><strong>tips</strong></p>
-<ul>
-<li>两个<code>publishing{}</code>块的内容也可以合在一起写</li>
-<li>mavenJava只是一个命名，并无特殊含义，你也可以将其更换为别的名称，但不能与其它发布组件名称重复</li>
-<li>mavenJava块中还可以配置要发布的artifact的<code>group</code>、<code>id</code>及<code>version</code>，如果不显式指定，则默认采用当前项目的配置</li>
-</ul>
-<h4 id="发布源码"><a href="#发布源码" class="headerlink" title="发布源码"></a>发布源码</h4><p>在上一步的基础上</p>
-<ol>
-<li>新增一个用于获取源码的task</li>
-<li>配置发布组件，使其发布的同时额外发布一个包含源码的<code>artifact</code></li>
-</ol>
-<p><strong>build.gradle</strong></p>
-<pre class="line-numbers language-groovy"><code class="language-groovy">……
-<span class="token comment" spellcheck="true">//这个task可以获取到源码</span>
-task <span class="token function">sourceJar</span><span class="token punctuation">(</span>type<span class="token punctuation">:</span> Jar<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-    from sourceSets<span class="token operator">.</span>main<span class="token operator">.</span>allJava
-<span class="token punctuation">}</span>
-
-publishing <span class="token punctuation">{</span>
-    publications <span class="token punctuation">{</span>
-        <span class="token function">mavenJava</span><span class="token punctuation">(</span>MavenPublication<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-            ……
-            <span class="token comment" spellcheck="true">//配置额外发布的artifact</span>
-            artifact sourceJar <span class="token punctuation">{</span>
-                <span class="token comment" spellcheck="true">//这个字符串会作为artifact文件的后缀</span>
-                classifier <span class="token string">"sources"</span>
-            <span class="token punctuation">}</span>
-        <span class="token punctuation">}</span>
-    <span class="token punctuation">}</span>
-<span class="token punctuation">}</span>
-……
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>执行task<br><img src="/images/gradle_learn/publishing/build_repo_with_sources.png" alt="sources"></p>
-<h4 id="发布到远程仓库"><a href="#发布到远程仓库" class="headerlink" title="发布到远程仓库"></a>发布到远程仓库</h4><p>只需要修改url指向远程仓库即可。同时由于远程仓库大多需要认证，因此通常需要通过<code>credentials{}</code>指定用户名和密码</p>
-<p><strong>build.gradle</strong></p>
-<pre class="line-numbers language-groovy"><code class="language-groovy">……
-publishing <span class="token punctuation">{</span>
-    repositories <span class="token punctuation">{</span>
-        maven <span class="token punctuation">{</span>
-            url <span class="token string">"http://172.10.10.66:8081/nexus/content/repositories/releases/"</span>
-            credentials <span class="token punctuation">{</span>
-                username <span class="token operator">=</span> <span class="token string">"admin"</span>
-                password <span class="token operator">=</span> <span class="token string">"admin123"</span>
-            <span class="token punctuation">}</span>
-        <span class="token punctuation">}</span>
-    <span class="token punctuation">}</span>
-<span class="token punctuation">}</span>
-……
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<h4 id="条件发布"><a href="#条件发布" class="headerlink" title="条件发布"></a>条件发布</h4><p>这点相信会点groovy的同学都不会觉得难，用<code>if/else</code>就可以完成。例如下面的配置实现根据version后缀来决定是发布到<code>snapshots</code>还是<code>releases</code>仓库中</p>
-<p><strong>build.gralde</strong></p>
-<pre class="line-numbers language-groovy"><code class="language-groovy">……
-publishing <span class="token punctuation">{</span>
-    repositories <span class="token punctuation">{</span>
-        <span class="token keyword">def</span> NEXUS_URL <span class="token operator">=</span> <span class="token string">"http://172.10.10.66:8081/nexus/content/repositories/releases/"</span>
-        <span class="token keyword">if</span> <span class="token punctuation">(</span>project<span class="token operator">.</span>version<span class="token operator">.</span><span class="token function">endsWith</span><span class="token punctuation">(</span><span class="token string">"SNAPSHOT"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
-            NEXUS_URL <span class="token operator">=</span> <span class="token string">"http://172.10.10.66:8081/nexus/content/repositories/snapshots/"</span>
-        <span class="token punctuation">}</span>
-        maven <span class="token punctuation">{</span>
-            url NEXUS_URL
-            credentials <span class="token punctuation">{</span>
-                username <span class="token operator">=</span> <span class="token string">"admin"</span>
-                password <span class="token operator">=</span> <span class="token string">"admin123"</span>
-            <span class="token punctuation">}</span>
-        <span class="token punctuation">}</span>
-    <span class="token punctuation">}</span>
-<span class="token punctuation">}</span>
-……
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<h4 id="发布多项目"><a href="#发布多项目" class="headerlink" title="发布多项目"></a>发布多项目</h4><p>父项目的task执行的同时会执行其所有子项目的同一task（最常见的如build任务），因此多项目发布只需要配置好所有子项目的发布配置即可。</p>
-<p><strong>build.gradle</strong></p>
-<pre class="line-numbers language-groovy"><code class="language-groovy">subprojects <span class="token punctuation">{</span>
-    apply plugin<span class="token punctuation">:</span> <span class="token string">'java'</span>
-    apply plugin<span class="token punctuation">:</span> <span class="token string">'maven-publish'</span>
-
-    group <span class="token string">"cn.tac.test"</span>
-    version <span class="token string">"1.0-SNAPSHOT"</span>
-
-    <span class="token comment" spellcheck="true">//因为父项目不需要发布，所以只需要配置子项目的发布配置即可</span>
-    publishing <span class="token punctuation">{</span>
-        publications <span class="token punctuation">{</span>
-            <span class="token function">mavenJava</span><span class="token punctuation">(</span>MavenPublication<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-                from components<span class="token operator">.</span>java
-            <span class="token punctuation">}</span>
-        <span class="token punctuation">}</span>
-    <span class="token punctuation">}</span>
-    publishing <span class="token punctuation">{</span>
-        repositories <span class="token punctuation">{</span>
-            maven <span class="token punctuation">{</span>
-                url <span class="token string">"$buildDir/repo"</span>
-            <span class="token punctuation">}</span>
-        <span class="token punctuation">}</span>
-    <span class="token punctuation">}</span>
-<span class="token punctuation">}</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>执行task，可以看到每个子项目都发布到了其对应的<code>build/repo</code>中。</p>
-<p><strong>tips</strong></p>
-<ul>
-<li>如果子模块之间互相有依赖，Gradle发布时会自动解析各模块的先后发布顺序，无需我们自己配置</li>
-</ul>
-<h3 id="常见问题"><a href="#常见问题" class="headerlink" title="常见问题"></a>常见问题</h3><h4 id="发布后pom-xml中项目的依赖scope为runtime的问题"><a href="#发布后pom-xml中项目的依赖scope为runtime的问题" class="headerlink" title="发布后pom.xml中项目的依赖scope为runtime的问题"></a>发布后pom.xml中项目的依赖scope为runtime的问题</h4><p>在发布的时候发现，项目中通过complie依赖的第三方库或其它模块，在发布后由Gradle生成的<code>pom.xml</code>文件中，依赖的scope默认变成了<code>runtime</code>，而非我们期望的<code>compile</code></p>
-<pre class="line-numbers language-xml"><code class="language-xml"><span class="token prolog">&lt;?xml version="1.0" encoding="UTF-8"?></span>
-  ……
-  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>groupId</span><span class="token punctuation">></span></span>cn.tac.test<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>groupId</span><span class="token punctuation">></span></span>
-  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>artifactId</span><span class="token punctuation">></span></span>publishing<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>artifactId</span><span class="token punctuation">></span></span>
-  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>version</span><span class="token punctuation">></span></span>1.0-SNAPSHOT<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>version</span><span class="token punctuation">></span></span>
-  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>dependencies</span><span class="token punctuation">></span></span>
-    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>dependency</span><span class="token punctuation">></span></span>
-      <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>groupId</span><span class="token punctuation">></span></span>cn.tac.test<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>groupId</span><span class="token punctuation">></span></span>
-      <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>artifactId</span><span class="token punctuation">></span></span>module1<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>artifactId</span><span class="token punctuation">></span></span>
-      <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>version</span><span class="token punctuation">></span></span>1.0-SNAPSHOT<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>version</span><span class="token punctuation">></span></span>
-      <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>scope</span><span class="token punctuation">></span></span>runtime<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>scope</span><span class="token punctuation">></span></span>
-    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>dependency</span><span class="token punctuation">></span></span>
-  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>dependencies</span><span class="token punctuation">></span></span>
-<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>project</span><span class="token punctuation">></span></span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>为了达到期望的效果，只需要在发布配置中通过<code>withXML</code>对pom进行修改即可<br><strong>build.gradle</strong></p>
-<pre class="line-numbers language-groovy"><code class="language-groovy">publishing <span class="token punctuation">{</span>
-    publications <span class="token punctuation">{</span>
-        <span class="token function">mavenJava</span><span class="token punctuation">(</span>MavenPublication<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-            from components<span class="token operator">.</span>java
-
-            pom<span class="token operator">.</span>withXml <span class="token punctuation">{</span>
-                <span class="token function">asNode</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">.</span>dependencies<span class="token operator">.</span><span class="token string">'*'</span><span class="token operator">.</span><span class="token function">findAll</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-                    it<span class="token operator">.</span>scope<span class="token operator">.</span><span class="token function">text</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">==</span> <span class="token string">'runtime'</span> <span class="token operator">&amp;&amp;</span> project<span class="token operator">.</span>configurations<span class="token operator">.</span>compile<span class="token operator">.</span>allDependencies<span class="token operator">.</span>find <span class="token punctuation">{</span> dep <span class="token operator">-></span>
-                        dep<span class="token operator">.</span>name <span class="token operator">==</span> it<span class="token operator">.</span>artifactId<span class="token operator">.</span><span class="token function">text</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
-                    <span class="token punctuation">}</span>
-                <span class="token punctuation">}</span><span class="token operator">.</span><span class="token function">each</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-                    it<span class="token operator">.</span>scope<span class="token operator">*.</span>value <span class="token operator">=</span> <span class="token string">'compile'</span>
-                <span class="token punctuation">}</span>
-            <span class="token punctuation">}</span>
-        <span class="token punctuation">}</span>
-    <span class="token punctuation">}</span>
-<span class="token punctuation">}</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>再次发布</p>
-<pre class="line-numbers language-xml"><code class="language-xml"><span class="token prolog">&lt;?xml version="1.0" encoding="UTF-8"?></span>
-  ……
-  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>groupId</span><span class="token punctuation">></span></span>cn.tac.test<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>groupId</span><span class="token punctuation">></span></span>
-  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>artifactId</span><span class="token punctuation">></span></span>publishing<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>artifactId</span><span class="token punctuation">></span></span>
-  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>version</span><span class="token punctuation">></span></span>1.0-SNAPSHOT<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>version</span><span class="token punctuation">></span></span>
-  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>dependencies</span><span class="token punctuation">></span></span>
-    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>dependency</span><span class="token punctuation">></span></span>
-      <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>groupId</span><span class="token punctuation">></span></span>cn.tac.test<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>groupId</span><span class="token punctuation">></span></span>
-      <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>artifactId</span><span class="token punctuation">></span></span>module1<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>artifactId</span><span class="token punctuation">></span></span>
-      <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>version</span><span class="token punctuation">></span></span>1.0-SNAPSHOT<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>version</span><span class="token punctuation">></span></span>
-      <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>scope</span><span class="token punctuation">></span></span>compile<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>scope</span><span class="token punctuation">></span></span>
-    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>dependency</span><span class="token punctuation">></span></span>
-  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>dependencies</span><span class="token punctuation">></span></span>
-<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>project</span><span class="token punctuation">></span></span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p><strong>tips</strong></p>
-<ul>
-<li>参考链接 <a href="https://stackoverflow.com/questions/31069666/how-to-change-artifactory-runtime-scope-to-compile-scope" target="_blank" rel="noopener">How to change artifactory runtime scope to compile scope?</a></li>
-<li><a href="https://docs.gradle.org/current/dsl/org.gradle.api.publish.maven.MavenPom.html#org.gradle.api.publish.maven.MavenPom:withXml(org.gradle.api.Action" target="_blank" rel="noopener">更多withXML的信息</a></li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="https://taccisum.github.io/know_crawler.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2486,10 +1538,181 @@ cn<span class="token punctuation">.</span>tac<span class="token punctuation">.</
   
   
 
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://taccisum.github.io/about_java.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="taccisum">
+      <meta itemprop="description" content="el psy congroo.">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Taccisum's blog 😉">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/about_java.html" class="post-title-link" itemprop="url">关于java</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2017-09-25 16:25:28" itemprop="dateCreated datePublished" datetime="2017-09-25T16:25:28+08:00">2017-09-25</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-03-13 18:05:01" itemprop="dateModified" datetime="2020-03-13T18:05:01+08:00">2020-03-13</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/java/" itemprop="url" rel="index"><span itemprop="name">java</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/java/jvm/" itemprop="url" rel="index"><span itemprop="name">jvm</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/about_java.html" class="post-meta-item leancloud_visitors" data-flag-title="关于java" title="Views">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine: </span>
+    
+    <a title="valine" href="/about_java.html#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/about_java.html" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="java体系"><a href="#java体系" class="headerlink" title="java体系"></a>java体系</h2><blockquote>
+<p>java不仅仅是一门编程语言，还是由一系列计算机软件和规范形成的技术体系。<br>这个体系提供了完整的用于软件开发和跨平台部署的支持环境。</p>
+</blockquote>
+<p><strong>Sun官方定义的java技术体系包括以下内容</strong>：  </p>
+<ol>
+<li>java程序设计语言</li>
+<li>各硬件平台上的java虚拟机（jvm）</li>
+<li>Class文件格式</li>
+<li>java api类库</li>
+<li>来自商业机构和开源社区的第三方类库</li>
+</ol>
+<p>以上1、2、4点统称为jdk，jdk是支持java程序开发的最小环境.<br>java api中的java se api子集和java虚拟机统称为jre，jre是java程序运行的最小环境.</p>
+<p>java除了一门优秀的编程语言外，还有许多不可忽视的优点：</p>
+<ul>
+<li>摆脱硬件平台束缚，实现跨平台</li>
+<li>内存管理，避免绝大部分内存泄露和指针越界问题</li>
+<li>热点代码检测和运行时编译及优化</li>
+<li>完善的应用程序编程接口及丰富、优秀的第三方类库</li>
+</ul>
+<p>java技术体系按照所服务的领域来划分，可以分为四大模块：<code>java card</code> <code>java se</code> <code>java me</code> <code>java ee</code></p>
+<h2 id="jdk发展史"><a href="#jdk发展史" class="headerlink" title="jdk发展史"></a>jdk发展史</h2><p>java语言前身：oak</p>
+<ul>
+<li>1995年，oak更名为java，同时sun正式提出”write once, run anywhere”的口号，标识着java正式诞生</li>
+<li>1996年，jdk1.0发布，并提供了一个纯解释性的java虚拟机（Sun Classic VM）</li>
+<li>1997年，jdk1.l发布，代表技术有：jdbc, rmi, java beans, .jar文件等</li>
+<li>1998年，jdk1.2发布，正式把java技术体系划分为3个方向：java se, java me, java ee，代表技术较多，如ejb, java pluin-in, swing等。java虚拟机中第一次内置了jit编译器，且附带了HotSpot作为备选</li>
+<li>2000年，jdk1.3发布，将HotSpot作为默认虚拟机，并提供jndi作为平台级服务，从此后Sun公司基本保持两年一个主版本的更新速度</li>
+<li>2002年，jdk1.4发布，标志着java正式走向成熟，代表技术有：正则表达式、异常链、nio、日志类、xml解析器等等</li>
+<li>2004年，jdk1.5(jdk5)发布，主要是对java语言的易用性方面做了改进</li>
+<li>2006年，jdk1.6(jdk6)发布，除了改进之外，Sun正式将java开源（GPL协议），并建立了OpenJDK组织对其进行管理<br>jdk1.7(jdk7)开发，Sun公司由于各种原因，最终无法按计划完成。2009年Oracle公司将其收购后，对jdk1.7的内容进行大幅度裁剪，并把剩余内容延迟到jdk1.8中。jdk1.7于2011年正式发布</li>
+<li>2013年，jdk1.8(jdk8)发布，加入了lambda表达式及函数式接口等支持</li>
+</ul>
+<h2 id="部分jvm介绍"><a href="#部分jvm介绍" class="headerlink" title="部分jvm介绍"></a>部分jvm介绍</h2><ul>
+<li><p>Sun Classic VMr</p>
+<ul>
+<li>Classic VM是Sun公司发布的第一款商用java虚拟机，作为默认虚拟机与jdk1.0绑定发布，技术较为原始</li>
+<li>在jdk1.2之前都是唯一存在的虚拟机</li>
+<li>只能使用纯解释器方式来运行java程序</li>
+<li>如果要使用JIT编译器，必须外挂</li>
+</ul>
+</li>
+<li><p>Exact VM</p>
+<ul>
+<li>为了解决Classic VM存在的各种问题而开发，在jdk1.2期间发布</li>
+<li>具备了现代高性能虚拟机的原型</li>
+<li>在商用只存在了短暂的时间后，即被更为优秀的HotSpot取代</li>
+</ul>
+</li>
+<li><p>Sun HotSpot VM</p>
+<ul>
+<li>是SunJDK及OpenJDK中所带的虚拟机，也是目前使用最广的虚拟机</li>
+<li>最初是由一家名为”Longview Teconologies”的小公司设计，在1997年该公司被Sun收购</li>
+<li>其即有Sun之前两款虚拟机的优点，也有许多自身的技术优势如热点代码探测能力</li>
+</ul>
+</li>
+<li><p>Sun Mobile-Embedded VM/Meta-Circular VM</p>
+<ul>
+<li>Sun公司针对移动和嵌入式市场的虚拟机</li>
+</ul>
+</li>
+<li><p>BEA JRockit</p>
+<ul>
+<li>一款专门为服务端硬件和服务端应用场景而专门优化的虚拟机</li>
+<li>不关注应用程序的启动速度，因而其内部不含解析器的实现，全部代码靠JIT编译运行</li>
+<li>除此之外，其垃圾收集器和MissionControl等服务套件的实现也一直在众多虚拟机中保持领先的水平</li>
+</ul>
+</li>
+<li><p>IBM J9 VM</p>
+</li>
+<li>Azul VM/BEA Liquid VM</li>
+<li>Apache Harmony/Google Android Dalvik VM</li>
+<li>Microsoft JVM</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/2/"><i class="fa fa-angle-left" aria-label="Previous page"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/4/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
+    <a class="extend prev" rel="prev" href="/page/2/"><i class="fa fa-angle-left" aria-label="Previous page"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span>
   </nav>
 
 
@@ -2557,7 +1780,7 @@ cn<span class="token punctuation">.</span>tac<span class="token punctuation">.</
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">31</span>
+          <span class="site-state-item-count">27</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
