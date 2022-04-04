@@ -202,6 +202,266 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://taccisum.github.io/bathroom_automation.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="taccisum">
+      <meta itemprop="description" content="el psy congroo.">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Taccisum's blog 😉">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/bathroom_automation.html" class="post-title-link" itemprop="url">只靠一个米家门窗传感器搞定浴室自动化</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2022-04-04 09:42:55 / Modified: 15:53:23" itemprop="dateCreated datePublished" datetime="2022-04-04T09:42:55+08:00">2022-04-04</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/home-automation/" itemprop="url" rel="index"><span itemprop="name">home automation</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/bathroom_automation.html" class="post-meta-item leancloud_visitors" data-flag-title="只靠一个米家门窗传感器搞定浴室自动化" title="Views">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine: </span>
+    
+    <a title="valine" href="/bathroom_automation.html#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/bathroom_automation.html" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>最近心血来潮买了个<a href="https://www.xiaomiyoupin.com/detail?gid=101464" target="_blank" rel="noopener">米家门窗传感器</a>，打算用在浴室实现一种<strong>人来灯亮，人走灯灭</strong>的效果，但买回来后却发现实际场景比我想象中要复杂得多。为啥呢？门窗传感器最大的问题在于只能感知开/合两种状态，所以无法得知是否有人在浴室内。如果你仅靠闭门来触发关灯的话，就会有一个大问题：当你触发开门的时候灯亮了，然后你走进浴室，这时关门，pa 的一下，灯灭了。。尴尬。。</p>
+<h2 id="方案"><a href="#方案" class="headerlink" title="方案"></a>方案</h2><p>如果要解决这个问题，首先想到的是再买个人体红外感应器配合来用。但一来吧，总觉得为了这一个小自动化功能买两个传感器不经济；二来红外感应器在浴室的表现并不好（覆盖角度有限制而且有些浴室设计还是分区的，加上浴室水蒸气有时会干扰红外检）因此不是个很好的方案。</p>
+<p>但东西都买回来了，总不能丢一边吃灰吧。好在办法总比困难多。门窗传感器本身虽然不足以检测到人，但米家给我们提供了其它逻辑工具啊~</p>
+<p>来看看这个问题，其实可以抽象成如何设计一个<strong>有限状态机（Finite Automate）</strong>以保证浴室自动化符合我们的要求的问题，其中：</p>
+<p>要处理的浴室状态有：</p>
+<ul>
+<li><strong>close_out</strong>: 室内无人且门属于关闭状态（此状态时灯与排气扇关闭）</li>
+<li><strong>open_wait</strong>: 室内无人且门属于打开等待进入状态（此状态时灯与排气扇打开）</li>
+<li><strong>close_in</strong>: 室内有人且门属于关闭状态（此状态时灯与排气扇保持打开）</li>
+<li><strong>open_in</strong>: 室内有人且门属于打开状态（此状态时灯与排气扇区保持打开）</li>
+</ul>
+<blockquote>
+<p>tips: 因为还要考虑人是否在内，所以要考虑的状态有四个而非简单的开和闭两个。</p>
+</blockquote>
+<p>影响状态变换的条件有：</p>
+<ul>
+<li><strong>open</strong>: 浴室门打开</li>
+<li><strong>close</strong>: 浴室门关闭</li>
+</ul>
+<p>但实际上还有个隐藏条件可以利用：</p>
+<ul>
+<li><strong>time_elaspe</strong>: 时间流逝 ns（比如我们假定现实中 90% 的场景下人进入浴室，都会在 15s 内关上门）</li>
+</ul>
+<p>如果把人工干预也算上，那还可以加上：</p>
+<ul>
+<li><strong>manual</strong>: 检测到手动操作（例如，手动关灯）</li>
+</ul>
+<p>最终设计出来的状态变换图如下</p>
+<p><img src="/images/toilet_fa/tfa.jpg" alt="toilet fa"></p>
+<p>其中 <code>close_out</code> 即是起始状态也是最终状态。</p>
+<p>对应状态转换表如下</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center"></th>
+<th style="text-align:center"><strong>open</strong></th>
+<th style="text-align:center"><strong>close</strong></th>
+<th style="text-align:center"><strong>time elaspe</strong></th>
+<th style="text-align:center"><strong>manual</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center"><strong>close_out</strong></td>
+<td style="text-align:center">open_wait</td>
+<td style="text-align:center">-</td>
+<td style="text-align:center">-</td>
+<td style="text-align:center">-</td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>open_wait</strong></td>
+<td style="text-align:center">-</td>
+<td style="text-align:center">close_out</td>
+<td style="text-align:center">open_in</td>
+<td style="text-align:center">-</td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>close_in</strong></td>
+<td style="text-align:center">close_out</td>
+<td style="text-align:center">-</td>
+<td style="text-align:center">-</td>
+<td style="text-align:center">close_out</td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>open_in</strong></td>
+<td style="text-align:center">-</td>
+<td style="text-align:center">close_out</td>
+<td style="text-align:center">-</td>
+<td style="text-align:center">-</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>横杠 - 表示该状态下不接受此输入的意思</p>
+</blockquote>
+<h2 id="验证"><a href="#验证" class="headerlink" title="验证"></a>验证</h2><p>接下来我们把要处理的场景跑一遍，看上述 FA 能否满足我们的要求。</p>
+<p>为了简化表述，我们把状态和条件均用数字代替：</p>
+<ul>
+<li>state set: close_out(1), open_wait(2), close_in(3), open_in(4)</li>
+<li>criteria: open(1), close(2), time_elaspe(3)</li>
+</ul>
+<p><img src="/images/toilet_fa/tfa_num.jpg" alt="toilet fa with numbers"></p>
+<h3 id="场景一：长时间事务，会关门进行（如洗澡，蹲坑）"><a href="#场景一：长时间事务，会关门进行（如洗澡，蹲坑）" class="headerlink" title="场景一：长时间事务，会关门进行（如洗澡，蹲坑）"></a>场景一：长时间事务，会关门进行（如洗澡，蹲坑）</h3><p>输入：1, 2, 1, 2<br>状态变换过程：1-&gt;2-&gt;3-&gt;4-&gt;1</p>
+<p><img src="/images/toilet_fa/tfa_scene1.jpg" alt="toilet fa scene 1"></p>
+<p>最终状态为 <code>close_out</code>，可接受，符合预期</p>
+<h4 id="子场景-1-1：人在里边临时开门（不超时）"><a href="#子场景-1-1：人在里边临时开门（不超时）" class="headerlink" title="子场景 1.1：人在里边临时开门（不超时）"></a>子场景 1.1：人在里边临时开门（不超时）</h4><p>输入：1, 2, 1, 2<br>状态变换过程：1-&gt;2-&gt;3-&gt;4-&gt;1<br>最终状态为为 <code>close_out</code>，可接受，但<strong>不符合预期</strong>（预期状态是保持 <code>close_in</code>），需要将输入调整为 1, 2, 1, 2, 1, 2（也就是临时开门后再执行一次开关门，中间会经历一次灯断电，体验稍差）<br>状态变换过程：1-&gt;2-&gt;3-&gt;4-&gt;1-&gt;2-&gt;3，符合预期</p>
+<p><img src="/images/toilet_fa/tfa_scene1_1.jpg" alt="toilet fa scene 1.1"></p>
+<h3 id="场景二：短时间事务，不关门（如洗手，时间足以触发条件-3）"><a href="#场景二：短时间事务，不关门（如洗手，时间足以触发条件-3）" class="headerlink" title="场景二：短时间事务，不关门（如洗手，时间足以触发条件 3）"></a>场景二：短时间事务，不关门（如洗手，时间足以触发条件 3）</h3><p>输入：1, 3, 2<br>状态变换过程：1-&gt;2-&gt;4-&gt;1</p>
+<p><img src="/images/toilet_fa/tfa_scene2.jpg" alt="toilet fa scene 2"></p>
+<p>最终状态为 <code>close_out</code>，可接受，符合预期</p>
+<h3 id="场景三：误操作，开门后立马关门（时间不足以触发条件-3）"><a href="#场景三：误操作，开门后立马关门（时间不足以触发条件-3）" class="headerlink" title="场景三：误操作，开门后立马关门（时间不足以触发条件 3）"></a>场景三：误操作，开门后立马关门（时间不足以触发条件 3）</h3><p>输入：1, 2<br>状态变换过程：1-&gt;2-&gt;3<br>最终状态为 <code>close_in</code>，非可接受状态，因此要人工介入，使得</p>
+<p>输入变为： 1, 2, 4<br>状态变换过程：1-&gt;2-&gt;3-&gt;1</p>
+<p><img src="/images/toilet_fa/tfa_scene3.jpg" alt="toilet fa scene 3"></p>
+<p>最终状态回到 <code>close_out</code>，可接受，符合预期</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>可以看到在场景 1.1 &amp; 3 下若没有人工介入依然是无法很好地处理的。好在 1&amp;2 占了我们日常场景的 90% 以上，总的来说此方案还是利大于弊。</p>
+<h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><p>由于笔者使用的是米家 APP，因此这里仅展示基于米家『场景』模块的实现（理论上只要支持上述触发条件的平台都能实现）</p>
+<blockquote>
+<p>这里的场景指的是米家 APP 上的『场景』模块，与我们文章上述提到的场景并非同一概念<br>米家场景分为自动（又称作<strong>智能</strong>）和手动两类，手类执行的场景除了手动操作外，还可以通过自动场景来触发</p>
+</blockquote>
+<p>我们把浴室的状态与米家的场景对应起来（有些状态可能会对应多个场景），得到以下场景</p>
+<h3 id="close-out"><a href="#close-out" class="headerlink" title="close_out"></a>close_out</h3><ul>
+<li>触发条件：门窗传感器开</li>
+<li>执行动作：<ol>
+<li>开浴室灯 &amp; 排气扇（这块可以根据实际需求自行调整）</li>
+<li>关闭智能 <code>close_out</code></li>
+<li>开启智能 <code>open_wait</code></li>
+<li>关闭智能 <code>open_in</code></li>
+<li>执行手动场景 <code>open_wait.time_elaspe</code></li>
+</ol>
+</li>
+</ul>
+<blockquote>
+<p>tips: 其中命名 <code>close_out</code> 代表该米家场景打开时我们的浴室是处在状态 <code>close_out</code> 的，一旦检测到门窗传感器打开将执行相应动作。动作 2&amp;3 组合起来实现了状态切换的效果（关闭当前智能，打开目标状态对应的智能，也就是 <code>open_in</code>）；动作 5 是模拟以时间条件为输入的效果，详见 <code>open_wait.time_elaspe</code> 的配置<br>此外，这里还出现了一个看似没啥用的动作 <strong>关闭 open_in</strong>，将在后面作解答</p>
+</blockquote>
+<h3 id="open-wait-time-elaspe"><a href="#open-wait-time-elaspe" class="headerlink" title="open_wait.time_elaspe"></a>open_wait.time_elaspe</h3><ul>
+<li>触发条件：手动触发</li>
+<li>执行动作：<ol>
+<li>延时 15s（时间可以自行调整成符合家庭习惯的数值）</li>
+<li>开启 <code>open_in</code></li>
+</ol>
+</li>
+</ul>
+<h3 id="open-wait"><a href="#open-wait" class="headerlink" title="open_wait"></a>open_wait</h3><ul>
+<li>触发条件：门窗传感器关</li>
+<li>执行动作：<ol>
+<li>关闭智能 <code>open_wait</code></li>
+<li>开启智能 <code>close_in</code></li>
+<li>开启智能 <code>close_in.manual</code></li>
+<li>关闭智能 <code>open_in</code></li>
+</ol>
+</li>
+</ul>
+<blockquote>
+<p>tips: 这里的状态切换是由动作 1&amp;2&amp;3 共同组成的，这是因为在我们的状态转换表里面 <code>close_in</code> 状态是可以被条件 <code>open</code> / <code>manual</code> 任其一触发转换到其它状态，所以状态 <code>close_in</code> 其实是对应了两个米家智能，这两个智能只能是<strong>同时开启</strong>或<strong>同时关闭</strong>，才能保证自动化不会出现混乱</p>
+</blockquote>
+<h3 id="close-in"><a href="#close-in" class="headerlink" title="close_in"></a>close_in</h3><ul>
+<li>触发条件：门窗传感器开</li>
+<li>执行动作：<ol>
+<li>关闭智能 <code>close_in</code></li>
+<li>关闭智能 <code>close_in.manual</code></li>
+<li>开启智能 <code>open_in</code></li>
+</ol>
+</li>
+</ul>
+<h3 id="close-in-manual"><a href="#close-in-manual" class="headerlink" title="close_in.manual"></a>close_in.manual</h3><ul>
+<li>触发条件：浴室灯 or 排气扇任一关闭（这块可以根据实际需求自行调整）</li>
+<li>执行动作：<ol>
+<li>关浴室灯 &amp; 排气扇（这块可以根据实际需求自行调整）</li>
+<li>关闭智能 <code>close_in</code></li>
+<li>关闭智能 <code>close_in.manual</code></li>
+<li>开启智能 <code>close_out</code></li>
+<li>关闭智能 <code>open_in</code></li>
+</ol>
+</li>
+</ul>
+<h3 id="open-in"><a href="#open-in" class="headerlink" title="open_in"></a>open_in</h3><ul>
+<li>触发条件：门窗传感器关</li>
+<li>执行动作：<ol>
+<li>关浴室灯 &amp; 排气扇（这块可以根据实际需求自行调整）</li>
+<li>关闭智能 <code>open_in</code></li>
+<li>开启智能 <code>close_out</code></li>
+</ol>
+</li>
+</ul>
+<p>最后，还记得上面提到的 <strong>关闭 open_in</strong> 这个看似没啥用的动作吗，其实不仅在 <code>close_out</code> 状态中，在除 <code>open_in</code> 外的每一个状态动作执行时都要加上这个动作。这是因为利用米家 APP 的延时模拟时间条件的输入这个是无法取消的，即是说一旦执行了 <code>open_wait.time_elaspe</code>，15s 后必定会打开 <code>open_in</code> 场景，而这时我们的浴室可能处在任何一个状态。为了避免因此导致的混乱，我们才需要在每个状态的动作加入此动作</p>
+<blockquote>
+<p>tips: 超时效果也可以通过门窗传感器自带的超时未关通知能力来实现，这样就相当于是可中断的，不需要上述的的补偿操作了。但有个问题是，目前我这款传感器好像只支持配置分钟时间粒度</p>
+</blockquote>
+<p>手机截图如下</p>
+<p><img src="/images/toilet_fa/tfa_mihome.JPG" alt="toilet fa scene 1"></p>
+<h2 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h2><p>以上配置对于普通用户（尤其是没有编程基础的）来说还是有些过于复杂了，建议厂家可以将状态机直接集成到门窗传感器中的，用户只要决定用或不用即可。</p>
+<p>另外，米家平台提供的基础能力也比较有限（可能是基于易用性及安全性的考虑？），导致很多效果实现起来还是比较困难。不管怎样，希望希望米家能加入一些变量能力，可以通过动作来设置变量值，也可以根据变量值的不同来触发不同的智能，这样会有更高的可玩性。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="https://taccisum.github.io/thinking_about_cost_of_communication.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2160,381 +2420,6 @@ Object <span class="token function">run</span><span class="token punctuation">(<
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://taccisum.github.io/source/zuul/architecture.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="taccisum">
-      <meta itemprop="description" content="el psy congroo.">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Taccisum's blog 😉">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/source/zuul/architecture.html" class="post-title-link" itemprop="url">zuul源码解析 —— zuul整体架构</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2018-11-29 10:55:13" itemprop="dateCreated datePublished" datetime="2018-11-29T10:55:13+08:00">2018-11-29</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-03-13 18:05:01" itemprop="dateModified" datetime="2020-03-13T18:05:01+08:00">2020-03-13</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/source/" itemprop="url" rel="index"><span itemprop="name">source</span></a>
-                </span>
-                  , 
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/source/zuul/" itemprop="url" rel="index"><span itemprop="name">zuul</span></a>
-                </span>
-            </span>
-
-          
-            <span id="/source/zuul/architecture.html" class="post-meta-item leancloud_visitors" data-flag-title="zuul源码解析 —— zuul整体架构" title="Views">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">Views: </span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Valine: </span>
-    
-    <a title="valine" href="/source/zuul/architecture.html#valine-comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/source/zuul/architecture.html" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="工作原理"><a href="#工作原理" class="headerlink" title="工作原理"></a>工作原理</h2><p>关于zuul架构，官方的<a href="https://github.com/Netflix/zuul/wiki/How-it-Works" target="_blank" rel="noopener">How-it-Works</a>已经讲得很清楚了，这里简单地翻译一下：</p>
-<p>Zuul的核心就是一系列的过滤器，能够在HTTP请求和响应的过程中进行一系列的操作。Zuul提供了一个可以在运行时动态地读取、编译并运行这些过滤器的框架。<br>以下是过滤器的一些重要属性：  </p>
-<ul>
-<li><strong>类型</strong>：通常定义了过滤器会作用在路由的哪个阶段</li>
-<li><strong>执行顺序</strong>：当同一阶段存在多个过滤器时，决定了这些过滤器的执行顺序</li>
-<li><strong>执行条件</strong>：决定过滤器是否被执行</li>
-<li><strong>行为</strong>：当符合条件的时候执行的操作</li>
-</ul>
-<p>过滤器之间不会直接进行通信，而是通过每个请求唯一对应的RequestContext实例进行状态共享。<br>过滤器目前只能通过Groovy语言编写（指的是动态过滤器），尽管从理论上来说Zuul支持所有以JVM为执行环境的语言。<br>过滤器的源码应该写到指定的目录中，Zuul Server会周期性地检查这些目录的变化。一旦某些过滤器有更新，它们将会被Zuul读取并动态地编译到运行时环境中，在随后到来的每个请求中都将被Zuul调用。</p>
-<p><img src="/images/zuul/architecture.png" alt="zuul_architecture"></p>
-<blockquote>
-<p>图片来源 - <a href="https://medium.com/netflix-techblog/announcing-zuul-edge-service-in-the-cloud-ab3af5be08ee" target="_blank" rel="noopener">netflix techblog</a></p>
-</blockquote>
-<h2 id="核心类"><a href="#核心类" class="headerlink" title="核心类"></a>核心类</h2><h3 id="ZuulServlet"><a href="#ZuulServlet" class="headerlink" title="ZuulServlet"></a>ZuulServlet</h3><pre class="line-numbers language-xml"><code class="language-xml"><span class="token comment" spellcheck="true">&lt;!-- web.xml --></span>
-<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>servlet</span><span class="token punctuation">></span></span>
-    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>servlet-name</span><span class="token punctuation">></span></span>ZuulServlet<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>servlet-name</span><span class="token punctuation">></span></span>
-    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>servlet-class</span><span class="token punctuation">></span></span>com.netflix.zuul.http.ZuulServlet<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>servlet-class</span><span class="token punctuation">></span></span>
-<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>servlet</span><span class="token punctuation">></span></span>
-<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>servlet-mapping</span><span class="token punctuation">></span></span>
-    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>servlet-name</span><span class="token punctuation">></span></span>ZuulServlet<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>servlet-name</span><span class="token punctuation">></span></span>
-    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>url-pattern</span><span class="token punctuation">></span></span>/*<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>url-pattern</span><span class="token punctuation">></span></span>
-<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>servlet-mapping</span><span class="token punctuation">></span></span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>Zuul是一个web应用，在web.xml中其使用的Servlet实现是ZuulServlet。因此毫无疑问的，ZuulServlet就是整个Zuul的核心。</p>
-<p>来看看servier方法</p>
-<pre class="line-numbers language-java"><code class="language-java"><span class="token comment" spellcheck="true">// ZuulServlet.java</span>
-
-<span class="token annotation punctuation">@Override</span>
-<span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">service</span><span class="token punctuation">(</span>javax<span class="token punctuation">.</span>servlet<span class="token punctuation">.</span>ServletRequest servletRequest<span class="token punctuation">,</span> javax<span class="token punctuation">.</span>servlet<span class="token punctuation">.</span>ServletResponse servletResponse<span class="token punctuation">)</span> <span class="token keyword">throws</span> ServletException<span class="token punctuation">,</span> IOException <span class="token punctuation">{</span>
-    <span class="token keyword">try</span> <span class="token punctuation">{</span>
-        <span class="token comment" spellcheck="true">// 初始化当前的zuul request context，将request和response放入上下文中</span>
-        <span class="token function">init</span><span class="token punctuation">(</span><span class="token punctuation">(</span>HttpServletRequest<span class="token punctuation">)</span> servletRequest<span class="token punctuation">,</span> <span class="token punctuation">(</span>HttpServletResponse<span class="token punctuation">)</span> servletResponse<span class="token punctuation">)</span><span class="token punctuation">;</span>
-
-        <span class="token comment" spellcheck="true">// Marks this request as having passed through the "Zuul engine", as opposed to servlets</span>
-        <span class="token comment" spellcheck="true">// explicitly bound in web.xml, for which requests will not have the same data attached</span>
-        RequestContext context <span class="token operator">=</span> RequestContext<span class="token punctuation">.</span><span class="token function">getCurrentContext</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token comment" spellcheck="true">// 为此次请求设置标识</span>
-        context<span class="token punctuation">.</span><span class="token function">setZuulEngineRan</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-
-        <span class="token comment" spellcheck="true">// zuul对请求的处理流程 start</span>
-        <span class="token comment" spellcheck="true">// 以下几个try块部分是zuul对一个请求的处理流程：pre -> route -> post</span>
-        <span class="token comment" spellcheck="true">// 可以看到：</span>
-        <span class="token comment" spellcheck="true">// 1. post是必然执行的（可以类比finally块），但如果在post中抛出了异常，交由error处理完后就结束，避免无限循环</span>
-        <span class="token comment" spellcheck="true">// 2. 任何阶段抛出了ZuulException，都会交由error处理</span>
-        <span class="token comment" spellcheck="true">// 3. 非ZuulException会被封装后交给error处理</span>
-        <span class="token keyword">try</span> <span class="token punctuation">{</span>
-            <span class="token function">preRoute</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token punctuation">}</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">ZuulException</span> e<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-            <span class="token function">error</span><span class="token punctuation">(</span>e<span class="token punctuation">)</span><span class="token punctuation">;</span>
-            <span class="token function">postRoute</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-            <span class="token keyword">return</span><span class="token punctuation">;</span>
-        <span class="token punctuation">}</span>
-        <span class="token keyword">try</span> <span class="token punctuation">{</span>
-            <span class="token function">route</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token punctuation">}</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">ZuulException</span> e<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-            <span class="token function">error</span><span class="token punctuation">(</span>e<span class="token punctuation">)</span><span class="token punctuation">;</span>
-            <span class="token function">postRoute</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-            <span class="token keyword">return</span><span class="token punctuation">;</span>
-        <span class="token punctuation">}</span>
-        <span class="token keyword">try</span> <span class="token punctuation">{</span>
-            <span class="token function">postRoute</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token punctuation">}</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">ZuulException</span> e<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-            <span class="token function">error</span><span class="token punctuation">(</span>e<span class="token punctuation">)</span><span class="token punctuation">;</span>
-            <span class="token keyword">return</span><span class="token punctuation">;</span>
-        <span class="token punctuation">}</span>
-        <span class="token comment" spellcheck="true">// zuul对请求的处理流程 end</span>
-
-    <span class="token punctuation">}</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">Throwable</span> e<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        <span class="token function">error</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">ZuulException</span><span class="token punctuation">(</span>e<span class="token punctuation">,</span> <span class="token number">500</span><span class="token punctuation">,</span> <span class="token string">"UNHANDLED_EXCEPTION_"</span> <span class="token operator">+</span> e<span class="token punctuation">.</span><span class="token function">getClass</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getName</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token punctuation">}</span> <span class="token keyword">finally</span> <span class="token punctuation">{</span>
-        <span class="token comment" spellcheck="true">// 此次请求完成，移除相应的上下文对象</span>
-        RequestContext<span class="token punctuation">.</span><span class="token function">getCurrentContext</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">unset</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-<span class="token punctuation">}</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>上面代码逻辑正好zuul官方的架构图相对应</p>
-<p><img src="https://camo.githubusercontent.com/4eb7754152028cdebd5c09d1c6f5acc7683f0094/687474703a2f2f6e6574666c69782e6769746875622e696f2f7a75756c2f696d616765732f7a75756c2d726571756573742d6c6966656379636c652e706e67" alt="zuul_architecture1"></p>
-<h3 id="RequestContext"><a href="#RequestContext" class="headerlink" title="RequestContext"></a>RequestContext</h3><p>RequestContext是各filter之间进行消息传递的介质，其本质上是一个Map，这样就可以在上下文中存储任何kv pair。</p>
-<p><strong>TODO::</strong> 这里有一个疑问，为什么RequestContext是继承自ConcurrentHashMap？因为理论上来说RequestContext对象是绝对线程安全的（线程隔离）。</p>
-<p>RequestContext包含一个类变量threadLocal，</p>
-<pre class="line-numbers language-java"><code class="language-java"><span class="token keyword">protected</span> <span class="token keyword">static</span> <span class="token keyword">final</span> ThreadLocal<span class="token operator">&lt;</span><span class="token operator">?</span> <span class="token keyword">extends</span> <span class="token class-name">RequestContext</span><span class="token operator">></span> threadLocal <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ThreadLocal</span><span class="token operator">&lt;</span>RequestContext<span class="token operator">></span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-    <span class="token annotation punctuation">@Override</span>
-    <span class="token keyword">protected</span> RequestContext <span class="token function">initialValue</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        <span class="token keyword">try</span> <span class="token punctuation">{</span>
-            <span class="token comment" spellcheck="true">// 上下文实例类型取决于contextClass，例如在NFRequestContext中就改写了contextClass</span>
-            <span class="token keyword">return</span> contextClass<span class="token punctuation">.</span><span class="token function">newInstance</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token punctuation">}</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">Throwable</span> e<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-            <span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">RuntimeException</span><span class="token punctuation">(</span>e<span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token punctuation">}</span>
-    <span class="token punctuation">}</span>
-<span class="token punctuation">}</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>在代码的任何地方都可以通过静态方法getCurrentContext获取到属于当前线程（实际上经过zuul的处理，context实例是按请求隔离的）的RequestContext实例</p>
-<pre class="line-numbers language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">static</span> RequestContext <span class="token function">getCurrentContext</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-    <span class="token keyword">if</span> <span class="token punctuation">(</span>testContext <span class="token operator">!=</span> null<span class="token punctuation">)</span> <span class="token keyword">return</span> testContext<span class="token punctuation">;</span>
-
-    RequestContext context <span class="token operator">=</span> threadLocal<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token keyword">return</span> context<span class="token punctuation">;</span>
-<span class="token punctuation">}</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<h4 id="NFRequestContext"><a href="#NFRequestContext" class="headerlink" title="NFRequestContext"></a>NFRequestContext</h4><p><code>NFRequestContext</code>继承自RequestContext，定义了一些与netflix其它组件有关的特定概念和数据的key，例如eureka VIP，Ribbon client返回的repsonse等。它有一个静态方法</p>
-<pre class="line-numbers language-java"><code class="language-java"><span class="token comment" spellcheck="true">// NFRequestContext.java</span>
-<span class="token keyword">static</span> <span class="token punctuation">{</span>
-    RequestContext<span class="token punctuation">.</span><span class="token function">setContextClass</span><span class="token punctuation">(</span>NFRequestContext<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-<span class="token punctuation">}</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
-<p>也就是说，只要加载了类NFRequestContext，应用中所有RequestContext的实例都将是NFRequestContext类型。</p>
-<h3 id="ZuulRunner"><a href="#ZuulRunner" class="headerlink" title="ZuulRunner"></a>ZuulRunner</h3><p>ZuulServlet并不做任何实际的操作，而是将所有操作交给ZuulRunner完成。</p>
-<p>而事实上ZuulRunner的大部分操作也是委托给FilterProcessor去完成的，除了init方法。</p>
-<pre class="line-numbers language-java"><code class="language-java"><span class="token comment" spellcheck="true">// ZuulRunner.java</span>
-<span class="token comment" spellcheck="true">/**
- * sets HttpServlet request and HttpResponse
- */</span>
-<span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">init</span><span class="token punctuation">(</span>HttpServletRequest servletRequest<span class="token punctuation">,</span> HttpServletResponse servletResponse<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-    RequestContext ctx <span class="token operator">=</span> RequestContext<span class="token punctuation">.</span><span class="token function">getCurrentContext</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token keyword">if</span> <span class="token punctuation">(</span>bufferRequests<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        <span class="token comment" spellcheck="true">// wrap request并缓存其body</span>
-        <span class="token comment" spellcheck="true">// 所谓buffer是指将其内容缓存起来，使得可以安全地重复调用getReader(), getInputStream()等方法</span>
-        <span class="token comment" spellcheck="true">// 因为一般来说，流操作一次之后就不能重复操作了</span>
-        <span class="token comment" spellcheck="true">// 类com.netflix.zuul.http.HttpServletRequestWrapper注释上有详解</span>
-        ctx<span class="token punctuation">.</span><span class="token function">setRequest</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">HttpServletRequestWrapper</span><span class="token punctuation">(</span>servletRequest<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
-        ctx<span class="token punctuation">.</span><span class="token function">setRequest</span><span class="token punctuation">(</span>servletRequest<span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-
-    <span class="token comment" spellcheck="true">// response没得选，肯定是wrap过的</span>
-    ctx<span class="token punctuation">.</span><span class="token function">setResponse</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">HttpServletResponseWrapper</span><span class="token punctuation">(</span>servletResponse<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-<span class="token punctuation">}</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<h3 id="FilterProcessor"><a href="#FilterProcessor" class="headerlink" title="FilterProcessor"></a>FilterProcessor</h3><p>FilterProcessor是个单例，通过getInstance()方法获取。</p>
-<p>FilterProcessor的核心方法有两个：runFilters和processZuulFilter</p>
-<pre class="line-numbers language-java"><code class="language-java"><span class="token comment" spellcheck="true">// FilterProcessor.java</span>
-<span class="token comment" spellcheck="true">/**
- * 这个是真正执行filter的方法，每调用一次都会执行同一类型的所有filter
- * runs all filters of the filterType sType/ Use this method within filters to run custom filters by type
- *
- * @param sType the filterType.
- * @throws Throwable throws up an arbitrary exception
- */</span>
-<span class="token keyword">public</span> Object <span class="token function">runFilters</span><span class="token punctuation">(</span>String sType<span class="token punctuation">)</span> <span class="token keyword">throws</span> Throwable <span class="token punctuation">{</span>
-    <span class="token comment" spellcheck="true">// 添加debug信息</span>
-    <span class="token keyword">if</span> <span class="token punctuation">(</span>RequestContext<span class="token punctuation">.</span><span class="token function">getCurrentContext</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">debugRouting</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        Debug<span class="token punctuation">.</span><span class="token function">addRoutingDebug</span><span class="token punctuation">(</span><span class="token string">"Invoking {"</span> <span class="token operator">+</span> sType <span class="token operator">+</span> <span class="token string">"} type filters"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-    <span class="token keyword">boolean</span> bResult <span class="token operator">=</span> <span class="token boolean">false</span><span class="token punctuation">;</span>
-    <span class="token comment" spellcheck="true">// 通过FilterLoader获取指定类型的所有filter</span>
-    List<span class="token operator">&lt;</span>ZuulFilter<span class="token operator">></span> list <span class="token operator">=</span> FilterLoader<span class="token punctuation">.</span><span class="token function">getInstance</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getFiltersByType</span><span class="token punctuation">(</span>sType<span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token keyword">if</span> <span class="token punctuation">(</span>list <span class="token operator">!=</span> null<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        <span class="token comment" spellcheck="true">// 这里没有进行try...catch... 意味着只要任何一个filter执行失败了整个过程就会中断掉</span>
-        <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> list<span class="token punctuation">.</span><span class="token function">size</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-            ZuulFilter zuulFilter <span class="token operator">=</span> list<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span>i<span class="token punctuation">)</span><span class="token punctuation">;</span>
-            Object result <span class="token operator">=</span> <span class="token function">processZuulFilter</span><span class="token punctuation">(</span>zuulFilter<span class="token punctuation">)</span><span class="token punctuation">;</span>
-            <span class="token keyword">if</span> <span class="token punctuation">(</span>result <span class="token operator">!=</span> null <span class="token operator">&amp;&amp;</span> result <span class="token keyword">instanceof</span> <span class="token class-name">Boolean</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-                <span class="token comment" spellcheck="true">// 注意这里写的是|=不是!=</span>
-                <span class="token comment" spellcheck="true">// TODO:: 为什么要用这种写法？既然只有result为boolean类型时才执行，直接赋值不行吗</span>
-                bResult <span class="token operator">|=</span> <span class="token punctuation">(</span><span class="token punctuation">(</span>Boolean<span class="token punctuation">)</span> result<span class="token punctuation">)</span><span class="token punctuation">;</span>
-            <span class="token punctuation">}</span>
-        <span class="token punctuation">}</span>
-    <span class="token punctuation">}</span>
-    <span class="token keyword">return</span> bResult<span class="token punctuation">;</span>
-<span class="token punctuation">}</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<pre class="line-numbers language-java"><code class="language-java"><span class="token comment" spellcheck="true">// FilterProcessor.java</span>
-<span class="token comment" spellcheck="true">/**
- * 执行单个zuul filter
- * Processes an individual ZuulFilter. This method adds Debug information. Any uncaught Thowables are caught by this method and converted to a ZuulException with a 500 status code.
- *
- * @param filter
- * @return the return value for that filter
- * @throws ZuulException
- */</span>
-<span class="token keyword">public</span> Object <span class="token function">processZuulFilter</span><span class="token punctuation">(</span>ZuulFilter filter<span class="token punctuation">)</span> <span class="token keyword">throws</span> ZuulException <span class="token punctuation">{</span>
-
-    RequestContext ctx <span class="token operator">=</span> RequestContext<span class="token punctuation">.</span><span class="token function">getCurrentContext</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token keyword">boolean</span> bDebug <span class="token operator">=</span> ctx<span class="token punctuation">.</span><span class="token function">debugRouting</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token keyword">final</span> String metricPrefix <span class="token operator">=</span> <span class="token string">"zuul.filter-"</span><span class="token punctuation">;</span>     <span class="token comment" spellcheck="true">// 这个变量没有用到...</span>
-    <span class="token keyword">long</span> execTime <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
-    String filterName <span class="token operator">=</span> <span class="token string">""</span><span class="token punctuation">;</span>
-    <span class="token keyword">try</span> <span class="token punctuation">{</span>
-        <span class="token keyword">long</span> ltime <span class="token operator">=</span> System<span class="token punctuation">.</span><span class="token function">currentTimeMillis</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        filterName <span class="token operator">=</span> filter<span class="token punctuation">.</span><span class="token function">getClass</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getSimpleName</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-
-        RequestContext copy <span class="token operator">=</span> null<span class="token punctuation">;</span>
-        Object o <span class="token operator">=</span> null<span class="token punctuation">;</span>
-        Throwable t <span class="token operator">=</span> null<span class="token punctuation">;</span>
-
-        <span class="token keyword">if</span> <span class="token punctuation">(</span>bDebug<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-            Debug<span class="token punctuation">.</span><span class="token function">addRoutingDebug</span><span class="token punctuation">(</span><span class="token string">"Filter "</span> <span class="token operator">+</span> filter<span class="token punctuation">.</span><span class="token function">filterType</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token string">" "</span> <span class="token operator">+</span> filter<span class="token punctuation">.</span><span class="token function">filterOrder</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token string">" "</span> <span class="token operator">+</span> filterName<span class="token punctuation">)</span><span class="token punctuation">;</span>
-            <span class="token comment" spellcheck="true">// copy了一份context用于debug</span>
-            copy <span class="token operator">=</span> ctx<span class="token punctuation">.</span><span class="token function">copy</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token punctuation">}</span>
-
-        ZuulFilterResult result <span class="token operator">=</span> filter<span class="token punctuation">.</span><span class="token function">runFilter</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        ExecutionStatus s <span class="token operator">=</span> result<span class="token punctuation">.</span><span class="token function">getStatus</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-
-        <span class="token comment" spellcheck="true">// 统计执行时间</span>
-        execTime <span class="token operator">=</span> System<span class="token punctuation">.</span><span class="token function">currentTimeMillis</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">-</span> ltime<span class="token punctuation">;</span>
-
-        <span class="token comment" spellcheck="true">// 这段对过滤器的执行状态进行记录</span>
-        <span class="token keyword">switch</span> <span class="token punctuation">(</span>s<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-            <span class="token keyword">case</span> FAILED<span class="token operator">:</span>
-                t <span class="token operator">=</span> result<span class="token punctuation">.</span><span class="token function">getException</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-                ctx<span class="token punctuation">.</span><span class="token function">addFilterExecutionSummary</span><span class="token punctuation">(</span>filterName<span class="token punctuation">,</span> ExecutionStatus<span class="token punctuation">.</span>FAILED<span class="token punctuation">.</span><span class="token function">name</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> execTime<span class="token punctuation">)</span><span class="token punctuation">;</span>
-                <span class="token keyword">break</span><span class="token punctuation">;</span>
-            <span class="token keyword">case</span> SUCCESS<span class="token operator">:</span>
-                o <span class="token operator">=</span> result<span class="token punctuation">.</span><span class="token function">getResult</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-                ctx<span class="token punctuation">.</span><span class="token function">addFilterExecutionSummary</span><span class="token punctuation">(</span>filterName<span class="token punctuation">,</span> ExecutionStatus<span class="token punctuation">.</span>SUCCESS<span class="token punctuation">.</span><span class="token function">name</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> execTime<span class="token punctuation">)</span><span class="token punctuation">;</span>
-                <span class="token keyword">if</span> <span class="token punctuation">(</span>bDebug<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-                    Debug<span class="token punctuation">.</span><span class="token function">addRoutingDebug</span><span class="token punctuation">(</span><span class="token string">"Filter {"</span> <span class="token operator">+</span> filterName <span class="token operator">+</span> <span class="token string">" TYPE:"</span> <span class="token operator">+</span> filter<span class="token punctuation">.</span><span class="token function">filterType</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token string">" ORDER:"</span> <span class="token operator">+</span> filter<span class="token punctuation">.</span><span class="token function">filterOrder</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token string">"} Execution time = "</span> <span class="token operator">+</span> execTime <span class="token operator">+</span> <span class="token string">"ms"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-                    Debug<span class="token punctuation">.</span><span class="token function">compareContextState</span><span class="token punctuation">(</span>filterName<span class="token punctuation">,</span> copy<span class="token punctuation">)</span><span class="token punctuation">;</span>
-                <span class="token punctuation">}</span>
-                <span class="token keyword">break</span><span class="token punctuation">;</span>
-            <span class="token keyword">default</span><span class="token operator">:</span>
-                <span class="token keyword">break</span><span class="token punctuation">;</span>
-        <span class="token punctuation">}</span>
-
-        <span class="token keyword">if</span> <span class="token punctuation">(</span>t <span class="token operator">!=</span> null<span class="token punctuation">)</span> <span class="token keyword">throw</span> t<span class="token punctuation">;</span>
-
-        <span class="token comment" spellcheck="true">// 触发一个filter usage回调</span>
-        <span class="token comment" spellcheck="true">// 当前notifier的实现固定是BasicFilterUsageNotifier，通过Servo统计filter的调用</span>
-        usageNotifier<span class="token punctuation">.</span><span class="token function">notify</span><span class="token punctuation">(</span>filter<span class="token punctuation">,</span> s<span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token keyword">return</span> o<span class="token punctuation">;</span>
-
-    <span class="token punctuation">}</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">Throwable</span> e<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        <span class="token keyword">if</span> <span class="token punctuation">(</span>bDebug<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-            Debug<span class="token punctuation">.</span><span class="token function">addRoutingDebug</span><span class="token punctuation">(</span><span class="token string">"Running Filter failed "</span> <span class="token operator">+</span> filterName <span class="token operator">+</span> <span class="token string">" type:"</span> <span class="token operator">+</span> filter<span class="token punctuation">.</span><span class="token function">filterType</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token string">" order:"</span> <span class="token operator">+</span> filter<span class="token punctuation">.</span><span class="token function">filterOrder</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token string">" "</span> <span class="token operator">+</span> e<span class="token punctuation">.</span><span class="token function">getMessage</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token punctuation">}</span>
-        usageNotifier<span class="token punctuation">.</span><span class="token function">notify</span><span class="token punctuation">(</span>filter<span class="token punctuation">,</span> ExecutionStatus<span class="token punctuation">.</span>FAILED<span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token keyword">if</span> <span class="token punctuation">(</span>e <span class="token keyword">instanceof</span> <span class="token class-name">ZuulException</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-            <span class="token keyword">throw</span> <span class="token punctuation">(</span>ZuulException<span class="token punctuation">)</span> e<span class="token punctuation">;</span>
-        <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
-            ZuulException ex <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ZuulException</span><span class="token punctuation">(</span>e<span class="token punctuation">,</span> <span class="token string">"Filter threw Exception"</span><span class="token punctuation">,</span> <span class="token number">500</span><span class="token punctuation">,</span> filter<span class="token punctuation">.</span><span class="token function">filterType</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token string">":"</span> <span class="token operator">+</span> filterName<span class="token punctuation">)</span><span class="token punctuation">;</span>
-            <span class="token comment" spellcheck="true">// 如果在line35之前抛出了异常，这个execTime的值会是0</span>
-            <span class="token comment" spellcheck="true">// 不过ZuulFilter.runFilter()中做了try...catch...处理，理论上来说不会出现异常</span>
-            ctx<span class="token punctuation">.</span><span class="token function">addFilterExecutionSummary</span><span class="token punctuation">(</span>filterName<span class="token punctuation">,</span> ExecutionStatus<span class="token punctuation">.</span>FAILED<span class="token punctuation">.</span><span class="token function">name</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> execTime<span class="token punctuation">)</span><span class="token punctuation">;</span>
-            <span class="token keyword">throw</span> ex<span class="token punctuation">;</span>
-        <span class="token punctuation">}</span>
-    <span class="token punctuation">}</span>
-<span class="token punctuation">}</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<pre class="line-numbers language-java"><code class="language-java"><span class="token comment" spellcheck="true">// FilterProcessor.java</span>
-<span class="token comment" spellcheck="true">/**
- * Publishes a counter metric for each filter on each use.
- */</span>
-<span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">class</span> <span class="token class-name">BasicFilterUsageNotifier</span> <span class="token keyword">implements</span> <span class="token class-name">FilterUsageNotifier</span> <span class="token punctuation">{</span>
-    <span class="token keyword">private</span> <span class="token keyword">static</span> <span class="token keyword">final</span> String METRIC_PREFIX <span class="token operator">=</span> <span class="token string">"zuul.filter-"</span><span class="token punctuation">;</span>
-
-    <span class="token annotation punctuation">@Override</span>
-    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">notify</span><span class="token punctuation">(</span>ZuulFilter filter<span class="token punctuation">,</span> ExecutionStatus status<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        <span class="token comment" spellcheck="true">// 通过Netflix Servo对每个filter进行调用计数</span>
-        DynamicCounter<span class="token punctuation">.</span><span class="token function">increment</span><span class="token punctuation">(</span>METRIC_PREFIX <span class="token operator">+</span> filter<span class="token punctuation">.</span><span class="token function">getClass</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getSimpleName</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token string">"status"</span><span class="token punctuation">,</span> status<span class="token punctuation">.</span><span class="token function">name</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token string">"filtertype"</span><span class="token punctuation">,</span> filter<span class="token punctuation">.</span><span class="token function">filterType</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-<span class="token punctuation">}</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<h3 id="StartServer"><a href="#StartServer" class="headerlink" title="StartServer"></a>StartServer</h3><p>StartServer是一个ServletContextListener，负责在web应用启动后执行一些初始化操作</p>
-<pre class="line-numbers language-java"><code class="language-java"><span class="token comment" spellcheck="true">// zuul-netflix-webapp</span>
-<span class="token comment" spellcheck="true">// StartServer.java</span>
-<span class="token keyword">protected</span> <span class="token keyword">void</span> <span class="token function">initialize</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">throws</span> Exception <span class="token punctuation">{</span>
-    <span class="token comment" spellcheck="true">// 这个操作是触发静态变量AmazonInfoHolder.INFO的初始化，并不是没有意义的</span>
-    AmazonInfoHolder<span class="token punctuation">.</span><span class="token function">getInfo</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token comment" spellcheck="true">// 监控、度量等初始化</span>
-    <span class="token function">initPlugins</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token comment" spellcheck="true">// 动态Filter等相关类的初始化</span>
-    <span class="token function">initZuul</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token comment" spellcheck="true">// cassandra初始化</span>
-    <span class="token function">initCassandra</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token comment" spellcheck="true">// NIWS: Netflix Internal Web Service</span>
-    <span class="token comment" spellcheck="true">// 主要是初始化ribbon的客户端之类的</span>
-    <span class="token function">initNIWS</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-
-    <span class="token comment" spellcheck="true">// 初始化完成，修改当前应用实例的状态为up</span>
-    ApplicationInfoManager<span class="token punctuation">.</span><span class="token function">getInstance</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">setInstanceStatus</span><span class="token punctuation">(</span>InstanceInfo<span class="token punctuation">.</span>InstanceStatus<span class="token punctuation">.</span>UP<span class="token punctuation">)</span><span class="token punctuation">;</span>
-<span class="token punctuation">}</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<h4 id="相关链接"><a href="#相关链接" class="headerlink" title="相关链接"></a>相关链接</h4><ul>
-<li><a href="filter/dynamic_load.html#FilterLoader">FilterLoader工作方式</a></li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -2606,15 +2491,19 @@ Object <span class="token function">run</span><span class="token punctuation">(<
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">27</span>
+          <span class="site-state-item-count">28</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-count">22</span>
         <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">tags</span>
       </div>
   </nav>
 </div>

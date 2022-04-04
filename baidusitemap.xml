@@ -5,6 +5,32 @@
     
     
   <url>
+    <loc>https://taccisum.github.io/bathroom_automation.html</loc>
+    <lastmod>2022-04-04T07:53:23.631Z</lastmod>
+    <data>
+        <display>
+        <title>只靠一个米家门窗传感器搞定浴室自动化</title>
+        <pubTime>2022-04-04T01:42:55.000Z</pubTime>
+        
+        <tag>智能家居</tag>
+         
+        <tag>米家</tag>
+         
+        <tag>有限状态机</tag>
+         
+        <tag>DFA</tag>
+         
+         
+           
+             
+              <breadCrumb title="home automation" url="https://taccisum.github.io/categories/home-automation/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
     <loc>https://taccisum.github.io/thinking_about_cost_of_communication.html</loc>
     <lastmod>2021-12-06T03:15:42.798Z</lastmod>
     <data>
@@ -96,27 +122,6 @@
     
     
   <url>
-    <loc>https://taccisum.github.io/about_java.html</loc>
-    <lastmod>2020-03-13T10:05:01.366Z</lastmod>
-    <data>
-        <display>
-        <title>关于java</title>
-        <pubTime>2017-09-25T08:25:28.000Z</pubTime>
-        
-         
-           
-             
-              <breadCrumb title="java" url="https://taccisum.github.io/categories/java/"/>
-          
-             
-              <breadCrumb title="jvm" url="https://taccisum.github.io/categories/java/jvm/"/>
-          
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
     <loc>https://taccisum.github.io/know_crawler.html</loc>
     <lastmod>2020-03-13T10:05:01.366Z</lastmod>
     <data>
@@ -131,6 +136,27 @@
           
              
               <breadCrumb title="爬虫" url="https://taccisum.github.io/categories/python/%E7%88%AC%E8%99%AB/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>https://taccisum.github.io/about_java.html</loc>
+    <lastmod>2020-03-13T10:05:01.366Z</lastmod>
+    <data>
+        <display>
+        <title>关于java</title>
+        <pubTime>2017-09-25T08:25:28.000Z</pubTime>
+        
+         
+           
+             
+              <breadCrumb title="java" url="https://taccisum.github.io/categories/java/"/>
+          
+             
+              <breadCrumb title="jvm" url="https://taccisum.github.io/categories/java/jvm/"/>
           
         </display>
     </data>
@@ -285,27 +311,6 @@
 
     
   <url>
-    <loc>https://taccisum.github.io/source/zuul/architecture.html</loc>
-    <lastmod>2020-03-13T10:05:01.364Z</lastmod>
-    <data>
-        <display>
-        <title>zuul源码解析 —— zuul整体架构</title>
-        <pubTime>2018-11-29T02:55:13.000Z</pubTime>
-        
-         
-           
-             
-              <breadCrumb title="source" url="https://taccisum.github.io/categories/source/"/>
-          
-             
-              <breadCrumb title="zuul" url="https://taccisum.github.io/categories/source/zuul/"/>
-          
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
     <loc>https://taccisum.github.io/source/zuul/filters/route.html</loc>
     <lastmod>2020-03-13T10:05:01.364Z</lastmod>
     <data>
@@ -327,12 +332,12 @@
 
     
   <url>
-    <loc>https://taccisum.github.io/source/zuul/debug_env.html</loc>
+    <loc>https://taccisum.github.io/source/zuul/architecture.html</loc>
     <lastmod>2020-03-13T10:05:01.364Z</lastmod>
     <data>
         <display>
-        <title>zuul源码解析 —— 搭建调试环境</title>
-        <pubTime>2018-11-29T02:49:29.000Z</pubTime>
+        <title>zuul源码解析 —— zuul整体架构</title>
+        <pubTime>2018-11-29T02:55:13.000Z</pubTime>
         
          
            
@@ -354,6 +359,27 @@
         <display>
         <title>zuul源码解析 —— 动态加载Filter（未完成）</title>
         <pubTime>2018-12-01T06:19:14.000Z</pubTime>
+        
+         
+           
+             
+              <breadCrumb title="source" url="https://taccisum.github.io/categories/source/"/>
+          
+             
+              <breadCrumb title="zuul" url="https://taccisum.github.io/categories/source/zuul/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>https://taccisum.github.io/source/zuul/debug_env.html</loc>
+    <lastmod>2020-03-13T10:05:01.364Z</lastmod>
+    <data>
+        <display>
+        <title>zuul源码解析 —— 搭建调试环境</title>
+        <pubTime>2018-11-29T02:49:29.000Z</pubTime>
         
          
            
@@ -474,6 +500,27 @@
 
     
   <url>
+    <loc>https://taccisum.github.io/learn_gradle_4.html</loc>
+    <lastmod>2020-03-13T10:05:01.362Z</lastmod>
+    <data>
+        <display>
+        <title>Gradle学习（四） - 自定义任务</title>
+        <pubTime>2017-09-30T10:26:51.000Z</pubTime>
+        
+         
+           
+             
+              <breadCrumb title="java" url="https://taccisum.github.io/categories/java/"/>
+          
+             
+              <breadCrumb title="gradle" url="https://taccisum.github.io/categories/java/gradle/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
     <loc>https://taccisum.github.io/UNIX_basic_knowledge.html</loc>
     <lastmod>2020-03-13T10:05:01.362Z</lastmod>
     <data>
@@ -513,12 +560,12 @@
 
     
   <url>
-    <loc>https://taccisum.github.io/learn_gradle_4.html</loc>
-    <lastmod>2020-03-13T10:05:01.362Z</lastmod>
+    <loc>https://taccisum.github.io/learn_gradle_3.html</loc>
+    <lastmod>2020-03-13T10:05:01.361Z</lastmod>
     <data>
         <display>
-        <title>Gradle学习（四） - 自定义任务</title>
-        <pubTime>2017-09-30T10:26:51.000Z</pubTime>
+        <title>Gradle学习（三） - 多项目构建</title>
+        <pubTime>2017-09-30T02:17:25.000Z</pubTime>
         
          
            
@@ -540,27 +587,6 @@
         <display>
         <title>Gradle学习（一） - Getting Started</title>
         <pubTime>2017-09-26T07:39:42.000Z</pubTime>
-        
-         
-           
-             
-              <breadCrumb title="java" url="https://taccisum.github.io/categories/java/"/>
-          
-             
-              <breadCrumb title="gradle" url="https://taccisum.github.io/categories/java/gradle/"/>
-          
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
-    <loc>https://taccisum.github.io/learn_gradle_3.html</loc>
-    <lastmod>2020-03-13T10:05:01.361Z</lastmod>
-    <data>
-        <display>
-        <title>Gradle学习（三） - 多项目构建</title>
-        <pubTime>2017-09-30T02:17:25.000Z</pubTime>
         
          
            
