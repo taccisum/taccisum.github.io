@@ -202,6 +202,123 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://taccisum.github.io/redis-wireshark.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="taccisum">
+      <meta itemprop="description" content="el psy congroo.">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Taccisum's blog 😉">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/redis-wireshark.html" class="post-title-link" itemprop="url">用 Wireshark 抓包 Redis</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2022-12-29 10:01:15 / Modified: 21:24:03" itemprop="dateCreated datePublished" datetime="2022-12-29T10:01:15+08:00">2022-12-29</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/middlewire/" itemprop="url" rel="index"><span itemprop="name">middlewire</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/middlewire/redis/" itemprop="url" rel="index"><span itemprop="name">redis</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/redis-wireshark.html" class="post-meta-item leancloud_visitors" data-flag-title="用 Wireshark 抓包 Redis" title="Views">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine: </span>
+    
+    <a title="valine" href="/redis-wireshark.html#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/redis-wireshark.html" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>Redis 有自己的一套传输协议（RESP），因此想通过 Wireshark 抓包 Redis 得先安装插件，具体步骤如下：</p>
+<ol>
+<li>找到你的 Wireshark 安装目录下的 <code>init.lua</code> 所在的文件夹</li>
+</ol>
+<p>例如我的是 MacOS，通过 DMG 安装的，是在 <code>/Applications/Wireshark.app/Contents/Resources/share/wireshark</code> 目录下</p>
+<ol start="2">
+<li><p>把 <a href="https://github.com/jzwinck/redis-wireshark/blob/master/redis-wireshark.lua" target="_blank" rel="noopener">redis-wireshark.conf</a> 整个文件 copy 放在上述目录下</p>
+</li>
+<li><p>编辑 <code>init.lua</code> 添加以下内容，加载第 2 步放进去的 lua 脚本</p>
+</li>
+</ol>
+<pre class="line-numbers language-lua"><code class="language-lua"><span class="token comment" spellcheck="true">-- 其它内容...</span>
+<span class="token keyword">if</span> <span class="token keyword">not</span> running_superuser <span class="token keyword">or</span> run_user_scripts_when_superuser <span class="token keyword">then</span>
+    <span class="token function">dofile</span><span class="token punctuation">(</span>DATA_DIR<span class="token operator">..</span><span class="token string">"console.lua"</span><span class="token punctuation">)</span>
+    <span class="token function">dofile</span><span class="token punctuation">(</span>DATA_DIR<span class="token operator">..</span><span class="token string">"redis-wireshark.lua"</span><span class="token punctuation">)</span>     <span class="token comment" spellcheck="true">-- 这行是你要新加的，其它都是原有的</span>
+<span class="token keyword">end</span>
+<span class="token comment" spellcheck="true">-- 其它内容...</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<ol start="4">
+<li><p>重启 Wireshark 或使用 UI 上的 <code>Analyse -&gt; Reload Lua Plugins</code> 功能（CMD + SHIFT + L）重新加载插件</p>
+</li>
+<li><p>启动抓包，用 <code>redis-cli</code> 连接你的 Redis，随便输入一些命令（我这里示例是 <code>get tac</code>），在 Wireshark filter 框框中输入 <code>redis</code> 过滤协议，看到以下数据说明成功了</p>
+</li>
+</ol>
+<p><img src="images/redis-wireshark/example.jpg" alt="redis-wireshark-example"></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="https://taccisum.github.io/bathroom_automation.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -443,6 +560,121 @@
 <p><img src="/images/toilet_fa/tfa_mihome.JPG" alt="toilet fa scene 1"></p>
 <h2 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h2><p>以上配置对于普通用户（尤其是没有编程基础的）来说还是有些过于复杂了，建议厂家可以将状态机直接集成到门窗传感器中的，用户只要决定用或不用即可。</p>
 <p>另外，米家平台提供的基础能力也比较有限（可能是基于易用性及安全性的考虑？），导致很多效果实现起来还是比较困难。不管怎样，希望希望米家能加入一些变量能力，可以通过动作来设置变量值，也可以根据变量值的不同来触发不同的智能，这样会有更高的可玩性。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://taccisum.github.io/记一次 springfox 扩展之旅 —— 动态 api 文档.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="taccisum">
+      <meta itemprop="description" content="el psy congroo.">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Taccisum's blog 😉">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/记一次 springfox 扩展之旅 —— 动态 api 文档.html" class="post-title-link" itemprop="url">记一次 springfox 扩展之旅 —— 动态 api 文档</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2022-03-25 15:44:05" itemprop="dateCreated datePublished" datetime="2022-03-25T15:44:05+08:00">2022-03-25</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2022-04-04 16:26:48" itemprop="dateModified" datetime="2022-04-04T16:26:48+08:00">2022-04-04</time>
+              </span>
+
+          
+            <span id="/记一次 springfox 扩展之旅 —— 动态 api 文档.html" class="post-meta-item leancloud_visitors" data-flag-title="记一次 springfox 扩展之旅 —— 动态 api 文档" title="Views">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine: </span>
+    
+    <a title="valine" href="/记一次 springfox 扩展之旅 —— 动态 api 文档.html#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/记一次 springfox 扩展之旅 —— 动态 api 文档.html" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>出于 <a href="https://github.com/pigeon-cp/pigeon" target="_blank" rel="noopener">Pigeon</a> 项目的需要，我需要把通过插件支持的扩展信息在 swagger api 文档中动态展示出来。</p>
+<p>项目使用的是 springfox 框架生成的 swagger 文档，众所周知 springfox 是注解型的文档框架，而且文档内容是直接写死的，不支持动态化，估摸着是需要自己扩展了。</p>
+<p>按照惯例，先了解代码架构（由于以前都是使用为主，没有深入了解，也不知道有哪些拓展点）。发现 springfox 其实是在应用启动时 scan 带有 swagger 注解的类和字段，生成一个叫 <code>Documentation</code> 的类，然后通过 mapper 转换成相应的 swagger model（v1.2 or v2）。</p>
+<p>可见，我们要分析的 code 可以缩小到 Docuementation 生成的过程，主要关注 @ApiParam, @ApiPropertyModel 这几个注解的解析步骤。</p>
+<p>继续深入，发现 Documentation 的生成是通过 DocumentationPlugin 来做的，而调度 plugins 则是在 DocumentationPluginsBootstrapper 中。DocumentationPluginsBootstrapper 又是从哪里被调用的呢？没错，是通过 SpringfoxWebMvcConfiguration scan package <code>springfox.documentation.spring.web.plugins</code> 时被加载到 spring context 中的，由于这是一个 SmartLifecycle，因此会自动执行 <code>#start</code> 方法。在这个方法中会 foreach plugins，通过 plugin 得到的文档 context（context 中包含了 api 信息，而这些信息其实正是 spring mvc 维护着的 request handlers），再经由 scanner scan 整个 context 生成 Documentation 后加入到 DocumentationCache 中，后续通过 <code>/api-v2/docs</code> 接口访问时就是直接从 cache 中去获取到 Documentation 的。</p>
+<p>上面提到的 plugins 又是什么呢？这个概念大家可能比较陌生，但只要是用过 springfox 的小伙伴，对 <code>Docket</code> 这个类肯定不陌生。没错，Docket 其实也是实现了 DocumentationPlugin 的一个类，根据官方的描述</p>
+<blockquote>
+<p>Docket is a builder which is intended to be the primary interface into the Springfox framework.<br>Provides sensible defaults and convenience methods for configuration.</p>
+</blockquote>
+<p>回归主题，DocumentationPluginsBootstrapper 使用的 scanner 是 ApiDocumentationScanner。追踪源码发现，这个 scanner 中又细分为 ApiListingReferenceScanner（扫描引用 model 的）ApiListingScanner （扫描 apis 的），后者正是关键类。继续深入，在 ApiListingScanner -&gt; ApiDescriptionReader -&gt; ApiOperationReader 中发现，Operation（即维护 api 的路径、参数等具体描述的类）正是在其中通过 20+ OperationBuilderPlugin 组成的 filter 器链共同构建而成。根据名称大概筛选了一下，最终锁定了 OperationParameterReader 这个类。该类在处理参数时又会分成需要 expand 的（@RequestBody 之流）和不需要 expand 的（@ApiParam 直接标注的参数）。</p>
+<p>先来看不需要 expand 的，最终会交由 ParameterBuilderPlugin 链处理，因此我简单写了一个扩展</p>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token annotation punctuation">@Component</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">PigeonExtendParamBuilder</span> <span class="token keyword">implements</span> <span class="token class-name">ParameterBuilderPlugin</span> <span class="token punctuation">{</span>
+    <span class="token annotation punctuation">@Override</span>
+    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">apply</span><span class="token punctuation">(</span>ParameterContext context<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>context<span class="token punctuation">.</span><span class="token function">resolvedMethodParameter</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getParameterType</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">isInstanceOf</span><span class="token punctuation">(</span>String<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            context<span class="token punctuation">.</span><span class="token function">parameterBuilder</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+                    <span class="token punctuation">.</span><span class="token function">allowableValues</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">AllowableListValues</span><span class="token punctuation">(</span>Lists<span class="token punctuation">.</span><span class="token function">newArrayList</span><span class="token punctuation">(</span><span class="token string">"MAIL"</span><span class="token punctuation">,</span> <span class="token string">"SMS"</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token string">"String"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token annotation punctuation">@Override</span>
+    <span class="token keyword">public</span> <span class="token keyword">boolean</span> <span class="token function">supports</span><span class="token punctuation">(</span>DocumentationType documentationType<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> <span class="token boolean">true</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>跑下程序，果然所有 @ApiParam 标注的 string 类型参数都被加上了 Available values : MAIL, SMS 限制。但在 body 定义里面的参数没有效果，一开始推测是跟上述的 expand 概念有关，但后来发现不是，而是这类参数最终会指向一个 ModelRef，因此应该是与 Model 的解析有关。那 Model 的解析是在什么时候呢，同样是在 <code>ApiListingScanner#scan</code> 方法中，交由 ApiModelReader 完成。 ApiModelReader 会通过由 Spring MVC 维护的 RequestMapping 信息提取 model 信息（例如 @RequestBody, @Requestpart 之流），然后交给  <code>ModelProvied#modelFor</code> 转换成 springfox 的 Model 对象，此 Model 对象即是 ModelRef 引用的 Model。</p>
+<p>在 <code>#modelFor</code> 中，会通过反射解析出 Model 对应的 class 中的所有字段信息（称为 ModelProperty），而这个过程则是交给 <code>ModelPropertiesProvider#propertiesFor</code> 完成的，其中细节比较多，但总的来说，最终都是交由 <code>ModelPropertyBuilderPlugin</code> 链来处理的，这个类也正是我们要找的扩展点。后续简单验证了一下，确实是有效的。</p>
+<p>最终效果：</p>
 
       
     </div>
@@ -1859,567 +2091,6 @@ Object <span class="token function">run</span><span class="token punctuation">(<
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://taccisum.github.io/source/zuul/filters/pre.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="taccisum">
-      <meta itemprop="description" content="el psy congroo.">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Taccisum's blog 😉">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/source/zuul/filters/pre.html" class="post-title-link" itemprop="url">zuul源码解析 —— Pre和其它类型的过滤器</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2018-12-01 14:17:36" itemprop="dateCreated datePublished" datetime="2018-12-01T14:17:36+08:00">2018-12-01</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-03-13 18:05:01" itemprop="dateModified" datetime="2020-03-13T18:05:01+08:00">2020-03-13</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/source/" itemprop="url" rel="index"><span itemprop="name">source</span></a>
-                </span>
-                  , 
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/source/zuul/" itemprop="url" rel="index"><span itemprop="name">zuul</span></a>
-                </span>
-            </span>
-
-          
-            <span id="/source/zuul/filters/pre.html" class="post-meta-item leancloud_visitors" data-flag-title="zuul源码解析 —— Pre和其它类型的过滤器" title="Views">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">Views: </span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Valine: </span>
-    
-    <a title="valine" href="/source/zuul/filters/pre.html#valine-comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/source/zuul/filters/pre.html" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="Pre类型"><a href="#Pre类型" class="headerlink" title="Pre类型"></a>Pre类型</h2><p>Pre类型的过滤器执行顺序为：DebugFilter(1) -&gt; Routing(1) -&gt; PreDecoration(20) -&gt; WeightedLoadBalancer(30) -&gt; DebugRequest(10000)</p>
-<h3 id="DebugFilter"><a href="#DebugFilter" class="headerlink" title="DebugFilter"></a>DebugFilter</h3><p>判断是否为此次请求开启debug的一个过滤器。</p>
-<pre class="line-numbers language-java"><code class="language-java"><span class="token comment" spellcheck="true">// Debug.groovy</span>
-<span class="token keyword">boolean</span> <span class="token function">shouldFilter</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-    <span class="token comment" spellcheck="true">// 配置中是否开启debug</span>
-    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token string">"true"</span><span class="token punctuation">.</span><span class="token function">equals</span><span class="token punctuation">(</span>RequestContext<span class="token punctuation">.</span>currentContext<span class="token punctuation">.</span><span class="token function">getRequest</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getParameter</span><span class="token punctuation">(</span>debugParameter<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
-        <span class="token keyword">return</span> <span class="token boolean">true</span><span class="token punctuation">;</span>
-    <span class="token keyword">return</span> routingDebug<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-<span class="token punctuation">}</span>
-
-Object <span class="token function">run</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-    <span class="token comment" spellcheck="true">// 设置当前请求的上下文的debug标识为true，作为之后执行filter时是否记录debug信息的依据</span>
-    RequestContext<span class="token punctuation">.</span><span class="token function">getCurrentContext</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">setDebugRequest</span><span class="token punctuation">(</span><span class="token boolean">true</span><span class="token punctuation">)</span>
-    RequestContext<span class="token punctuation">.</span><span class="token function">getCurrentContext</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">setDebugRouting</span><span class="token punctuation">(</span><span class="token boolean">true</span><span class="token punctuation">)</span>
-    <span class="token keyword">return</span> null<span class="token punctuation">;</span>
-<span class="token punctuation">}</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<h3 id="Routing"><a href="#Routing" class="headerlink" title="Routing"></a>Routing</h3><p>Routing过滤器判断是将请求路由到静态资源还是其它服务。</p>
-<pre class="line-numbers language-java"><code class="language-java"><span class="token comment" spellcheck="true">// Routing.groovy</span>
-<span class="token keyword">boolean</span> <span class="token function">shouldFilter</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-    <span class="token keyword">return</span> <span class="token boolean">true</span>
-<span class="token punctuation">}</span>
-
-Object <span class="token function">staticRouting</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-    <span class="token comment" spellcheck="true">// 路由到静态资源</span>
-    FilterProcessor<span class="token punctuation">.</span>instance<span class="token punctuation">.</span><span class="token function">runFilters</span><span class="token punctuation">(</span><span class="token string">"healthcheck"</span><span class="token punctuation">)</span>
-    FilterProcessor<span class="token punctuation">.</span>instance<span class="token punctuation">.</span><span class="token function">runFilters</span><span class="token punctuation">(</span><span class="token string">"static"</span><span class="token punctuation">)</span>
-<span class="token punctuation">}</span>
-
-Object <span class="token function">run</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-    <span class="token function">staticRouting</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token comment" spellcheck="true">//runs the static Zuul</span>
-
-    <span class="token comment" spellcheck="true">// TODO:: 这里routeVIP的值是固定的（origin），后面也没有找到修改该值的地方，导致zuul只能路由到某个单一的服务，暂时不知道原因，先mark一下</span>
-    <span class="token comment" spellcheck="true">// 目标Eureka VIP</span>
-    <span class="token punctuation">(</span><span class="token punctuation">(</span>NFRequestContext<span class="token punctuation">)</span> RequestContext<span class="token punctuation">.</span>currentContext<span class="token punctuation">)</span><span class="token punctuation">.</span>routeVIP <span class="token operator">=</span> defaultClient<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
-    String host <span class="token operator">=</span> defaultHost<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
-    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">(</span>NFRequestContext<span class="token punctuation">)</span> RequestContext<span class="token punctuation">.</span>currentContext<span class="token punctuation">)</span><span class="token punctuation">.</span>routeVIP <span class="token operator">==</span> null<span class="token punctuation">)</span> <span class="token punctuation">(</span><span class="token punctuation">(</span>NFRequestContext<span class="token punctuation">)</span> RequestContext<span class="token punctuation">.</span>currentContext<span class="token punctuation">)</span><span class="token punctuation">.</span>routeVIP <span class="token operator">=</span> ZuulApplicationInfo<span class="token punctuation">.</span>applicationName
-    <span class="token keyword">if</span> <span class="token punctuation">(</span>host <span class="token operator">!=</span> null<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        <span class="token keyword">final</span> URL targetUrl <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">URL</span><span class="token punctuation">(</span>host<span class="token punctuation">)</span>
-        RequestContext<span class="token punctuation">.</span>currentContext<span class="token punctuation">.</span><span class="token function">setRouteHost</span><span class="token punctuation">(</span>targetUrl<span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token punctuation">(</span><span class="token punctuation">(</span>NFRequestContext<span class="token punctuation">)</span> RequestContext<span class="token punctuation">.</span>currentContext<span class="token punctuation">)</span><span class="token punctuation">.</span>routeVIP <span class="token operator">=</span> null
-    <span class="token punctuation">}</span>
-
-    <span class="token comment" spellcheck="true">// host与routeVIP不能同时为null</span>
-    <span class="token keyword">if</span> <span class="token punctuation">(</span>host <span class="token operator">==</span> null <span class="token operator">&amp;&amp;</span> RequestContext<span class="token punctuation">.</span>currentContext<span class="token punctuation">.</span>routeVIP <span class="token operator">==</span> null<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        <span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">ZuulException</span><span class="token punctuation">(</span><span class="token string">"default VIP or host not defined. Define: zuul.niws.defaultClient or zuul.default.host"</span><span class="token punctuation">,</span> <span class="token number">501</span><span class="token punctuation">,</span> <span class="token string">"zuul.niws.defaultClient or zuul.default.host not defined"</span><span class="token punctuation">)</span>
-    <span class="token punctuation">}</span>
-
-    String uri <span class="token operator">=</span> RequestContext<span class="token punctuation">.</span>currentContext<span class="token punctuation">.</span>request<span class="token punctuation">.</span><span class="token function">getRequestURI</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
-    <span class="token comment" spellcheck="true">// 如果在之前的filter当中给上下文的requestURI赋值了，则覆盖原uri的值</span>
-    <span class="token keyword">if</span> <span class="token punctuation">(</span>RequestContext<span class="token punctuation">.</span>currentContext<span class="token punctuation">.</span>requestURI <span class="token operator">!=</span> null<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        uri <span class="token operator">=</span> RequestContext<span class="token punctuation">.</span>currentContext<span class="token punctuation">.</span>requestURI
-    <span class="token punctuation">}</span>
-    <span class="token keyword">if</span> <span class="token punctuation">(</span>uri <span class="token operator">==</span> null<span class="token punctuation">)</span> uri <span class="token operator">=</span> <span class="token string">"/"</span>
-    <span class="token keyword">if</span> <span class="token punctuation">(</span>uri<span class="token punctuation">.</span><span class="token function">startsWith</span><span class="token punctuation">(</span><span class="token string">"/"</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        uri <span class="token operator">=</span> uri <span class="token operator">-</span> <span class="token string">"/"</span>
-    <span class="token punctuation">}</span>
-
-    <span class="token comment" spellcheck="true">// 截取路径的第一段为route</span>
-    <span class="token comment" spellcheck="true">// TODO:: 这个route有什么用，也暂时没发现</span>
-    <span class="token punctuation">(</span><span class="token punctuation">(</span>NFRequestContext<span class="token punctuation">)</span> RequestContext<span class="token punctuation">.</span>currentContext<span class="token punctuation">)</span><span class="token punctuation">.</span>route <span class="token operator">=</span> uri<span class="token punctuation">.</span><span class="token function">substring</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> uri<span class="token punctuation">.</span><span class="token function">indexOf</span><span class="token punctuation">(</span><span class="token string">"/"</span><span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">)</span>
-<span class="token punctuation">}</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<h3 id="PreDecoration"><a href="#PreDecoration" class="headerlink" title="PreDecoration"></a>PreDecoration</h3><p>预处理过滤器，负责对请求做一些预处理操作，如添加请求头。</p>
-<pre class="line-numbers language-java"><code class="language-java"><span class="token comment" spellcheck="true">// PreDecoration.groovy</span>
-<span class="token annotation punctuation">@Override</span>
-<span class="token keyword">boolean</span> <span class="token function">shouldFilter</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-    <span class="token keyword">return</span> <span class="token boolean">true</span>
-<span class="token punctuation">}</span>
-
-<span class="token annotation punctuation">@Override</span>
-Object <span class="token function">run</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-    <span class="token keyword">if</span> <span class="token punctuation">(</span>RequestContext<span class="token punctuation">.</span>currentContext<span class="token punctuation">.</span><span class="token function">getRequest</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getParameter</span><span class="token punctuation">(</span><span class="token string">"url"</span><span class="token punctuation">)</span> <span class="token operator">!=</span> null<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        <span class="token keyword">try</span> <span class="token punctuation">{</span>
-            <span class="token comment" spellcheck="true">// routeHost通过请求的参数url指定</span>
-            <span class="token comment" spellcheck="true">// 如果routeHost有值，则在route阶段会由ZuulHostRequest进行处理</span>
-            RequestContext<span class="token punctuation">.</span><span class="token function">getCurrentContext</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>routeHost <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">URL</span><span class="token punctuation">(</span>RequestContext<span class="token punctuation">.</span>currentContext<span class="token punctuation">.</span><span class="token function">getRequest</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getParameter</span><span class="token punctuation">(</span><span class="token string">"url"</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
-            <span class="token comment" spellcheck="true">// 开启GZip</span>
-            RequestContext<span class="token punctuation">.</span>currentContext<span class="token punctuation">.</span><span class="token function">setResponseGZipped</span><span class="token punctuation">(</span><span class="token boolean">true</span><span class="token punctuation">)</span>
-        <span class="token punctuation">}</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">MalformedURLException</span> e<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-            <span class="token comment" spellcheck="true">// url格式错误，返回400</span>
-            <span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">ZuulException</span><span class="token punctuation">(</span>e<span class="token punctuation">,</span> <span class="token string">"Malformed URL"</span><span class="token punctuation">,</span> <span class="token number">400</span><span class="token punctuation">,</span> <span class="token string">"MALFORMED_URL"</span><span class="token punctuation">)</span>
-        <span class="token punctuation">}</span>
-    <span class="token punctuation">}</span>
-    <span class="token function">setOriginRequestHeaders</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
-    <span class="token keyword">return</span> null
-<span class="token punctuation">}</span>
-
-<span class="token keyword">void</span> <span class="token function">setOriginRequestHeaders</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-    RequestContext context <span class="token operator">=</span> RequestContext<span class="token punctuation">.</span>currentContext
-    context<span class="token punctuation">.</span><span class="token function">addZuulRequestHeader</span><span class="token punctuation">(</span><span class="token string">"X-Netflix.request.toplevel.uuid"</span><span class="token punctuation">,</span> UUID<span class="token punctuation">.</span><span class="token function">randomUUID</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">toString</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
-    <span class="token comment" spellcheck="true">// 添加被代理者的ip地址到XFF</span>
-    context<span class="token punctuation">.</span><span class="token function">addZuulRequestHeader</span><span class="token punctuation">(</span>X_FORWARDED_FOR<span class="token punctuation">,</span> context<span class="token punctuation">.</span><span class="token function">getRequest</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>remoteAddr<span class="token punctuation">)</span>
-    <span class="token comment" spellcheck="true">// 设置Host头</span>
-    context<span class="token punctuation">.</span><span class="token function">addZuulRequestHeader</span><span class="token punctuation">(</span>X_NETFLIX_CLIENT_HOST<span class="token punctuation">,</span> context<span class="token punctuation">.</span><span class="token function">getRequest</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getHeader</span><span class="token punctuation">(</span>HOST<span class="token punctuation">)</span><span class="token punctuation">)</span>
-    <span class="token keyword">if</span> <span class="token punctuation">(</span>context<span class="token punctuation">.</span><span class="token function">getRequest</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getHeader</span><span class="token punctuation">(</span>X_FORWARDED_PROTO<span class="token punctuation">)</span> <span class="token operator">!=</span> null<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        context<span class="token punctuation">.</span><span class="token function">addZuulRequestHeader</span><span class="token punctuation">(</span>X_NETFLIX_CLIENT_PROTO<span class="token punctuation">,</span> context<span class="token punctuation">.</span><span class="token function">getRequest</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getHeader</span><span class="token punctuation">(</span>X_FORWARDED_PROTO<span class="token punctuation">)</span><span class="token punctuation">)</span>
-    <span class="token punctuation">}</span>
-<span class="token punctuation">}</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<h3 id="WeightedLoadBalance"><a href="#WeightedLoadBalance" class="headerlink" title="WeightedLoadBalance"></a>WeightedLoadBalance</h3><p>TODO:: 加权负载均衡器，似乎与金丝雀发布（灰度发布）有关，暂不深入了解。</p>
-<h3 id="DebugRequest"><a href="#DebugRequest" class="headerlink" title="DebugRequest"></a>DebugRequest</h3><p>负责添加Request的debug信息的过滤器</p>
-<pre class="line-numbers language-java"><code class="language-java"><span class="token comment" spellcheck="true">// DebugRequest.groovy</span>
-<span class="token annotation punctuation">@Override</span>
-<span class="token keyword">boolean</span> <span class="token function">shouldFilter</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-    <span class="token keyword">return</span> Debug<span class="token punctuation">.</span><span class="token function">debugRequest</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
-<span class="token punctuation">}</span>
-
-<span class="token annotation punctuation">@Override</span>
-Object <span class="token function">run</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-    <span class="token comment" spellcheck="true">// 获取原始请求</span>
-    HttpServletRequest req <span class="token operator">=</span> RequestContext<span class="token punctuation">.</span>currentContext<span class="token punctuation">.</span>request as HttpServletRequest
-
-    <span class="token comment" spellcheck="true">// 收集客户端ip信息</span>
-    Debug<span class="token punctuation">.</span><span class="token function">addRequestDebug</span><span class="token punctuation">(</span><span class="token string">"REQUEST:: "</span> <span class="token operator">+</span> req<span class="token punctuation">.</span><span class="token function">getScheme</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token string">" "</span> <span class="token operator">+</span> req<span class="token punctuation">.</span><span class="token function">getRemoteAddr</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token string">":"</span> <span class="token operator">+</span> req<span class="token punctuation">.</span><span class="token function">getRemotePort</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
-    <span class="token comment" spellcheck="true">// 收集HTTP请求行信息</span>
-    Debug<span class="token punctuation">.</span><span class="token function">addRequestDebug</span><span class="token punctuation">(</span><span class="token string">"REQUEST:: > "</span> <span class="token operator">+</span> req<span class="token punctuation">.</span><span class="token function">getMethod</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token string">" "</span> <span class="token operator">+</span> req<span class="token punctuation">.</span><span class="token function">getRequestURI</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token string">" "</span> <span class="token operator">+</span> req<span class="token punctuation">.</span><span class="token function">getProtocol</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
-
-    <span class="token comment" spellcheck="true">// 收集原请求的请求头信息</span>
-    Iterator headerIt <span class="token operator">=</span> req<span class="token punctuation">.</span><span class="token function">getHeaderNames</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">iterator</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
-    <span class="token keyword">while</span> <span class="token punctuation">(</span>headerIt<span class="token punctuation">.</span><span class="token function">hasNext</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        String name <span class="token operator">=</span> <span class="token punctuation">(</span>String<span class="token punctuation">)</span> headerIt<span class="token punctuation">.</span><span class="token function">next</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
-        String value <span class="token operator">=</span> req<span class="token punctuation">.</span><span class="token function">getHeader</span><span class="token punctuation">(</span>name<span class="token punctuation">)</span>
-        Debug<span class="token punctuation">.</span><span class="token function">addRequestDebug</span><span class="token punctuation">(</span><span class="token string">"REQUEST:: > "</span> <span class="token operator">+</span> name <span class="token operator">+</span> <span class="token string">":"</span> <span class="token operator">+</span> value<span class="token punctuation">)</span>
-    <span class="token punctuation">}</span>
-
-    <span class="token comment" spellcheck="true">// 收集原请求的请求体信息</span>
-    <span class="token keyword">final</span> RequestContext ctx <span class="token operator">=</span> RequestContext<span class="token punctuation">.</span><span class="token function">getCurrentContext</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
-    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>ctx<span class="token punctuation">.</span><span class="token function">isChunkedRequestBody</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        InputStream inp <span class="token operator">=</span> ctx<span class="token punctuation">.</span>request<span class="token punctuation">.</span><span class="token function">getInputStream</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
-        String body <span class="token operator">=</span> null
-        <span class="token keyword">if</span> <span class="token punctuation">(</span>inp <span class="token operator">!=</span> null<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-            body <span class="token operator">=</span> inp<span class="token punctuation">.</span><span class="token function">getText</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
-            Debug<span class="token punctuation">.</span><span class="token function">addRequestDebug</span><span class="token punctuation">(</span><span class="token string">"REQUEST:: > "</span> <span class="token operator">+</span> body<span class="token punctuation">)</span>
-
-        <span class="token punctuation">}</span>
-    <span class="token punctuation">}</span>
-    <span class="token keyword">return</span> null<span class="token punctuation">;</span>
-<span class="token punctuation">}</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>打印出来的调试信息类似下面这样：</p>
-<pre class="line-numbers language-text"><code class="language-text">REQUEST_DEBUG::REQUEST:: http 0:0:0:0:0:0:0:1:54075
-REQUEST_DEBUG::REQUEST:: > GET /auth-center/foo/bar HTTP/1.1
-REQUEST_DEBUG::REQUEST:: > Host:localhost:8080
-REQUEST_DEBUG::REQUEST:: > Connection:keep-alive
-REQUEST_DEBUG::REQUEST:: > Cache-Control:max-age=0
-REQUEST_DEBUG::REQUEST:: > Upgrade-Insecure-Requests:1
-REQUEST_DEBUG::REQUEST:: > User-Agent:Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.87 Safari/537.36
-REQUEST_DEBUG::REQUEST:: > Accept:text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8
-REQUEST_DEBUG::REQUEST:: > Accept-Encoding:gzip, deflate, br
-REQUEST_DEBUG::REQUEST:: > Accept-Language:zh-CN,zh;q=0.9,zh-TW;q=0.8
-REQUEST_DEBUG::REQUEST:: > Cookie:Idea-9d03e8f=36659dd1-27e5-4e9b-8824-19bf2de30b9e; _ga=GA1.1.79701639.1521035841; wcsid=u5MHraIxIjs3Na0G3m39N0Hab53odbCD; hblid=5HLUbXnG2OuboFyp3m39N0HbjAa3Cd5a; _oklv=1542679881769%2Cu5MHraIxIjs3Na0G3m39N0Hab53odbCD; _okdetect=%7B%22token%22%3A%2215426798825920%22%2C%22proto%22%3A%22http%3A%22%2C%22host%22%3A%22localhost%3A4040%22%7D; olfsk=olfsk020058268955480463; _okbk=cd4%3Dtrue%2Cvi5%3D0%2Cvi4%3D1542679883339%2Cvi3%3Dactive%2Cvi2%3Dfalse%2Cvi1%3Dfalse%2Ccd8%3Dchat%2Ccd6%3D0%2Ccd5%3Daway%2Ccd3%3Dfalse%2Ccd2%3D0%2Ccd1%3D0%2C; _ok=1700-237-10-3483; _gauges_unique_month=1; _gauges_unique_year=1; _gauges_unique=1; freeform=3213
-REQUEST_DEBUG::REQUEST:: > 
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<h2 id="其它类型"><a href="#其它类型" class="headerlink" title="其它类型"></a>其它类型</h2><h3 id="Options"><a href="#Options" class="headerlink" title="Options"></a>Options</h3><p>好像是一个没用的filter…感觉是还未完成？</p>
-<pre class="line-numbers language-java"><code class="language-java"><span class="token comment" spellcheck="true">// Options.groovy</span>
-<span class="token keyword">boolean</span> <span class="token function">shouldFilter</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-    String method <span class="token operator">=</span> RequestContext<span class="token punctuation">.</span>currentContext<span class="token punctuation">.</span><span class="token function">getRequest</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token function">getMethod</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token comment" spellcheck="true">// 处理OPTIONS方法的HTTP请求</span>
-    <span class="token keyword">if</span> <span class="token punctuation">(</span>method<span class="token punctuation">.</span><span class="token function">equalsIgnoreCase</span><span class="token punctuation">(</span><span class="token string">"options"</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token keyword">return</span> <span class="token boolean">true</span><span class="token punctuation">;</span>
-<span class="token punctuation">}</span>
-
-<span class="token annotation punctuation">@Override</span>
-String <span class="token function">uri</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-    <span class="token keyword">return</span> <span class="token string">"any path here"</span>
-<span class="token punctuation">}</span>
-
-<span class="token annotation punctuation">@Override</span>
-String <span class="token function">responseBody</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-    <span class="token comment" spellcheck="true">// 啥也不返回</span>
-    <span class="token keyword">return</span> <span class="token string">""</span> <span class="token comment" spellcheck="true">// empty response</span>
-<span class="token punctuation">}</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<h3 id="Healthcheck"><a href="#Healthcheck" class="headerlink" title="Healthcheck"></a>Healthcheck</h3><p>Healthcheck过滤器提供了一个静态资源/healthcheck，方便检测zuul应用是否正常运行。但是功能好像过于弱鸡了… - -</p>
-<pre class="line-numbers language-java"><code class="language-java"><span class="token comment" spellcheck="true">// Healthcheck.groovy</span>
-<span class="token annotation punctuation">@Override</span>
-String <span class="token function">filterType</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-    <span class="token keyword">return</span> <span class="token string">"healthcheck"</span>
-<span class="token punctuation">}</span>
-
-<span class="token annotation punctuation">@Override</span>
-String <span class="token function">uri</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-    <span class="token keyword">return</span> <span class="token string">"/healthcheck"</span>
-<span class="token punctuation">}</span>
-
-<span class="token annotation punctuation">@Override</span>
-String <span class="token function">responseBody</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-    <span class="token comment" spellcheck="true">// 只返回了一个ok...简单粗暴...</span>
-    RequestContext<span class="token punctuation">.</span><span class="token function">getCurrentContext</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getResponse</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">setContentType</span><span class="token punctuation">(</span><span class="token string">'application/xml'</span><span class="token punctuation">)</span>
-    <span class="token keyword">return</span> <span class="token string">"&lt;health>ok&lt;/health>"</span>
-<span class="token punctuation">}</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<h3 id="ErrorResponse"><a href="#ErrorResponse" class="headerlink" title="ErrorResponse"></a>ErrorResponse</h3><pre class="line-numbers language-java"><code class="language-java"><span class="token comment" spellcheck="true">// ErrorResponse.groovy</span>
-<span class="token keyword">boolean</span> <span class="token function">shouldFilter</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-    <span class="token comment" spellcheck="true">// 根据标识判断错误是否已被处理</span>
-    <span class="token keyword">return</span> RequestContext<span class="token punctuation">.</span><span class="token function">getCurrentContext</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">"ErrorHandled"</span><span class="token punctuation">)</span> <span class="token operator">==</span> null
-<span class="token punctuation">}</span>
-
-Object <span class="token function">run</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-    RequestContext context <span class="token operator">=</span> RequestContext<span class="token punctuation">.</span>currentContext
-    Throwable ex <span class="token operator">=</span> context<span class="token punctuation">.</span><span class="token function">getThrowable</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
-    <span class="token keyword">try</span> <span class="token punctuation">{</span>
-        LOG<span class="token punctuation">.</span><span class="token function">error</span><span class="token punctuation">(</span>ex<span class="token punctuation">.</span><span class="token function">getMessage</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> ex<span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token keyword">throw</span> ex
-    <span class="token punctuation">}</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">ZuulException</span> e<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        String cause <span class="token operator">=</span> e<span class="token punctuation">.</span>errorCause
-        <span class="token keyword">if</span> <span class="token punctuation">(</span>cause <span class="token operator">==</span> null<span class="token punctuation">)</span> cause <span class="token operator">=</span> <span class="token string">"UNKNOWN"</span>
-        <span class="token comment" spellcheck="true">// 添加错误原因到请求头X-Netflix-Error-Cause</span>
-        RequestContext<span class="token punctuation">.</span><span class="token function">getCurrentContext</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getResponse</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">addHeader</span><span class="token punctuation">(</span><span class="token string">"X-Netflix-Error-Cause"</span><span class="token punctuation">,</span> <span class="token string">"Zuul Error: "</span> <span class="token operator">+</span> cause<span class="token punctuation">)</span>
-        <span class="token comment" spellcheck="true">// 对该次错误请求进行统计</span>
-        <span class="token keyword">if</span> <span class="token punctuation">(</span>e<span class="token punctuation">.</span>nStatusCode <span class="token operator">==</span> <span class="token number">404</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-            ErrorStatsManager<span class="token punctuation">.</span>manager<span class="token punctuation">.</span><span class="token function">putStats</span><span class="token punctuation">(</span><span class="token string">"ROUTE_NOT_FOUND"</span><span class="token punctuation">,</span> <span class="token string">""</span><span class="token punctuation">)</span>
-        <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
-            ErrorStatsManager<span class="token punctuation">.</span>manager<span class="token punctuation">.</span><span class="token function">putStats</span><span class="token punctuation">(</span>RequestContext<span class="token punctuation">.</span><span class="token function">getCurrentContext</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>route<span class="token punctuation">,</span> <span class="token string">"Zuul_Error_"</span> <span class="token operator">+</span> cause<span class="token punctuation">)</span>
-        <span class="token punctuation">}</span>
-
-        <span class="token comment" spellcheck="true">// 判断是否改写响应状态，则请求传入的参数决定</span>
-        <span class="token keyword">if</span> <span class="token punctuation">(</span>overrideStatusCode<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-            RequestContext<span class="token punctuation">.</span><span class="token function">getCurrentContext</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">setResponseStatusCode</span><span class="token punctuation">(</span><span class="token number">200</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
-            RequestContext<span class="token punctuation">.</span><span class="token function">getCurrentContext</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">setResponseStatusCode</span><span class="token punctuation">(</span>e<span class="token punctuation">.</span>nStatusCode<span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token punctuation">}</span>
-        <span class="token comment" spellcheck="true">// 设置标识，表示不再返回zuul转发请求得到的响应结果（如果有）</span>
-        context<span class="token punctuation">.</span><span class="token function">setSendZuulResponse</span><span class="token punctuation">(</span><span class="token boolean">false</span><span class="token punctuation">)</span>
-        <span class="token comment" spellcheck="true">// 设置zuul的异常响应body</span>
-        context<span class="token punctuation">.</span><span class="token function">setResponseBody</span><span class="token punctuation">(</span><span class="token string">"${getErrorMessage(e, e.nStatusCode)}"</span><span class="token punctuation">)</span>
-    <span class="token punctuation">}</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">Throwable</span> throwable<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        <span class="token comment" spellcheck="true">// 处理未知异常，与处理ZuulException的逻辑大体相同</span>
-        RequestContext<span class="token punctuation">.</span><span class="token function">getCurrentContext</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getResponse</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">addHeader</span><span class="token punctuation">(</span><span class="token string">"X-Zuul-Error-Cause"</span><span class="token punctuation">,</span> <span class="token string">"Zuul Error UNKNOWN Cause"</span><span class="token punctuation">)</span>
-        ErrorStatsManager<span class="token punctuation">.</span>manager<span class="token punctuation">.</span><span class="token function">putStats</span><span class="token punctuation">(</span>RequestContext<span class="token punctuation">.</span><span class="token function">getCurrentContext</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>route<span class="token punctuation">,</span> <span class="token string">"Zuul_Error_UNKNOWN_Cause"</span><span class="token punctuation">)</span>
-
-        <span class="token keyword">if</span> <span class="token punctuation">(</span>overrideStatusCode<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-            RequestContext<span class="token punctuation">.</span><span class="token function">getCurrentContext</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">setResponseStatusCode</span><span class="token punctuation">(</span><span class="token number">200</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
-            RequestContext<span class="token punctuation">.</span><span class="token function">getCurrentContext</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">setResponseStatusCode</span><span class="token punctuation">(</span><span class="token number">500</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token punctuation">}</span>
-        context<span class="token punctuation">.</span><span class="token function">setSendZuulResponse</span><span class="token punctuation">(</span><span class="token boolean">false</span><span class="token punctuation">)</span>
-        context<span class="token punctuation">.</span><span class="token function">setResponseBody</span><span class="token punctuation">(</span><span class="token string">"${getErrorMessage(throwable, 500)}"</span><span class="token punctuation">)</span>
-    <span class="token punctuation">}</span> <span class="token keyword">finally</span> <span class="token punctuation">{</span>
-        <span class="token comment" spellcheck="true">// 设置标识，表示错误已经被处理（防止存在多个error过滤器时重复处理）</span>
-        context<span class="token punctuation">.</span><span class="token function">set</span><span class="token punctuation">(</span><span class="token string">"ErrorHandled"</span><span class="token punctuation">)</span> <span class="token comment" spellcheck="true">//ErrorResponse was handled</span>
-        <span class="token keyword">return</span> null<span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-<span class="token punctuation">}</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://taccisum.github.io/source/zuul/filters.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="taccisum">
-      <meta itemprop="description" content="el psy congroo.">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Taccisum's blog 😉">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/source/zuul/filters.html" class="post-title-link" itemprop="url">zuul源码解析 —— 过滤器</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2018-12-01 14:12:30" itemprop="dateCreated datePublished" datetime="2018-12-01T14:12:30+08:00">2018-12-01</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-03-13 18:05:01" itemprop="dateModified" datetime="2020-03-13T18:05:01+08:00">2020-03-13</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/source/" itemprop="url" rel="index"><span itemprop="name">source</span></a>
-                </span>
-                  , 
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/source/zuul/" itemprop="url" rel="index"><span itemprop="name">zuul</span></a>
-                </span>
-            </span>
-
-          
-            <span id="/source/zuul/filters.html" class="post-meta-item leancloud_visitors" data-flag-title="zuul源码解析 —— 过滤器" title="Views">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">Views: </span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Valine: </span>
-    
-    <a title="valine" href="/source/zuul/filters.html#valine-comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/source/zuul/filters.html" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>过滤器是zuul最重要的组件，几乎它所有功能都是通过过滤器来实现的。因此，理解各个过滤器的功能是阅读源码必不可少的环节。</p>
-<h2 id="过滤器的分类"><a href="#过滤器的分类" class="headerlink" title="过滤器的分类"></a>过滤器的分类</h2><h3 id="按功能分类"><a href="#按功能分类" class="headerlink" title="按功能分类"></a>按功能分类</h3><p>如果按照功能分类，过滤器主要有四大类：pre/route/post/error，它们之间的逻辑关系在<a href="architecture.html#ZuulServlet">ZuulServlet</a>中有描述。<br>除此之外你也可以自定义特殊类型的过滤器，比如源码中就有一个healthcheck类型。不过自定义类型的过滤器不会被zuul自动识别，需要使用者手动触发调用。</p>
-<h2 id="ZuulFilter"><a href="#ZuulFilter" class="headerlink" title="ZuulFilter"></a>ZuulFilter</h2><p><code>ZuulFilter</code>是所有过滤器的基类，其核心方法是runFilter，应用了模板方法模式，来看下代码</p>
-<pre class="line-numbers language-java"><code class="language-java"><span class="token comment" spellcheck="true">// ZuulFilter.java</span>
-<span class="token keyword">public</span> ZuulFilterResult <span class="token function">runFilter</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-    ZuulFilterResult zr <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ZuulFilterResult</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token comment" spellcheck="true">// 当前filter是否被禁用</span>
-    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span><span class="token function">isFilterDisabled</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        <span class="token comment" spellcheck="true">// 是否满足filter执行条件</span>
-        <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">shouldFilter</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-            Tracer t <span class="token operator">=</span> TracerFactory<span class="token punctuation">.</span><span class="token function">instance</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">startMicroTracer</span><span class="token punctuation">(</span><span class="token string">"ZUUL::"</span> <span class="token operator">+</span> <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">getClass</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getSimpleName</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-            <span class="token keyword">try</span> <span class="token punctuation">{</span>
-                <span class="token comment" spellcheck="true">// 具体的filter逻辑执行的地方</span>
-                Object res <span class="token operator">=</span> <span class="token function">run</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-                <span class="token comment" spellcheck="true">// wrap一下结果</span>
-                zr <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ZuulFilterResult</span><span class="token punctuation">(</span>res<span class="token punctuation">,</span> ExecutionStatus<span class="token punctuation">.</span>SUCCESS<span class="token punctuation">)</span><span class="token punctuation">;</span>
-            <span class="token punctuation">}</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">Throwable</span> e<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-                t<span class="token punctuation">.</span><span class="token function">setName</span><span class="token punctuation">(</span><span class="token string">"ZUUL::"</span> <span class="token operator">+</span> <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">getClass</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getSimpleName</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token string">" failed"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-                zr <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ZuulFilterResult</span><span class="token punctuation">(</span>ExecutionStatus<span class="token punctuation">.</span>FAILED<span class="token punctuation">)</span><span class="token punctuation">;</span>
-                zr<span class="token punctuation">.</span><span class="token function">setException</span><span class="token punctuation">(</span>e<span class="token punctuation">)</span><span class="token punctuation">;</span>
-            <span class="token punctuation">}</span> <span class="token keyword">finally</span> <span class="token punctuation">{</span>
-                t<span class="token punctuation">.</span><span class="token function">stopAndLog</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-            <span class="token punctuation">}</span>
-        <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
-            zr <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ZuulFilterResult</span><span class="token punctuation">(</span>ExecutionStatus<span class="token punctuation">.</span>SKIPPED<span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token punctuation">}</span>
-    <span class="token punctuation">}</span>
-<span class="token punctuation">}</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>上面代码中的关键方法有两个：shouldFilter()和run()。</p>
-<p>这两个方法都是抽象的，需要由具体的过滤器去实现。一般来说，我们在阅读过滤器源码时只需要重点关注这两个方法即可。</p>
-<h2 id="zuul-netflix-webapp提供的过滤器"><a href="#zuul-netflix-webapp提供的过滤器" class="headerlink" title="zuul-netflix-webapp提供的过滤器"></a>zuul-netflix-webapp提供的过滤器</h2><p><code>zuul-netflix-webapp</code>模块中提供了一些有用的过滤器，在src/main/groovy/filters目录下</p>
-<table>
-<thead>
-<tr>
-<th style="text-align:left"><strong>名称</strong></th>
-<th style="text-align:center"><strong>类别</strong></th>
-<th style="text-align:center"><strong>Order</strong></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left">DebugFilter</td>
-<td style="text-align:center"><code>pre</code></td>
-<td style="text-align:center">1</td>
-</tr>
-<tr>
-<td style="text-align:left">Routing</td>
-<td style="text-align:center"><code>pre</code></td>
-<td style="text-align:center">1</td>
-</tr>
-<tr>
-<td style="text-align:left">PreDecoration</td>
-<td style="text-align:center"><code>pre</code></td>
-<td style="text-align:center">20</td>
-</tr>
-<tr>
-<td style="text-align:left">WeightedLoadBalancer</td>
-<td style="text-align:center"><code>pre</code></td>
-<td style="text-align:center">30</td>
-</tr>
-<tr>
-<td style="text-align:left">DebugRequest</td>
-<td style="text-align:center"><code>pre</code></td>
-<td style="text-align:center">10000</td>
-</tr>
-<tr>
-<td style="text-align:left">ZuulNFRequest</td>
-<td style="text-align:center"><code>route</code></td>
-<td style="text-align:center">10</td>
-</tr>
-<tr>
-<td style="text-align:left">ZuulHostRequest</td>
-<td style="text-align:center"><code>route</code></td>
-<td style="text-align:center">100</td>
-</tr>
-<tr>
-<td style="text-align:left">Postfilter</td>
-<td style="text-align:center"><code>post</code></td>
-<td style="text-align:center">10</td>
-</tr>
-<tr>
-<td style="text-align:left">RequestEventInfoCollectorFilter</td>
-<td style="text-align:center"><code>post</code></td>
-<td style="text-align:center">99</td>
-</tr>
-<tr>
-<td style="text-align:left">sendResponse</td>
-<td style="text-align:center"><code>post</code></td>
-<td style="text-align:center">1000</td>
-</tr>
-<tr>
-<td style="text-align:left">Stats</td>
-<td style="text-align:center"><code>post</code></td>
-<td style="text-align:center">2000</td>
-</tr>
-<tr>
-<td style="text-align:left">ErrorResponse</td>
-<td style="text-align:center"><code>error</code></td>
-<td style="text-align:center">1</td>
-</tr>
-<tr>
-<td style="text-align:left">Options</td>
-<td style="text-align:center"><code>static</code></td>
-<td style="text-align:center">0</td>
-</tr>
-<tr>
-<td style="text-align:left">Healthcheck</td>
-<td style="text-align:center"><code>healthcheck</code></td>
-<td style="text-align:center">0</td>
-</tr>
-</tbody>
-</table>
-<p>由于篇幅关系，详细的代码分析拆分为以下三个章节：</p>
-<ul>
-<li><a href="filters/pre.html">Pre和其它类型过滤器</a></li>
-<li><a href="filters/route.html">Route类型过滤器</a></li>
-<li><a href="filters/post.html">Post类型过滤器</a></li>
-</ul>
-<h2 id="zuul-simple-webapp"><a href="#zuul-simple-webapp" class="headerlink" title="zuul-simple-webapp"></a>zuul-simple-webapp</h2><p><code>zuul-simple-webapp</code>提供的过滤器较为简单，实现的功能基本上就是<code>zuul-netfilx-webapp</code>功能的一个子集，因此这里就不列出来了。</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -2491,14 +2162,14 @@ Object <span class="token function">run</span><span class="token punctuation">(<
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">28</span>
+          <span class="site-state-item-count">30</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-count">24</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
