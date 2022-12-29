@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-5J42R3VH2D"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-5J42R3VH2D');
+</script>
+
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.7.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"taccisum.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="源码地址Github 关于解释器模式解释器模式是行为型模式的一种，关于解释器模式的定义从网上摘抄了一段  给定一种语言，并定义代表其文法的相应解释器，并用该解释器来解析使用该语言的编写的内容JAVA Design pattern  其中的关键字有，语言文法、解释器。  语言文法，如：下面要提到的四则运算表达式、我们日常使用的各种编程语言、类英语语法的SQL语言、一些框架里面的特定语言（如Sprin">
+<meta property="og:type" content="article">
+<meta property="og:title" content="解释器模式实践">
+<meta property="og:url" content="https://taccisum.github.io/interpreter_pattern_in_action.html">
+<meta property="og:site_name" content="Taccisum&#39;s blog 😉">
+<meta property="og:description" content="源码地址Github 关于解释器模式解释器模式是行为型模式的一种，关于解释器模式的定义从网上摘抄了一段  给定一种语言，并定义代表其文法的相应解释器，并用该解释器来解析使用该语言的编写的内容JAVA Design pattern  其中的关键字有，语言文法、解释器。  语言文法，如：下面要提到的四则运算表达式、我们日常使用的各种编程语言、类英语语法的SQL语言、一些框架里面的特定语言（如Sprin">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://java-design-patterns.com/patterns/interpreter/etc/interpreter_1.png">
+<meta property="og:updated_time" content="2020-03-13T10:05:01.367Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="解释器模式实践">
+<meta name="twitter:description" content="源码地址Github 关于解释器模式解释器模式是行为型模式的一种，关于解释器模式的定义从网上摘抄了一段  给定一种语言，并定义代表其文法的相应解释器，并用该解释器来解析使用该语言的编写的内容JAVA Design pattern  其中的关键字有，语言文法、解释器。  语言文法，如：下面要提到的四则运算表达式、我们日常使用的各种编程语言、类英语语法的SQL语言、一些框架里面的特定语言（如Sprin">
+<meta name="twitter:image" content="http://java-design-patterns.com/patterns/interpreter/etc/interpreter_1.png">
+
+<link rel="canonical" href="https://taccisum.github.io/interpreter_pattern_in_action.html">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>解释器模式实践 | Taccisum's blog 😉</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="stylesheet" href="/css/prism-ghcolors.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Taccisum's blog 😉</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://taccisum.github.io/interpreter_pattern_in_action.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="taccisum">
+      <meta itemprop="description" content="el psy congroo.">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Taccisum's blog 😉">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          解释器模式实践
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2017-09-25 17:12:13" itemprop="dateCreated datePublished" datetime="2017-09-25T17:12:13+08:00">2017-09-25</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-03-13 18:05:01" itemprop="dateModified" datetime="2020-03-13T18:05:01+08:00">2020-03-13</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/java/" itemprop="url" rel="index"><span itemprop="name">java</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/java/设计模式/" itemprop="url" rel="index"><span itemprop="name">设计模式</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/interpreter_pattern_in_action.html" class="post-meta-item leancloud_visitors" data-flag-title="解释器模式实践" title="Views">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine: </span>
+    
+    <a title="valine" href="/interpreter_pattern_in_action.html#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/interpreter_pattern_in_action.html" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="源码地址"><a href="#源码地址" class="headerlink" title="源码地址"></a>源码地址</h2><p><a href="https://github.com/taccisum/interpreter_pattern" target="_blank" rel="noopener">Github</a></p>
+<h2 id="关于解释器模式"><a href="#关于解释器模式" class="headerlink" title="关于解释器模式"></a>关于解释器模式</h2><p>解释器模式是行为型模式的一种，关于解释器模式的定义从网上摘抄了一段</p>
+<blockquote>
+<p>给定一种语言，并定义代表其文法的相应解释器，并用该解释器来解析使用该语言的编写的内容<br><a href="http://java-design-patterns.com/patterns/interpreter/" target="_blank" rel="noopener">JAVA Design pattern</a></p>
+</blockquote>
+<p>其中的关键字有，<code>语言文法</code>、<code>解释器</code>。</p>
+<ul>
+<li>语言文法，如：下面要提到的<code>四则运算表达式</code>、我们日常使用的各种<code>编程语言</code>、类英语语法的<code>SQL</code>语言、一些框架里面的特定语言（如Spring的SpEL）等等，都是具有固定文法的语言，这意味着这些语言均可以用解释器模式来解析。当然，除此之外你也可以根据你的需求自己创造一种语言。</li>
+<li>解释器，用于让计算机『认识』这些语言的工具，需要由我们程序员编码实现。越复杂的语言文法，其相应的解释器实现难度越大，比如人类的『自然语言』。</li>
+</ul>
+<h2 id="UML图"><a href="#UML图" class="headerlink" title="UML图"></a>UML图</h2><blockquote>
+<p><img src="http://java-design-patterns.com/patterns/interpreter/etc/interpreter_1.png" alt=""><br><a href="http://java-design-patterns.com/patterns/interpreter/" target="_blank" rel="noopener">JAVA Design pattern</a></p>
+</blockquote>
+<p>其实并不算复杂（因为解释器模式最复杂的部分在于将语言解析为对象的过程，稍后的实践中可以看到），跟组合模式的UML图有点相像（同为树型数据结构），下面是两个比较重要的类：</p>
+<p><strong>NumberExpression</strong>: 数值表达式（也称<code>终结点表达式</code>，意为表达式解析的终结点，可以简单理解为树型结构的叶子节点），执行interpret()一般会得到一个常量供复合表达式计算</p>
+<p><strong>MultiplyExpression</strong>: 复合表达式（也称<code>非终结点表达式</code>，可以简单理解为树型结构的枝节点），一般包括一个或多个Expression类型的子节点，子节点数即代表该复合表达式的操作数数量，执行interpret()一般会得到其子节点互相作用后的结果</p>
+<h2 id="编码实践"><a href="#编码实践" class="headerlink" title="编码实践"></a>编码实践</h2><p>为了节省篇幅，这里只贴出部分重要代码，完整代码可从开头的源码地址下载。</p>
+<h3 id="简单四则运算"><a href="#简单四则运算" class="headerlink" title="简单四则运算"></a>简单四则运算</h3><h4 id="单元测试类"><a href="#单元测试类" class="headerlink" title="单元测试类"></a>单元测试类</h4><pre class="line-numbers language-text"><code class="language-text">cn.tac.test.interpreter.arithmetic.simple.SimpleCalculatorTest
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<h4 id="实现效果"><a href="#实现效果" class="headerlink" title="实现效果"></a>实现效果</h4><p>支持最简单的四则运算，不支持括弧运算，不支持优先级运算符。因为语言文法较简单，所以解析器较易实现，适合作为Hello World。</p>
+<h4 id="相关类"><a href="#相关类" class="headerlink" title="相关类"></a>相关类</h4><p><strong>Node</strong>: 即Expression</p>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">interface</span> <span class="token class-name">Node</span> <span class="token punctuation">{</span>
+    <span class="token keyword">int</span> <span class="token function">interpret</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<p><strong>ValueNode</strong>: 即NumberExpression，代表操作数</p>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">abstract</span> <span class="token keyword">class</span> <span class="token class-name">ValueNode</span> <span class="token keyword">implements</span> <span class="token class-name">Node</span><span class="token punctuation">{</span>
+    <span class="token keyword">protected</span> <span class="token keyword">int</span> value<span class="token punctuation">;</span>
+    <span class="token keyword">public</span> <span class="token function">ValueNode</span><span class="token punctuation">(</span><span class="token keyword">int</span> value<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span>value <span class="token operator">=</span> value<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p><strong>SymbolNode</strong>: 即MultiplyExpression，代表运算符（如+-*/），因为均为<code>二元操作符</code>，所以只有两个子节点</p>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">abstract</span> <span class="token keyword">class</span> <span class="token class-name">SymbolNode</span> <span class="token keyword">implements</span> <span class="token class-name">Node</span> <span class="token punctuation">{</span>
+    <span class="token keyword">protected</span> Node left<span class="token punctuation">;</span>
+    <span class="token keyword">protected</span> Node right<span class="token punctuation">;</span>
+    <span class="token keyword">public</span> <span class="token function">SymbolNode</span><span class="token punctuation">(</span>Node left<span class="token punctuation">,</span> Node right<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span>left <span class="token operator">=</span> left<span class="token punctuation">;</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span>right <span class="token operator">=</span> right<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p><strong>SimpleValueNode</strong>: 简单地返回数值本身</p>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">SimpleValueNode</span> <span class="token keyword">extends</span> <span class="token class-name">ValueNode</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token function">SimpleValueNode</span><span class="token punctuation">(</span><span class="token keyword">int</span> value<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">super</span><span class="token punctuation">(</span>value<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">public</span> <span class="token keyword">int</span> <span class="token function">interpret</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> value<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p><strong>运算符节点</strong>: 代表+-*/</p>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">PlusNode</span> <span class="token keyword">extends</span> <span class="token class-name">SymbolNode</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token function">PlusNode</span><span class="token punctuation">(</span>Node left<span class="token punctuation">,</span> Node right<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">super</span><span class="token punctuation">(</span>left<span class="token punctuation">,</span> right<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">public</span> <span class="token keyword">int</span> <span class="token function">interpret</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> left<span class="token punctuation">.</span><span class="token function">interpret</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">+</span> right<span class="token punctuation">.</span><span class="token function">interpret</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">MinusNode</span> extend SymbolNode<span class="token punctuation">{</span>……<span class="token punctuation">}</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">MulNode</span> extend SymbolNode<span class="token punctuation">{</span>……<span class="token punctuation">}</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">DivNode</span> extend SymbolNode<span class="token punctuation">{</span>……<span class="token punctuation">}</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p><strong>Parser</strong>:</p>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">Parser</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">final</span> String SPLITTER <span class="token operator">=</span> <span class="token string">" "</span><span class="token punctuation">;</span>  <span class="token comment" spellcheck="true">//为了方便解析，用空格将表达式分隔开</span>
+    <span class="token keyword">public</span> Node <span class="token function">parse</span><span class="token punctuation">(</span>String statement<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        String<span class="token punctuation">[</span><span class="token punctuation">]</span> arr <span class="token operator">=</span> statement<span class="token punctuation">.</span><span class="token function">split</span><span class="token punctuation">(</span>SPLITTER<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        LinkedList<span class="token operator">&lt;</span>Node<span class="token operator">></span> nodeStack <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">LinkedList</span><span class="token operator">&lt;</span><span class="token operator">></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token keyword">boolean</span> symbolFlag <span class="token operator">=</span> <span class="token boolean">false</span><span class="token punctuation">;</span>
+        String symbol <span class="token operator">=</span> <span class="token string">""</span><span class="token punctuation">;</span>
+        <span class="token keyword">for</span> <span class="token punctuation">(</span>String item <span class="token operator">:</span> arr<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">isSymbolNode</span><span class="token punctuation">(</span>item<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                symbol <span class="token operator">=</span> item<span class="token punctuation">;</span>
+                symbolFlag <span class="token operator">=</span> <span class="token boolean">true</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">isValueNode</span><span class="token punctuation">(</span>item<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                nodeStack<span class="token punctuation">.</span><span class="token function">push</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">SimpleValueNode</span><span class="token punctuation">(</span>Integer<span class="token punctuation">.</span><span class="token function">parseInt</span><span class="token punctuation">(</span>item<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token keyword">if</span> <span class="token punctuation">(</span>symbolFlag<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                    Node right <span class="token operator">=</span> nodeStack<span class="token punctuation">.</span><span class="token function">pop</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>    <span class="token comment" spellcheck="true">//后入先出</span>
+                    Node left <span class="token operator">=</span> nodeStack<span class="token punctuation">.</span><span class="token function">pop</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                    nodeStack<span class="token punctuation">.</span><span class="token function">push</span><span class="token punctuation">(</span><span class="token function">mapSymbolNode</span><span class="token punctuation">(</span>left<span class="token punctuation">,</span> right<span class="token punctuation">,</span> symbol<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                    symbolFlag <span class="token operator">=</span> <span class="token boolean">false</span><span class="token punctuation">;</span>                    
+                <span class="token punctuation">}</span>
+            <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+                <span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">RuntimeException</span><span class="token punctuation">(</span><span class="token string">"表达式格式有误"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token keyword">return</span> nodeStack<span class="token punctuation">.</span><span class="token function">pop</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    ……
+<span class="token punctuation">}</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p><strong>Calculator</strong>: </p>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">SimpleCalculator</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">int</span> <span class="token function">calculate</span><span class="token punctuation">(</span>String statement<span class="token punctuation">)</span><span class="token punctuation">{</span>
+        Parser parser <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Parser</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">return</span> parser<span class="token punctuation">.</span><span class="token function">parse</span><span class="token punctuation">(</span>statement<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">interpret</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h5 id="Parser解析过程"><a href="#Parser解析过程" class="headerlink" title="Parser解析过程"></a>Parser解析过程</h5><ol>
+<li>将表达式分割为数组，并遍历</li>
+<li>从数组中获取一个元素，若为数值，则直接转换为节点并入栈；若为运算符，则只进行标记，等待下一个节点入栈后，将其与上一个节点一同取出，并合并为一个复合表达式节点入栈；</li>
+<li>反复执行步骤2，直到数组末尾</li>
+<li>将栈中的元素pop并返回（如果表达式无误，最终栈中应该只有一个元素，否则应该在解析过程中抛出异常）</li>
+</ol>
+<h3 id="完整四则运算"><a href="#完整四则运算" class="headerlink" title="完整四则运算"></a>完整四则运算</h3><h4 id="单元测试类-1"><a href="#单元测试类-1" class="headerlink" title="单元测试类"></a>单元测试类</h4><pre class="line-numbers language-java"><code class="language-java">cn<span class="token punctuation">.</span>tac<span class="token punctuation">.</span>test<span class="token punctuation">.</span>interpreter<span class="token punctuation">.</span>arithmetic<span class="token punctuation">.</span>full<span class="token punctuation">.</span>FullCalculatorTest
+cn<span class="token punctuation">.</span>tac<span class="token punctuation">.</span>test<span class="token punctuation">.</span>interpreter<span class="token punctuation">.</span>arithmetic<span class="token punctuation">.</span>full<span class="token punctuation">.</span>ParserTest
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<h4 id="实现效果-1"><a href="#实现效果-1" class="headerlink" title="实现效果"></a>实现效果</h4><p>支持完整的四则运算，包括括弧运算，优先级运算。由于相较于上一个实践文法上复杂了许多，不能用同样的方式直接解析，而是应该先转换为<code>后缀表达式</code>再进行解析。</p>
+<h4 id="后缀表达式"><a href="#后缀表达式" class="headerlink" title="后缀表达式"></a>后缀表达式</h4><p>// todo::</p>
+<h4 id="相关类-1"><a href="#相关类-1" class="headerlink" title="相关类"></a>相关类</h4><p><strong>节点</strong><br>值节点和运算符节点类仍采用和上个实践相同的类。</p>
+<p><strong>Parser</strong></p>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">Parser</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">final</span> String SPLITTER <span class="token operator">=</span> <span class="token string">" "</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">public</span> Node <span class="token function">parse</span><span class="token punctuation">(</span>String statement<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        LinkedList<span class="token operator">&lt;</span>Node<span class="token operator">></span> stack <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">LinkedList</span><span class="token operator">&lt;</span><span class="token operator">></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        String<span class="token punctuation">[</span><span class="token punctuation">]</span> segments <span class="token operator">=</span> <span class="token function">convert2Postfix</span><span class="token punctuation">(</span>statement<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">split</span><span class="token punctuation">(</span>SPLITTER<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">for</span> <span class="token punctuation">(</span>String segment <span class="token operator">:</span> segments<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">isValueNode</span><span class="token punctuation">(</span>segment<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                stack<span class="token punctuation">.</span><span class="token function">push</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">SimpleValueNode</span><span class="token punctuation">(</span>Integer<span class="token punctuation">.</span><span class="token function">parseInt</span><span class="token punctuation">(</span>segment<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">isOperator</span><span class="token punctuation">(</span>segment<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                Node rightNode <span class="token operator">=</span> stack<span class="token punctuation">.</span><span class="token function">pop</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                Node leftNode <span class="token operator">=</span> stack<span class="token punctuation">.</span><span class="token function">pop</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                stack<span class="token punctuation">.</span><span class="token function">push</span><span class="token punctuation">(</span><span class="token function">doOperate</span><span class="token punctuation">(</span>leftNode<span class="token punctuation">,</span> rightNode<span class="token punctuation">,</span> segment<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+                <span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">RuntimeException</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+        <span class="token keyword">return</span> stack<span class="token punctuation">.</span><span class="token function">pop</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">public</span> String <span class="token function">convert2Postfix</span><span class="token punctuation">(</span>String statement<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        LinkedList<span class="token operator">&lt;</span>String<span class="token operator">></span> symbolStack <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">LinkedList</span><span class="token operator">&lt;</span><span class="token operator">></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>    <span class="token comment" spellcheck="true">//临时存放符号节点的栈</span>
+        LinkedList<span class="token operator">&lt;</span>String<span class="token operator">></span> stack <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">LinkedList</span><span class="token operator">&lt;</span><span class="token operator">></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        String<span class="token punctuation">[</span><span class="token punctuation">]</span> nodes <span class="token operator">=</span> statement<span class="token punctuation">.</span><span class="token function">split</span><span class="token punctuation">(</span>SPLITTER<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token keyword">for</span> <span class="token punctuation">(</span>String node <span class="token operator">:</span> nodes<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">isSymbolNode</span><span class="token punctuation">(</span>node<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                <span class="token keyword">if</span> <span class="token punctuation">(</span>symbolStack<span class="token punctuation">.</span><span class="token function">size</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">==</span> <span class="token number">0</span> <span class="token operator">||</span> <span class="token string">"("</span><span class="token punctuation">.</span><span class="token function">equals</span><span class="token punctuation">(</span>node<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                    symbolStack<span class="token punctuation">.</span><span class="token function">push</span><span class="token punctuation">(</span>node<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">isOperator</span><span class="token punctuation">(</span>node<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                    String topSymbol <span class="token operator">=</span> symbolStack<span class="token punctuation">.</span><span class="token function">peek</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">priority</span><span class="token punctuation">(</span>node<span class="token punctuation">)</span> <span class="token operator">&lt;=</span> <span class="token function">priority</span><span class="token punctuation">(</span>topSymbol<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                        <span class="token keyword">while</span> <span class="token punctuation">(</span>symbolStack<span class="token punctuation">.</span><span class="token function">peek</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">!=</span> null<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                            <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">priority</span><span class="token punctuation">(</span>symbolStack<span class="token punctuation">.</span><span class="token function">peek</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">&lt;</span> <span class="token function">priority</span><span class="token punctuation">(</span>node<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                                <span class="token keyword">break</span><span class="token punctuation">;</span>
+                            <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+                                stack<span class="token punctuation">.</span><span class="token function">push</span><span class="token punctuation">(</span>symbolStack<span class="token punctuation">.</span><span class="token function">pop</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                            <span class="token punctuation">}</span>
+                        <span class="token punctuation">}</span>
+                    <span class="token punctuation">}</span>
+                    symbolStack<span class="token punctuation">.</span><span class="token function">push</span><span class="token punctuation">(</span>node<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token string">")"</span><span class="token punctuation">.</span><span class="token function">equals</span><span class="token punctuation">(</span>node<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                    <span class="token keyword">while</span> <span class="token punctuation">(</span><span class="token operator">!</span><span class="token string">"("</span><span class="token punctuation">.</span><span class="token function">equals</span><span class="token punctuation">(</span>symbolStack<span class="token punctuation">.</span><span class="token function">peek</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                        stack<span class="token punctuation">.</span><span class="token function">push</span><span class="token punctuation">(</span>symbolStack<span class="token punctuation">.</span><span class="token function">pop</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                    <span class="token punctuation">}</span>
+                    symbolStack<span class="token punctuation">.</span><span class="token function">pop</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+                    <span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">RuntimeException</span><span class="token punctuation">(</span><span class="token string">"不支持的运算符"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span>
+            <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">isValueNode</span><span class="token punctuation">(</span>node<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                stack<span class="token punctuation">.</span><span class="token function">push</span><span class="token punctuation">(</span>node<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+                <span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">RuntimeException</span><span class="token punctuation">(</span><span class="token string">"不支持的运算符"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token comment" spellcheck="true">//到数组尾部后，还有一些符号在栈内</span>
+        <span class="token keyword">while</span> <span class="token punctuation">(</span>symbolStack<span class="token punctuation">.</span><span class="token function">peek</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">!=</span> null<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            stack<span class="token punctuation">.</span><span class="token function">push</span><span class="token punctuation">(</span>symbolStack<span class="token punctuation">.</span><span class="token function">pop</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        StringBuilder sb <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">StringBuilder</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        String tmp<span class="token punctuation">;</span>
+        <span class="token keyword">while</span> <span class="token punctuation">(</span><span class="token function">isNull</span><span class="token punctuation">(</span>tmp <span class="token operator">=</span> stack<span class="token punctuation">.</span><span class="token function">pollLast</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            sb<span class="token punctuation">.</span><span class="token function">append</span><span class="token punctuation">(</span>tmp<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            sb<span class="token punctuation">.</span><span class="token function">append</span><span class="token punctuation">(</span>SPLITTER<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        <span class="token keyword">return</span> sb<span class="token punctuation">.</span><span class="token function">toString</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">trim</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    ……
+<span class="token punctuation">}</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p><strong>Calculator</strong></p>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">FullCalculator</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">int</span> <span class="token function">calculate</span><span class="token punctuation">(</span>String statement<span class="token punctuation">)</span><span class="token punctuation">{</span>
+        Parser parser <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Parser</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">return</span> parser<span class="token punctuation">.</span><span class="token function">parse</span><span class="token punctuation">(</span>statement<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">interpret</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h5 id="Parser解析过程-1"><a href="#Parser解析过程-1" class="headerlink" title="Parser解析过程"></a>Parser解析过程</h5><p>主要分为两大步骤<br><strong>一、将中缀表达式转换为后缀表达式</strong></p>
+<ol>
+<li>将表达式分割为数组，并遍历</li>
+<li>从数组中获取一个元素<ul>
+<li>若为数值，则直接入存放结果的栈，以下简称<code>结果栈</code></li>
+<li>若为符号，则判断<ul>
+<li>若符号栈目前为空，或该符号为左括弧”(“，则直接入临时存放符号的栈，以下简称<code>符号栈</code></li>
+<li>若当前符号为操作符（+-*/，不包括括弧），则从符号栈peek（<em>不是pop</em>）一个符号，比如两者优先级，若 当前符号优先级&lt;=从栈顶取出的符号优先级，则从符号栈pop一个符号并push至结果栈，直至 符号栈为空 or 栈顶符号优先级&lt;=当前符号优先级，然后将当前符号入符号栈。<em>这里需要注意的是，左右括弧也有优先级，且优先级应小于操作符，否则在这里需要单独处理pop时遇到左括弧的问题</em></li>
+<li>若为右括弧”)”，则将符号栈pop符号并push至结果栈，直到遇到左括弧（遇到后pop并丢弃）</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>反复执行步骤2，直到数组末尾</li>
+<li>到数组尾部后，多数情况都会有一些符号还留在符号栈内，应将其取出并push至结果栈</li>
+<li>将结果栈构建为字符串，并返回</li>
+</ol>
+<p><strong>二、将后缀解析为java对象</strong></p>
+<ol>
+<li>将表达式分割为数组，并遍历</li>
+<li>从数组中获取一个元素，若为数值，则直接转换成数值节点并入栈；若为操作符（转换成后缀表达式后已经没有括弧了），则从栈顶取出两个节点，并合并为一个复合表达式节点并入栈</li>
+<li>反复执行步骤2，直到数组末尾</li>
+<li>将栈中的元素pop并返回（如果表达式无误，最终栈中应该只有一个元素，否则应该在解析过程中抛出异常）</li>
+</ol>
+<p>当然，你也可以将这两个步骤合二为一，在转换的同时将其转换为java对象，但非实际应用中个人还是建议将两个步骤分离，原因有二：</p>
+<ul>
+<li>降低编码的复杂度</li>
+<li>方便进行单元测试（尤其是将后缀表达式转换为中缀表达式的步骤，比较容易出错）</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/about_java.html" rel="prev" title="关于java">
+      <i class="fa fa-chevron-left"></i> 关于java
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/learn_gradle_1.html" rel="next" title="Gradle学习（一） - Getting Started">
+      Gradle学习（一） - Getting Started <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#源码地址"><span class="nav-number">1.</span> <span class="nav-text">源码地址</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#关于解释器模式"><span class="nav-number">2.</span> <span class="nav-text">关于解释器模式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#UML图"><span class="nav-number">3.</span> <span class="nav-text">UML图</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#编码实践"><span class="nav-number">4.</span> <span class="nav-text">编码实践</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#简单四则运算"><span class="nav-number">4.1.</span> <span class="nav-text">简单四则运算</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#单元测试类"><span class="nav-number">4.1.1.</span> <span class="nav-text">单元测试类</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#实现效果"><span class="nav-number">4.1.2.</span> <span class="nav-text">实现效果</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#相关类"><span class="nav-number">4.1.3.</span> <span class="nav-text">相关类</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Parser解析过程"><span class="nav-number">4.1.3.1.</span> <span class="nav-text">Parser解析过程</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#完整四则运算"><span class="nav-number">4.2.</span> <span class="nav-text">完整四则运算</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#单元测试类-1"><span class="nav-number">4.2.1.</span> <span class="nav-text">单元测试类</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#实现效果-1"><span class="nav-number">4.2.2.</span> <span class="nav-text">实现效果</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#后缀表达式"><span class="nav-number">4.2.3.</span> <span class="nav-text">后缀表达式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#相关类-1"><span class="nav-number">4.2.4.</span> <span class="nav-text">相关类</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Parser解析过程-1"><span class="nav-number">4.2.4.1.</span> <span class="nav-text">Parser解析过程</span></a></li></ol></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="taccisum"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">taccisum</p>
+  <div class="site-description" itemprop="description">el psy congroo.</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">30</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">24</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/taccisum" title="GitHub → https://github.com/taccisum" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/taccisum@gmail.com" title="G-Mail → taccisum@gmail.com"><i class="fa fa-envelope fa-fw"></i>G-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">taccisum</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/muse.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'q1GTC85aQcIvQIf3p9tWLTvW-gzGzoHsz',
+      appKey     : 'OjWCd5UV1xcOyCEfsSzu9w7z',
+      placeholder: "欢迎畅所欲言",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : true,
+      lang       : '' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>
