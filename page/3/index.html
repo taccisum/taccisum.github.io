@@ -202,6 +202,395 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://taccisum.github.io/zuul_hystrix_default_timeout_config_invalid_reason_research.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="taccisum">
+      <meta itemprop="description" content="el psy congroo.">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Taccisum's blog 😉">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/zuul_hystrix_default_timeout_config_invalid_reason_research.html" class="post-title-link" itemprop="url">zuul中hystrix默认timeout配置失效的原因</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2018-08-30 15:29:35" itemprop="dateCreated datePublished" datetime="2018-08-30T15:29:35+08:00">2018-08-30</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-03-13 18:05:01" itemprop="dateModified" datetime="2020-03-13T18:05:01+08:00">2020-03-13</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/java/" itemprop="url" rel="index"><span itemprop="name">java</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/java/踩坑日记/" itemprop="url" rel="index"><span itemprop="name">踩坑日记</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/zuul_hystrix_default_timeout_config_invalid_reason_research.html" class="post-meta-item leancloud_visitors" data-flag-title="zuul中hystrix默认timeout配置失效的原因" title="Views">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine: </span>
+    
+    <a title="valine" href="/zuul_hystrix_default_timeout_config_invalid_reason_research.html#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/zuul_hystrix_default_timeout_config_invalid_reason_research.html" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="所处环境"><a href="#所处环境" class="headerlink" title="所处环境"></a>所处环境</h1><ul>
+<li><code>spring boot</code>: 1.5.9.RELEASE</li>
+<li><code>spring cloud</code>: Edgware.RELEASE</li>
+</ul>
+<h1 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h1><p>根据netflix hystrix官方的描述，可以通过<a href="https://github.com/Netflix/Hystrix/wiki/Configuration#execution.isolation.thread.timeoutInMilliseconds" target="_blank" rel="noopener"><code>hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds</code></a>这个全局配置为所有服务配置默认超时时间。然而在实践中却发现该配置并没有生效（一直是2000ms），但针对各服务进行单独配置却是可以生效的。</p>
+<h1 id="问题定位"><a href="#问题定位" class="headerlink" title="问题定位"></a>问题定位</h1><p>经google发现，hystrix的timeout机制是通过<code>HystrixTimer</code>来处理的。</p>
+<p>HystrixTimer是一个单例，开发人员可以在执行<code>HystrixCommand</code>前通过调用HystrixTimer.getInstance().addTimerListener()方法来添加一个定时的listener，然后在command on completed的时候移除它。相关的代码已经由netflix实现了，可以查看源码<a href="https://github.com/Netflix/Hystrix/blob/master/hystrix-core/src/main/java/com/netflix/hystrix/AbstractCommand.java#L1137" target="_blank" rel="noopener"><code>AbstractCommand.java</code></a></p>
+<pre class="line-numbers language-java"><code class="language-java">TimerListener listener <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">TimerListener</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token annotation punctuation">@Override</span>
+    <span class="token keyword">public</span> <span class="token keyword">int</span> <span class="token function">getIntervalTimeInMilliseconds</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> originalCommand<span class="token punctuation">.</span>properties<span class="token punctuation">.</span><span class="token function">executionTimeoutInMilliseconds</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token keyword">final</span> Reference<span class="token operator">&lt;</span>TimerListener<span class="token operator">></span> tl <span class="token operator">=</span> HystrixTimer<span class="token punctuation">.</span><span class="token function">getInstance</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">addTimerListener</span><span class="token punctuation">(</span>listener<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment" spellcheck="true">// set externally so execute/queue can see this</span>
+originalCommand<span class="token punctuation">.</span>timeoutTimer<span class="token punctuation">.</span><span class="token function">set</span><span class="token punctuation">(</span>tl<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment" spellcheck="true">/**
+* If this subscriber receives values it means the parent succeeded/completed
+*/</span>
+Subscriber<span class="token operator">&lt;</span>R<span class="token operator">></span> parent <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Subscriber</span><span class="token operator">&lt;</span>R<span class="token operator">></span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token annotation punctuation">@Override</span>
+    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">onCompleted</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">isNotTimedOut</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token comment" spellcheck="true">// stop timer and pass notification through</span>
+            tl<span class="token punctuation">.</span><span class="token function">clear</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            child<span class="token punctuation">.</span><span class="token function">onCompleted</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token annotation punctuation">@Override</span>
+    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">onError</span><span class="token punctuation">(</span>Throwable e<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">isNotTimedOut</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token comment" spellcheck="true">// stop timer and pass notification through</span>
+            tl<span class="token punctuation">.</span><span class="token function">clear</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            child<span class="token punctuation">.</span><span class="token function">onError</span><span class="token punctuation">(</span>e<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>从以上代码可以很容易追溯到hystrix超时时间是从originalCommand.properties(<code>HystrixCommandProperties</code>)这个对象中获取的，而在spring cloud提供的<code>AbstractRibbonCommand</code>中存在以下代码</p>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token keyword">final</span> HystrixCommandProperties<span class="token punctuation">.</span>Setter setter <span class="token operator">=</span> HystrixCommandProperties<span class="token punctuation">.</span><span class="token function">Setter</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+        <span class="token punctuation">.</span><span class="token function">withExecutionIsolationStrategy</span><span class="token punctuation">(</span>zuulProperties<span class="token punctuation">.</span><span class="token function">getRibbonIsolationStrategy</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">withExecutionTimeoutInMilliseconds</span><span class="token punctuation">(</span>
+                RibbonClientConfiguration<span class="token punctuation">.</span>DEFAULT_CONNECT_TIMEOUT <span class="token operator">+</span> RibbonClientConfiguration<span class="token punctuation">.</span>DEFAULT_READ_TIMEOUT<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<p><strong>导致originalCommand.properties在构建时可以获取到一个executionTimeoutInMilliseconds的实例级默认值，从而覆盖掉了全局的executionTimeoutInMilliseconds配置，但实例级的配置并不受影响，因为hystrix property优先级为：</strong>  </p>
+<ol>
+<li>Global default from code</li>
+<li>Dynamic global default property</li>
+<li>Instance default from code</li>
+<li>Dynamic instance property</li>
+</ol>
+<h1 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h1><ol>
+<li><p>改写HttpClientRibbonCommand的实现<br>//todo:: 待补充</p>
+</li>
+<li><p>升级spring cloud版本到Edgware.SR1以上<br>Spring cloud在<code>Edgware.SR1</code>版本中已经解决了此问题(<a href="https://github.com/spring-cloud/spring-cloud-netflix/pull/2633" target="_blank" rel="noopener">issue2633</a>)，如果有条件可以直接通过升级版本来解决此问题。</p>
+</li>
+</ol>
+<h1 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h1><ul>
+<li><a href="https://github.com/Netflix/Hystrix/wiki/Configuration" target="_blank" rel="noopener">Hystrix Configurations</a></li>
+<li><a href="https://segmentfault.com/a/1190000015393836" target="_blank" rel="noopener">聊聊hystrix的timeout处理 - segmentfault</a></li>
+<li><a href="https://segmentfault.com/a/1190000012439580" target="_blank" rel="noopener">Hystrix工作原理</a></li>
+<li><a href="https://www.jianshu.com/p/6e2f11821c77" target="_blank" rel="noopener">ribbon设置url级别的超时时间</a></li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://taccisum.github.io/openfeign_research_and_application.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="taccisum">
+      <meta itemprop="description" content="el psy congroo.">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Taccisum's blog 😉">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/openfeign_research_and_application.html" class="post-title-link" itemprop="url">声明式http客户端openfeign的研究与应用</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2018-06-21 05:54:42" itemprop="dateCreated datePublished" datetime="2018-06-21T05:54:42+08:00">2018-06-21</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-03-13 18:05:01" itemprop="dateModified" datetime="2020-03-13T18:05:01+08:00">2020-03-13</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/java/" itemprop="url" rel="index"><span itemprop="name">java</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/java/spring-cloud/" itemprop="url" rel="index"><span itemprop="name">spring cloud</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/openfeign_research_and_application.html" class="post-meta-item leancloud_visitors" data-flag-title="声明式http客户端openfeign的研究与应用" title="Views">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine: </span>
+    
+    <a title="valine" href="/openfeign_research_and_application.html#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/openfeign_research_and_application.html" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><h2 id="openfeign"><a href="#openfeign" class="headerlink" title="openfeign"></a>openfeign</h2><p>openfeign，简称feign，是netflix开源的技术栈之一。<br>feign的主旨是使得编写java http客户端更容易。为了贯彻这个理念，feign采用了通过处理注解来自动生成请求的方式（官方称呼为<code>声明式</code>、<code>模板化</code>）。因此，基于feign编写的http客户端画风看起来是这样的</p>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token keyword">interface</span> <span class="token class-name">Bank</span> <span class="token punctuation">{</span>
+  <span class="token annotation punctuation">@RequestLine</span><span class="token punctuation">(</span><span class="token string">"POST /account/{id}"</span><span class="token punctuation">)</span>
+  Account <span class="token function">getAccountInfo</span><span class="token punctuation">(</span><span class="token annotation punctuation">@Param</span><span class="token punctuation">(</span><span class="token string">"id"</span><span class="token punctuation">)</span> String id<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+<p>然后通过一系列操作可以为Bank接口在运行时自动生成对应的实现。通过这个实现我们就可以在java中像调用一个本地方法一样完成一次http请求，大大减少了编码成本，同时提高了代码可读性。</p>
+<h2 id="spring-cloud-openfeign"><a href="#spring-cloud-openfeign" class="headerlink" title="spring-cloud-openfeign"></a>spring-cloud-openfeign</h2><p>spring-cloud-feign基于自动配置功能（autoconfiguration），为spring boot应用提供openfiegn的集成：</p>
+<ul>
+<li>支持通过<code>JAX-RS</code>或<code>Spring MVC annotations</code>来构建feign client</li>
+<li>自动使用Spring MVC的<code>HttpMessageConverters</code>来完成序列化反序列化</li>
+<li>集成了<code>ribbon</code>和<code>hystrix</code>，只要在项目中引入相关的依赖即可立即使用</li>
+<li>无需任何配置，开箱即用，秉承了spring-boot一贯的作风。</li>
+</ul>
+<blockquote>
+<p><a href="https://github.com/spring-cloud/spring-cloud-openfeign/blob/master/docs/src/main/asciidoc/spring-cloud-openfeign.adoc" target="_blank" rel="noopener">官方文档参考</a></p>
+</blockquote>
+<h1 id="常见问题及解决方案"><a href="#常见问题及解决方案" class="headerlink" title="常见问题及解决方案"></a>常见问题及解决方案</h1><h2 id="处理响应数据的通用部分"><a href="#处理响应数据的通用部分" class="headerlink" title="处理响应数据的通用部分"></a>处理响应数据的通用部分</h2><p>api响应数据格式，一般而言除实际的业务数据外是固定的格式，其中包括了对此次请求的处理信息描述。对于这部分数据，应由feign进行统一处理。</p>
+<h3 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h3><p>feignclient是通过Decoder来对请求响应进行处理的，因此可以使用自定义的Decoder来处理响应数据的通用部分。</p>
+<p>例如可以定义一个<code>UnwrapRestfulApiResponseSpringDecoder</code>来对<code>RestfulApiResponse</code>进行自动拆包操作，并通过<code>@FeignClient</code>的<code>configuration</code>属性配置其使用的Decoder。</p>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token annotation punctuation">@FeignClient</span><span class="token punctuation">(</span>name <span class="token operator">=</span> AuthCenter<span class="token punctuation">.</span>SERVICE_NAME<span class="token punctuation">,</span> path <span class="token operator">=</span> RMIPath<span class="token punctuation">.</span>USER<span class="token punctuation">,</span> configuration <span class="token operator">=</span> TenantUserClient<span class="token punctuation">.</span>Configuration<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">)</span>
+<span class="token keyword">public</span> <span class="token keyword">interface</span> <span class="token class-name">TenantUserClient</span> <span class="token punctuation">{</span>
+    <span class="token keyword">class</span> <span class="token class-name">Configuration</span> <span class="token punctuation">{</span>
+        <span class="token annotation punctuation">@Autowired</span>
+        <span class="token keyword">private</span> ObjectFactory<span class="token operator">&lt;</span>HttpMessageConverters<span class="token operator">></span> messageConverters<span class="token punctuation">;</span>
+
+        <span class="token annotation punctuation">@Bean</span>
+        <span class="token keyword">public</span> Decoder <span class="token function">feignDecoder</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">return</span> <span class="token keyword">new</span> <span class="token class-name">ResponseEntityDecoder</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">UnwrapRestfulApiResponseSpringDecoder</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span>messageConverters<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h2 id="本地调用需要注册到注册中心导致服务不可用的问题"><a href="#本地调用需要注册到注册中心导致服务不可用的问题" class="headerlink" title="本地调用需要注册到注册中心导致服务不可用的问题"></a>本地调用需要注册到注册中心导致服务不可用的问题</h2><p>在实际开发过程中，有时会出现需要在本地调用远程服务来进行调试的情况，此时我们需要将本地的应用注册到注册中心。而一旦这样做，会导致该服务存在多个节点（一个远程一个本地），从而导致依赖该服务的应用软负载均衡负载到本地节点时会失败。</p>
+<h3 id="解决方案-1"><a href="#解决方案-1" class="headerlink" title="解决方案"></a>解决方案</h3><h4 id="1-不通过注册中心获取信息，使用直接指定url的方式调用（✘不推荐）"><a href="#1-不通过注册中心获取信息，使用直接指定url的方式调用（✘不推荐）" class="headerlink" title="1. 不通过注册中心获取信息，使用直接指定url的方式调用（✘不推荐）"></a>1. 不通过注册中心获取信息，使用直接指定url的方式调用（✘不推荐）</h4><p><strong>参考代码</strong></p>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token annotation punctuation">@FeignClient</span><span class="token punctuation">(</span>name <span class="token operator">=</span> <span class="token string">"sysinfo-service"</span> <span class="token punctuation">,</span>url <span class="token operator">=</span> <span class="token string">"http://49.4.7.72"</span><span class="token punctuation">,</span> path <span class="token operator">=</span> <span class="token string">"/"</span><span class="token punctuation">)</span>
+<span class="token keyword">public</span> <span class="token keyword">interface</span> <span class="token class-name">SysinfoClient</span> <span class="token punctuation">{</span>
+<span class="token punctuation">}</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<p>此方案优点是简单易用，但缺点也很明显：</p>
+<ol>
+<li>在应用实际上线时需要将调用方式修改为通过注册中心调用，否则client将无法进行负载均衡，因此需要频繁改动代码</li>
+<li>在特定环境下，即使忘记切换调用方式有时也不影响client的使用，会将问题隐藏，埋下隐患</li>
+<li>并没有与其它服务真正地解耦，一旦依赖的服务故障就会导致本地开发无法进行</li>
+</ol>
+<p>由于存在上述缺点，现一般<strong>不推荐</strong>使用该方案。</p>
+<h4 id="2-使用打桩的方式与远程服务解耦（✔推荐）"><a href="#2-使用打桩的方式与远程服务解耦（✔推荐）" class="headerlink" title="2. 使用打桩的方式与远程服务解耦（✔推荐）"></a>2. 使用打桩的方式与远程服务解耦（✔推荐）</h4><p>大致思路为，通过Spring的<code>@Profile</code>注解，在不同的环境为应用注册不同的client bean（例如在本地环境使用Hard Code bean，而在非本地环境则使用远程调用的client bean）。</p>
+<p><strong>参考代码</strong><br><strong>ClientConfiguration.java</strong></p>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token annotation punctuation">@EnableAuthClient</span>
+<span class="token annotation punctuation">@EnableFeignClients</span><span class="token punctuation">(</span>basePackages <span class="token operator">=</span> <span class="token string">"com.cheegu.icm.biz.foo.client"</span><span class="token punctuation">)</span>
+<span class="token annotation punctuation">@Configuration</span>
+<span class="token annotation punctuation">@Profile</span><span class="token punctuation">(</span><span class="token punctuation">{</span>SpringProfiles<span class="token punctuation">.</span>DEV<span class="token punctuation">,</span> SpringProfiles<span class="token punctuation">.</span>TEST<span class="token punctuation">,</span> SpringProfiles<span class="token punctuation">.</span>PROD<span class="token punctuation">}</span><span class="token punctuation">)</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">ClientConfiguration</span> <span class="token punctuation">{</span>
+<span class="token punctuation">}</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p><strong>MockClientConfiguration.java</strong></p>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token annotation punctuation">@Configuration</span>
+<span class="token annotation punctuation">@Profile</span><span class="token punctuation">(</span>SpringProfiles<span class="token punctuation">.</span>LOCAL<span class="token punctuation">)</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">MockClientConfiguration</span> <span class="token punctuation">{</span>
+    <span class="token annotation punctuation">@Bean</span>
+    <span class="token keyword">public</span> SysinfoClient <span class="token function">sysinfoClient</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> <span class="token keyword">new</span> <span class="token class-name">SysinfoClient</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token annotation punctuation">@Override</span>
+            <span class="token keyword">public</span> UserInfoDto <span class="token function">user</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                <span class="token keyword">return</span> <span class="token keyword">new</span> <span class="token class-name">UserInfoDto</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+
+            <span class="token annotation punctuation">@Override</span>
+            <span class="token keyword">public</span> TableData<span class="token operator">&lt;</span>UserRowDto<span class="token operator">></span> <span class="token function">users</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                <span class="token keyword">return</span> TableData<span class="token punctuation">.</span><span class="token function">empty</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token annotation punctuation">@Bean</span>
+    <span class="token keyword">public</span> TenantUserClient <span class="token function">tenantUserClient</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> <span class="token keyword">new</span> <span class="token class-name">TenantUserClient</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token annotation punctuation">@Override</span>
+            <span class="token keyword">public</span> List<span class="token operator">&lt;</span>ResourceInfoDto<span class="token operator">></span> <span class="token function">listMyAlResource</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                <span class="token keyword">return</span> <span class="token keyword">new</span> <span class="token class-name">ArrayList</span><span class="token operator">&lt;</span><span class="token operator">></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h2 id="如何在调用时带上请求头"><a href="#如何在调用时带上请求头" class="headerlink" title="如何在调用时带上请求头"></a>如何在调用时带上请求头</h2><p>在使用客户端进行调用时，有时会需要带上某些请求头（例如认证token），但又不希望在代码中手动去做这些操作。</p>
+<h3 id="解决方案-2"><a href="#解决方案-2" class="headerlink" title="解决方案"></a>解决方案</h3><p>可以通过实现feign提供的<code>RequestInterceptor</code>接口来对请求进行切面处理。这样每次通过client发起请求时都会由feign interceptor进行拦截，为请求添加headers。</p>
+<p><strong>参考代码</strong></p>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token annotation punctuation">@Configuration</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">AppConfiguration</span> <span class="token keyword">implements</span> <span class="token class-name">EnvironmentAware</span> <span class="token punctuation">{</span>
+    <span class="token keyword">private</span> Environment environment<span class="token punctuation">;</span>
+
+    <span class="token annotation punctuation">@Bean</span>
+    <span class="token keyword">public</span> AuthorizationInfoForwardingInterceptor <span class="token function">authorizationInfoForwardingInterceptor</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token comment" spellcheck="true">//这个interceptor会为请求自动带上认证token</span>
+        <span class="token keyword">return</span> <span class="token keyword">new</span> <span class="token class-name">AuthorizationInfoForwardingInterceptor</span><span class="token punctuation">(</span>environment<span class="token punctuation">.</span><span class="token function">getProperty</span><span class="token punctuation">(</span><span class="token string">"spring.application.name"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token annotation punctuation">@Override</span>
+    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">setEnvironment</span><span class="token punctuation">(</span>Environment environment<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span>environment <span class="token operator">=</span> environment<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h2 id="指定了get方法，但feign仍然使用了post方法进行请求"><a href="#指定了get方法，但feign仍然使用了post方法进行请求" class="headerlink" title="指定了get方法，但feign仍然使用了post方法进行请求"></a>指定了get方法，但feign仍然使用了post方法进行请求</h2><p>如下代码所示</p>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token annotation punctuation">@FeignClient</span><span class="token punctuation">(</span><span class="token string">"microservice-provider-user"</span><span class="token punctuation">)</span>
+<span class="token keyword">public</span> <span class="token keyword">interface</span> <span class="token class-name">UserFeignClient</span> <span class="token punctuation">{</span>
+  <span class="token annotation punctuation">@RequestMapping</span><span class="token punctuation">(</span>value <span class="token operator">=</span> <span class="token string">"/get"</span><span class="token punctuation">,</span> method <span class="token operator">=</span> RequestMethod<span class="token punctuation">.</span>GET<span class="token punctuation">)</span>
+  <span class="token keyword">public</span> User <span class="token function">get0</span><span class="token punctuation">(</span>User user<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>通过<code>@RequestMapping</code>的method属性指定了请求方法为GET，但实际运行会发现feign仍然使用了POST方法进行了调用。</p>
+<h3 id="解决方案-3"><a href="#解决方案-3" class="headerlink" title="解决方案"></a>解决方案</h3><p>这种写法并不正确，正确写法有二：</p>
+<h4 id="1-通过-RequestParam指定url参数名"><a href="#1-通过-RequestParam指定url参数名" class="headerlink" title="1. 通过@RequestParam指定url参数名"></a>1. 通过@RequestParam指定url参数名</h4><pre class="line-numbers language-java"><code class="language-java"><span class="token annotation punctuation">@FeignClient</span><span class="token punctuation">(</span>name <span class="token operator">=</span> <span class="token string">"microservice-provider-user"</span><span class="token punctuation">)</span>
+<span class="token keyword">public</span> <span class="token keyword">interface</span> <span class="token class-name">UserFeignClient</span> <span class="token punctuation">{</span>
+  <span class="token annotation punctuation">@RequestMapping</span><span class="token punctuation">(</span>value <span class="token operator">=</span> <span class="token string">"/get"</span><span class="token punctuation">,</span> method <span class="token operator">=</span> RequestMethod<span class="token punctuation">.</span>GET<span class="token punctuation">)</span>
+  <span class="token keyword">public</span> User <span class="token function">get1</span><span class="token punctuation">(</span><span class="token annotation punctuation">@RequestParam</span><span class="token punctuation">(</span><span class="token string">"id"</span><span class="token punctuation">)</span> Long id<span class="token punctuation">,</span> <span class="token annotation punctuation">@RequestParam</span><span class="token punctuation">(</span><span class="token string">"username"</span><span class="token punctuation">)</span> String username<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h4 id="2-当目标url参数较多时，可使用map来构建"><a href="#2-当目标url参数较多时，可使用map来构建" class="headerlink" title="2. 当目标url参数较多时，可使用map来构建"></a>2. 当目标url参数较多时，可使用map来构建</h4><pre class="line-numbers language-java"><code class="language-java"><span class="token annotation punctuation">@FeignClient</span><span class="token punctuation">(</span>name <span class="token operator">=</span> <span class="token string">"microservice-provider-user"</span><span class="token punctuation">)</span>
+<span class="token keyword">public</span> <span class="token keyword">interface</span> <span class="token class-name">UserFeignClient</span> <span class="token punctuation">{</span>
+  <span class="token annotation punctuation">@RequestMapping</span><span class="token punctuation">(</span>value <span class="token operator">=</span> <span class="token string">"/get"</span><span class="token punctuation">,</span> method <span class="token operator">=</span> RequestMethod<span class="token punctuation">.</span>GET<span class="token punctuation">)</span>
+  <span class="token keyword">public</span> User <span class="token function">get2</span><span class="token punctuation">(</span><span class="token annotation punctuation">@RequestParam</span> Map<span class="token operator">&lt;</span>String<span class="token punctuation">,</span> Object<span class="token operator">></span> map<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h2 id="使用MultipartFile类型作为请求参数"><a href="#使用MultipartFile类型作为请求参数" class="headerlink" title="使用MultipartFile类型作为请求参数"></a>使用MultipartFile类型作为请求参数</h2><p>有时对外提供的接口调用可能需要传送文件，此时需要对<code>MultipartFile</code>类型的参数进行处理</p>
+<h3 id="解决方案-4"><a href="#解决方案-4" class="headerlink" title="解决方案"></a>解决方案</h3><p><strong>待补充</strong></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="https://taccisum.github.io/outbound_rule_invalid_cause_by_urlrewritefilter_and_shirofilter.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1946,506 +2335,10 @@ Rules
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://taccisum.github.io/interpreter_pattern_in_action.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="taccisum">
-      <meta itemprop="description" content="el psy congroo.">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Taccisum's blog 😉">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/interpreter_pattern_in_action.html" class="post-title-link" itemprop="url">解释器模式实践</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2017-09-25 17:12:13" itemprop="dateCreated datePublished" datetime="2017-09-25T17:12:13+08:00">2017-09-25</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-03-13 18:05:01" itemprop="dateModified" datetime="2020-03-13T18:05:01+08:00">2020-03-13</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/java/" itemprop="url" rel="index"><span itemprop="name">java</span></a>
-                </span>
-                  , 
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/java/设计模式/" itemprop="url" rel="index"><span itemprop="name">设计模式</span></a>
-                </span>
-            </span>
-
-          
-            <span id="/interpreter_pattern_in_action.html" class="post-meta-item leancloud_visitors" data-flag-title="解释器模式实践" title="Views">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">Views: </span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Valine: </span>
-    
-    <a title="valine" href="/interpreter_pattern_in_action.html#valine-comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/interpreter_pattern_in_action.html" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="源码地址"><a href="#源码地址" class="headerlink" title="源码地址"></a>源码地址</h2><p><a href="https://github.com/taccisum/interpreter_pattern" target="_blank" rel="noopener">Github</a></p>
-<h2 id="关于解释器模式"><a href="#关于解释器模式" class="headerlink" title="关于解释器模式"></a>关于解释器模式</h2><p>解释器模式是行为型模式的一种，关于解释器模式的定义从网上摘抄了一段</p>
-<blockquote>
-<p>给定一种语言，并定义代表其文法的相应解释器，并用该解释器来解析使用该语言的编写的内容<br><a href="http://java-design-patterns.com/patterns/interpreter/" target="_blank" rel="noopener">JAVA Design pattern</a></p>
-</blockquote>
-<p>其中的关键字有，<code>语言文法</code>、<code>解释器</code>。</p>
-<ul>
-<li>语言文法，如：下面要提到的<code>四则运算表达式</code>、我们日常使用的各种<code>编程语言</code>、类英语语法的<code>SQL</code>语言、一些框架里面的特定语言（如Spring的SpEL）等等，都是具有固定文法的语言，这意味着这些语言均可以用解释器模式来解析。当然，除此之外你也可以根据你的需求自己创造一种语言。</li>
-<li>解释器，用于让计算机『认识』这些语言的工具，需要由我们程序员编码实现。越复杂的语言文法，其相应的解释器实现难度越大，比如人类的『自然语言』。</li>
-</ul>
-<h2 id="UML图"><a href="#UML图" class="headerlink" title="UML图"></a>UML图</h2><blockquote>
-<p><img src="http://java-design-patterns.com/patterns/interpreter/etc/interpreter_1.png" alt=""><br><a href="http://java-design-patterns.com/patterns/interpreter/" target="_blank" rel="noopener">JAVA Design pattern</a></p>
-</blockquote>
-<p>其实并不算复杂（因为解释器模式最复杂的部分在于将语言解析为对象的过程，稍后的实践中可以看到），跟组合模式的UML图有点相像（同为树型数据结构），下面是两个比较重要的类：</p>
-<p><strong>NumberExpression</strong>: 数值表达式（也称<code>终结点表达式</code>，意为表达式解析的终结点，可以简单理解为树型结构的叶子节点），执行interpret()一般会得到一个常量供复合表达式计算</p>
-<p><strong>MultiplyExpression</strong>: 复合表达式（也称<code>非终结点表达式</code>，可以简单理解为树型结构的枝节点），一般包括一个或多个Expression类型的子节点，子节点数即代表该复合表达式的操作数数量，执行interpret()一般会得到其子节点互相作用后的结果</p>
-<h2 id="编码实践"><a href="#编码实践" class="headerlink" title="编码实践"></a>编码实践</h2><p>为了节省篇幅，这里只贴出部分重要代码，完整代码可从开头的源码地址下载。</p>
-<h3 id="简单四则运算"><a href="#简单四则运算" class="headerlink" title="简单四则运算"></a>简单四则运算</h3><h4 id="单元测试类"><a href="#单元测试类" class="headerlink" title="单元测试类"></a>单元测试类</h4><pre class="line-numbers language-text"><code class="language-text">cn.tac.test.interpreter.arithmetic.simple.SimpleCalculatorTest
-<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-<h4 id="实现效果"><a href="#实现效果" class="headerlink" title="实现效果"></a>实现效果</h4><p>支持最简单的四则运算，不支持括弧运算，不支持优先级运算符。因为语言文法较简单，所以解析器较易实现，适合作为Hello World。</p>
-<h4 id="相关类"><a href="#相关类" class="headerlink" title="相关类"></a>相关类</h4><p><strong>Node</strong>: 即Expression</p>
-<pre class="line-numbers language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">interface</span> <span class="token class-name">Node</span> <span class="token punctuation">{</span>
-    <span class="token keyword">int</span> <span class="token function">interpret</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-<span class="token punctuation">}</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
-<p><strong>ValueNode</strong>: 即NumberExpression，代表操作数</p>
-<pre class="line-numbers language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">abstract</span> <span class="token keyword">class</span> <span class="token class-name">ValueNode</span> <span class="token keyword">implements</span> <span class="token class-name">Node</span><span class="token punctuation">{</span>
-    <span class="token keyword">protected</span> <span class="token keyword">int</span> value<span class="token punctuation">;</span>
-    <span class="token keyword">public</span> <span class="token function">ValueNode</span><span class="token punctuation">(</span><span class="token keyword">int</span> value<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        <span class="token keyword">this</span><span class="token punctuation">.</span>value <span class="token operator">=</span> value<span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-<span class="token punctuation">}</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p><strong>SymbolNode</strong>: 即MultiplyExpression，代表运算符（如+-*/），因为均为<code>二元操作符</code>，所以只有两个子节点</p>
-<pre class="line-numbers language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">abstract</span> <span class="token keyword">class</span> <span class="token class-name">SymbolNode</span> <span class="token keyword">implements</span> <span class="token class-name">Node</span> <span class="token punctuation">{</span>
-    <span class="token keyword">protected</span> Node left<span class="token punctuation">;</span>
-    <span class="token keyword">protected</span> Node right<span class="token punctuation">;</span>
-    <span class="token keyword">public</span> <span class="token function">SymbolNode</span><span class="token punctuation">(</span>Node left<span class="token punctuation">,</span> Node right<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        <span class="token keyword">this</span><span class="token punctuation">.</span>left <span class="token operator">=</span> left<span class="token punctuation">;</span>
-        <span class="token keyword">this</span><span class="token punctuation">.</span>right <span class="token operator">=</span> right<span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-<span class="token punctuation">}</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p><strong>SimpleValueNode</strong>: 简单地返回数值本身</p>
-<pre class="line-numbers language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">SimpleValueNode</span> <span class="token keyword">extends</span> <span class="token class-name">ValueNode</span> <span class="token punctuation">{</span>
-    <span class="token keyword">public</span> <span class="token function">SimpleValueNode</span><span class="token punctuation">(</span><span class="token keyword">int</span> value<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        <span class="token keyword">super</span><span class="token punctuation">(</span>value<span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-    <span class="token keyword">public</span> <span class="token keyword">int</span> <span class="token function">interpret</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        <span class="token keyword">return</span> value<span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-<span class="token punctuation">}</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p><strong>运算符节点</strong>: 代表+-*/</p>
-<pre class="line-numbers language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">PlusNode</span> <span class="token keyword">extends</span> <span class="token class-name">SymbolNode</span> <span class="token punctuation">{</span>
-    <span class="token keyword">public</span> <span class="token function">PlusNode</span><span class="token punctuation">(</span>Node left<span class="token punctuation">,</span> Node right<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        <span class="token keyword">super</span><span class="token punctuation">(</span>left<span class="token punctuation">,</span> right<span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-    <span class="token keyword">public</span> <span class="token keyword">int</span> <span class="token function">interpret</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        <span class="token keyword">return</span> left<span class="token punctuation">.</span><span class="token function">interpret</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">+</span> right<span class="token punctuation">.</span><span class="token function">interpret</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-<span class="token punctuation">}</span>
-<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">MinusNode</span> extend SymbolNode<span class="token punctuation">{</span>……<span class="token punctuation">}</span>
-<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">MulNode</span> extend SymbolNode<span class="token punctuation">{</span>……<span class="token punctuation">}</span>
-<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">DivNode</span> extend SymbolNode<span class="token punctuation">{</span>……<span class="token punctuation">}</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p><strong>Parser</strong>:</p>
-<pre class="line-numbers language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">Parser</span> <span class="token punctuation">{</span>
-    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">final</span> String SPLITTER <span class="token operator">=</span> <span class="token string">" "</span><span class="token punctuation">;</span>  <span class="token comment" spellcheck="true">//为了方便解析，用空格将表达式分隔开</span>
-    <span class="token keyword">public</span> Node <span class="token function">parse</span><span class="token punctuation">(</span>String statement<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        String<span class="token punctuation">[</span><span class="token punctuation">]</span> arr <span class="token operator">=</span> statement<span class="token punctuation">.</span><span class="token function">split</span><span class="token punctuation">(</span>SPLITTER<span class="token punctuation">)</span><span class="token punctuation">;</span>
-        LinkedList<span class="token operator">&lt;</span>Node<span class="token operator">></span> nodeStack <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">LinkedList</span><span class="token operator">&lt;</span><span class="token operator">></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-
-        <span class="token keyword">boolean</span> symbolFlag <span class="token operator">=</span> <span class="token boolean">false</span><span class="token punctuation">;</span>
-        String symbol <span class="token operator">=</span> <span class="token string">""</span><span class="token punctuation">;</span>
-        <span class="token keyword">for</span> <span class="token punctuation">(</span>String item <span class="token operator">:</span> arr<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-            <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">isSymbolNode</span><span class="token punctuation">(</span>item<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-                symbol <span class="token operator">=</span> item<span class="token punctuation">;</span>
-                symbolFlag <span class="token operator">=</span> <span class="token boolean">true</span><span class="token punctuation">;</span>
-            <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">isValueNode</span><span class="token punctuation">(</span>item<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-                nodeStack<span class="token punctuation">.</span><span class="token function">push</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">SimpleValueNode</span><span class="token punctuation">(</span>Integer<span class="token punctuation">.</span><span class="token function">parseInt</span><span class="token punctuation">(</span>item<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-                <span class="token keyword">if</span> <span class="token punctuation">(</span>symbolFlag<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-                    Node right <span class="token operator">=</span> nodeStack<span class="token punctuation">.</span><span class="token function">pop</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>    <span class="token comment" spellcheck="true">//后入先出</span>
-                    Node left <span class="token operator">=</span> nodeStack<span class="token punctuation">.</span><span class="token function">pop</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-                    nodeStack<span class="token punctuation">.</span><span class="token function">push</span><span class="token punctuation">(</span><span class="token function">mapSymbolNode</span><span class="token punctuation">(</span>left<span class="token punctuation">,</span> right<span class="token punctuation">,</span> symbol<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-                    symbolFlag <span class="token operator">=</span> <span class="token boolean">false</span><span class="token punctuation">;</span>                    
-                <span class="token punctuation">}</span>
-            <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
-                <span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">RuntimeException</span><span class="token punctuation">(</span><span class="token string">"表达式格式有误"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-            <span class="token punctuation">}</span>
-        <span class="token punctuation">}</span>
-
-        <span class="token keyword">return</span> nodeStack<span class="token punctuation">.</span><span class="token function">pop</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-    ……
-<span class="token punctuation">}</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p><strong>Calculator</strong>: </p>
-<pre class="line-numbers language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">SimpleCalculator</span> <span class="token punctuation">{</span>
-    <span class="token keyword">public</span> <span class="token keyword">int</span> <span class="token function">calculate</span><span class="token punctuation">(</span>String statement<span class="token punctuation">)</span><span class="token punctuation">{</span>
-        Parser parser <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Parser</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token keyword">return</span> parser<span class="token punctuation">.</span><span class="token function">parse</span><span class="token punctuation">(</span>statement<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">interpret</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-<span class="token punctuation">}</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<h5 id="Parser解析过程"><a href="#Parser解析过程" class="headerlink" title="Parser解析过程"></a>Parser解析过程</h5><ol>
-<li>将表达式分割为数组，并遍历</li>
-<li>从数组中获取一个元素，若为数值，则直接转换为节点并入栈；若为运算符，则只进行标记，等待下一个节点入栈后，将其与上一个节点一同取出，并合并为一个复合表达式节点入栈；</li>
-<li>反复执行步骤2，直到数组末尾</li>
-<li>将栈中的元素pop并返回（如果表达式无误，最终栈中应该只有一个元素，否则应该在解析过程中抛出异常）</li>
-</ol>
-<h3 id="完整四则运算"><a href="#完整四则运算" class="headerlink" title="完整四则运算"></a>完整四则运算</h3><h4 id="单元测试类-1"><a href="#单元测试类-1" class="headerlink" title="单元测试类"></a>单元测试类</h4><pre class="line-numbers language-java"><code class="language-java">cn<span class="token punctuation">.</span>tac<span class="token punctuation">.</span>test<span class="token punctuation">.</span>interpreter<span class="token punctuation">.</span>arithmetic<span class="token punctuation">.</span>full<span class="token punctuation">.</span>FullCalculatorTest
-cn<span class="token punctuation">.</span>tac<span class="token punctuation">.</span>test<span class="token punctuation">.</span>interpreter<span class="token punctuation">.</span>arithmetic<span class="token punctuation">.</span>full<span class="token punctuation">.</span>ParserTest
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
-<h4 id="实现效果-1"><a href="#实现效果-1" class="headerlink" title="实现效果"></a>实现效果</h4><p>支持完整的四则运算，包括括弧运算，优先级运算。由于相较于上一个实践文法上复杂了许多，不能用同样的方式直接解析，而是应该先转换为<code>后缀表达式</code>再进行解析。</p>
-<h4 id="后缀表达式"><a href="#后缀表达式" class="headerlink" title="后缀表达式"></a>后缀表达式</h4><p>// todo::</p>
-<h4 id="相关类-1"><a href="#相关类-1" class="headerlink" title="相关类"></a>相关类</h4><p><strong>节点</strong><br>值节点和运算符节点类仍采用和上个实践相同的类。</p>
-<p><strong>Parser</strong></p>
-<pre class="line-numbers language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">Parser</span> <span class="token punctuation">{</span>
-    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">final</span> String SPLITTER <span class="token operator">=</span> <span class="token string">" "</span><span class="token punctuation">;</span>
-
-    <span class="token keyword">public</span> Node <span class="token function">parse</span><span class="token punctuation">(</span>String statement<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        LinkedList<span class="token operator">&lt;</span>Node<span class="token operator">></span> stack <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">LinkedList</span><span class="token operator">&lt;</span><span class="token operator">></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        String<span class="token punctuation">[</span><span class="token punctuation">]</span> segments <span class="token operator">=</span> <span class="token function">convert2Postfix</span><span class="token punctuation">(</span>statement<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">split</span><span class="token punctuation">(</span>SPLITTER<span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token keyword">for</span> <span class="token punctuation">(</span>String segment <span class="token operator">:</span> segments<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-            <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">isValueNode</span><span class="token punctuation">(</span>segment<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-                stack<span class="token punctuation">.</span><span class="token function">push</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">SimpleValueNode</span><span class="token punctuation">(</span>Integer<span class="token punctuation">.</span><span class="token function">parseInt</span><span class="token punctuation">(</span>segment<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-            <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">isOperator</span><span class="token punctuation">(</span>segment<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-                Node rightNode <span class="token operator">=</span> stack<span class="token punctuation">.</span><span class="token function">pop</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-                Node leftNode <span class="token operator">=</span> stack<span class="token punctuation">.</span><span class="token function">pop</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-                stack<span class="token punctuation">.</span><span class="token function">push</span><span class="token punctuation">(</span><span class="token function">doOperate</span><span class="token punctuation">(</span>leftNode<span class="token punctuation">,</span> rightNode<span class="token punctuation">,</span> segment<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-            <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
-                <span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">RuntimeException</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-            <span class="token punctuation">}</span>
-        <span class="token punctuation">}</span>
-        <span class="token keyword">return</span> stack<span class="token punctuation">.</span><span class="token function">pop</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-
-    <span class="token keyword">public</span> String <span class="token function">convert2Postfix</span><span class="token punctuation">(</span>String statement<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        LinkedList<span class="token operator">&lt;</span>String<span class="token operator">></span> symbolStack <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">LinkedList</span><span class="token operator">&lt;</span><span class="token operator">></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>    <span class="token comment" spellcheck="true">//临时存放符号节点的栈</span>
-        LinkedList<span class="token operator">&lt;</span>String<span class="token operator">></span> stack <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">LinkedList</span><span class="token operator">&lt;</span><span class="token operator">></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        String<span class="token punctuation">[</span><span class="token punctuation">]</span> nodes <span class="token operator">=</span> statement<span class="token punctuation">.</span><span class="token function">split</span><span class="token punctuation">(</span>SPLITTER<span class="token punctuation">)</span><span class="token punctuation">;</span>
-
-        <span class="token keyword">for</span> <span class="token punctuation">(</span>String node <span class="token operator">:</span> nodes<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-            <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">isSymbolNode</span><span class="token punctuation">(</span>node<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-                <span class="token keyword">if</span> <span class="token punctuation">(</span>symbolStack<span class="token punctuation">.</span><span class="token function">size</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">==</span> <span class="token number">0</span> <span class="token operator">||</span> <span class="token string">"("</span><span class="token punctuation">.</span><span class="token function">equals</span><span class="token punctuation">(</span>node<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-                    symbolStack<span class="token punctuation">.</span><span class="token function">push</span><span class="token punctuation">(</span>node<span class="token punctuation">)</span><span class="token punctuation">;</span>
-                <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">isOperator</span><span class="token punctuation">(</span>node<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-                    String topSymbol <span class="token operator">=</span> symbolStack<span class="token punctuation">.</span><span class="token function">peek</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-                    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">priority</span><span class="token punctuation">(</span>node<span class="token punctuation">)</span> <span class="token operator">&lt;=</span> <span class="token function">priority</span><span class="token punctuation">(</span>topSymbol<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-                        <span class="token keyword">while</span> <span class="token punctuation">(</span>symbolStack<span class="token punctuation">.</span><span class="token function">peek</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">!=</span> null<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-                            <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">priority</span><span class="token punctuation">(</span>symbolStack<span class="token punctuation">.</span><span class="token function">peek</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">&lt;</span> <span class="token function">priority</span><span class="token punctuation">(</span>node<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-                                <span class="token keyword">break</span><span class="token punctuation">;</span>
-                            <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
-                                stack<span class="token punctuation">.</span><span class="token function">push</span><span class="token punctuation">(</span>symbolStack<span class="token punctuation">.</span><span class="token function">pop</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-                            <span class="token punctuation">}</span>
-                        <span class="token punctuation">}</span>
-                    <span class="token punctuation">}</span>
-                    symbolStack<span class="token punctuation">.</span><span class="token function">push</span><span class="token punctuation">(</span>node<span class="token punctuation">)</span><span class="token punctuation">;</span>
-                <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token string">")"</span><span class="token punctuation">.</span><span class="token function">equals</span><span class="token punctuation">(</span>node<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-                    <span class="token keyword">while</span> <span class="token punctuation">(</span><span class="token operator">!</span><span class="token string">"("</span><span class="token punctuation">.</span><span class="token function">equals</span><span class="token punctuation">(</span>symbolStack<span class="token punctuation">.</span><span class="token function">peek</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-                        stack<span class="token punctuation">.</span><span class="token function">push</span><span class="token punctuation">(</span>symbolStack<span class="token punctuation">.</span><span class="token function">pop</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-                    <span class="token punctuation">}</span>
-                    symbolStack<span class="token punctuation">.</span><span class="token function">pop</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-                <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
-                    <span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">RuntimeException</span><span class="token punctuation">(</span><span class="token string">"不支持的运算符"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-                <span class="token punctuation">}</span>
-            <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">isValueNode</span><span class="token punctuation">(</span>node<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-                stack<span class="token punctuation">.</span><span class="token function">push</span><span class="token punctuation">(</span>node<span class="token punctuation">)</span><span class="token punctuation">;</span>
-            <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
-                <span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">RuntimeException</span><span class="token punctuation">(</span><span class="token string">"不支持的运算符"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-            <span class="token punctuation">}</span>
-        <span class="token punctuation">}</span>
-
-        <span class="token comment" spellcheck="true">//到数组尾部后，还有一些符号在栈内</span>
-        <span class="token keyword">while</span> <span class="token punctuation">(</span>symbolStack<span class="token punctuation">.</span><span class="token function">peek</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">!=</span> null<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-            stack<span class="token punctuation">.</span><span class="token function">push</span><span class="token punctuation">(</span>symbolStack<span class="token punctuation">.</span><span class="token function">pop</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token punctuation">}</span>
-
-        StringBuilder sb <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">StringBuilder</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        String tmp<span class="token punctuation">;</span>
-        <span class="token keyword">while</span> <span class="token punctuation">(</span><span class="token function">isNull</span><span class="token punctuation">(</span>tmp <span class="token operator">=</span> stack<span class="token punctuation">.</span><span class="token function">pollLast</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-            sb<span class="token punctuation">.</span><span class="token function">append</span><span class="token punctuation">(</span>tmp<span class="token punctuation">)</span><span class="token punctuation">;</span>
-            sb<span class="token punctuation">.</span><span class="token function">append</span><span class="token punctuation">(</span>SPLITTER<span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token punctuation">}</span>
-        <span class="token keyword">return</span> sb<span class="token punctuation">.</span><span class="token function">toString</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">trim</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-    ……
-<span class="token punctuation">}</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p><strong>Calculator</strong></p>
-<pre class="line-numbers language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">FullCalculator</span> <span class="token punctuation">{</span>
-    <span class="token keyword">public</span> <span class="token keyword">int</span> <span class="token function">calculate</span><span class="token punctuation">(</span>String statement<span class="token punctuation">)</span><span class="token punctuation">{</span>
-        Parser parser <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Parser</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token keyword">return</span> parser<span class="token punctuation">.</span><span class="token function">parse</span><span class="token punctuation">(</span>statement<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">interpret</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-<span class="token punctuation">}</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<h5 id="Parser解析过程-1"><a href="#Parser解析过程-1" class="headerlink" title="Parser解析过程"></a>Parser解析过程</h5><p>主要分为两大步骤<br><strong>一、将中缀表达式转换为后缀表达式</strong></p>
-<ol>
-<li>将表达式分割为数组，并遍历</li>
-<li>从数组中获取一个元素<ul>
-<li>若为数值，则直接入存放结果的栈，以下简称<code>结果栈</code></li>
-<li>若为符号，则判断<ul>
-<li>若符号栈目前为空，或该符号为左括弧”(“，则直接入临时存放符号的栈，以下简称<code>符号栈</code></li>
-<li>若当前符号为操作符（+-*/，不包括括弧），则从符号栈peek（<em>不是pop</em>）一个符号，比如两者优先级，若 当前符号优先级&lt;=从栈顶取出的符号优先级，则从符号栈pop一个符号并push至结果栈，直至 符号栈为空 or 栈顶符号优先级&lt;=当前符号优先级，然后将当前符号入符号栈。<em>这里需要注意的是，左右括弧也有优先级，且优先级应小于操作符，否则在这里需要单独处理pop时遇到左括弧的问题</em></li>
-<li>若为右括弧”)”，则将符号栈pop符号并push至结果栈，直到遇到左括弧（遇到后pop并丢弃）</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>反复执行步骤2，直到数组末尾</li>
-<li>到数组尾部后，多数情况都会有一些符号还留在符号栈内，应将其取出并push至结果栈</li>
-<li>将结果栈构建为字符串，并返回</li>
-</ol>
-<p><strong>二、将后缀解析为java对象</strong></p>
-<ol>
-<li>将表达式分割为数组，并遍历</li>
-<li>从数组中获取一个元素，若为数值，则直接转换成数值节点并入栈；若为操作符（转换成后缀表达式后已经没有括弧了），则从栈顶取出两个节点，并合并为一个复合表达式节点并入栈</li>
-<li>反复执行步骤2，直到数组末尾</li>
-<li>将栈中的元素pop并返回（如果表达式无误，最终栈中应该只有一个元素，否则应该在解析过程中抛出异常）</li>
-</ol>
-<p>当然，你也可以将这两个步骤合二为一，在转换的同时将其转换为java对象，但非实际应用中个人还是建议将两个步骤分离，原因有二：</p>
-<ul>
-<li>降低编码的复杂度</li>
-<li>方便进行单元测试（尤其是将后缀表达式转换为中缀表达式的步骤，比较容易出错）</li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://taccisum.github.io/about_java.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="taccisum">
-      <meta itemprop="description" content="el psy congroo.">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Taccisum's blog 😉">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/about_java.html" class="post-title-link" itemprop="url">关于java</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2017-09-25 16:25:28" itemprop="dateCreated datePublished" datetime="2017-09-25T16:25:28+08:00">2017-09-25</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-03-13 18:05:01" itemprop="dateModified" datetime="2020-03-13T18:05:01+08:00">2020-03-13</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/java/" itemprop="url" rel="index"><span itemprop="name">java</span></a>
-                </span>
-                  , 
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/java/jvm/" itemprop="url" rel="index"><span itemprop="name">jvm</span></a>
-                </span>
-            </span>
-
-          
-            <span id="/about_java.html" class="post-meta-item leancloud_visitors" data-flag-title="关于java" title="Views">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">Views: </span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Valine: </span>
-    
-    <a title="valine" href="/about_java.html#valine-comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/about_java.html" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="java体系"><a href="#java体系" class="headerlink" title="java体系"></a>java体系</h2><blockquote>
-<p>java不仅仅是一门编程语言，还是由一系列计算机软件和规范形成的技术体系。<br>这个体系提供了完整的用于软件开发和跨平台部署的支持环境。</p>
-</blockquote>
-<p><strong>Sun官方定义的java技术体系包括以下内容</strong>：  </p>
-<ol>
-<li>java程序设计语言</li>
-<li>各硬件平台上的java虚拟机（jvm）</li>
-<li>Class文件格式</li>
-<li>java api类库</li>
-<li>来自商业机构和开源社区的第三方类库</li>
-</ol>
-<p>以上1、2、4点统称为jdk，jdk是支持java程序开发的最小环境.<br>java api中的java se api子集和java虚拟机统称为jre，jre是java程序运行的最小环境.</p>
-<p>java除了一门优秀的编程语言外，还有许多不可忽视的优点：</p>
-<ul>
-<li>摆脱硬件平台束缚，实现跨平台</li>
-<li>内存管理，避免绝大部分内存泄露和指针越界问题</li>
-<li>热点代码检测和运行时编译及优化</li>
-<li>完善的应用程序编程接口及丰富、优秀的第三方类库</li>
-</ul>
-<p>java技术体系按照所服务的领域来划分，可以分为四大模块：<code>java card</code> <code>java se</code> <code>java me</code> <code>java ee</code></p>
-<h2 id="jdk发展史"><a href="#jdk发展史" class="headerlink" title="jdk发展史"></a>jdk发展史</h2><p>java语言前身：oak</p>
-<ul>
-<li>1995年，oak更名为java，同时sun正式提出”write once, run anywhere”的口号，标识着java正式诞生</li>
-<li>1996年，jdk1.0发布，并提供了一个纯解释性的java虚拟机（Sun Classic VM）</li>
-<li>1997年，jdk1.l发布，代表技术有：jdbc, rmi, java beans, .jar文件等</li>
-<li>1998年，jdk1.2发布，正式把java技术体系划分为3个方向：java se, java me, java ee，代表技术较多，如ejb, java pluin-in, swing等。java虚拟机中第一次内置了jit编译器，且附带了HotSpot作为备选</li>
-<li>2000年，jdk1.3发布，将HotSpot作为默认虚拟机，并提供jndi作为平台级服务，从此后Sun公司基本保持两年一个主版本的更新速度</li>
-<li>2002年，jdk1.4发布，标志着java正式走向成熟，代表技术有：正则表达式、异常链、nio、日志类、xml解析器等等</li>
-<li>2004年，jdk1.5(jdk5)发布，主要是对java语言的易用性方面做了改进</li>
-<li>2006年，jdk1.6(jdk6)发布，除了改进之外，Sun正式将java开源（GPL协议），并建立了OpenJDK组织对其进行管理<br>jdk1.7(jdk7)开发，Sun公司由于各种原因，最终无法按计划完成。2009年Oracle公司将其收购后，对jdk1.7的内容进行大幅度裁剪，并把剩余内容延迟到jdk1.8中。jdk1.7于2011年正式发布</li>
-<li>2013年，jdk1.8(jdk8)发布，加入了lambda表达式及函数式接口等支持</li>
-</ul>
-<h2 id="部分jvm介绍"><a href="#部分jvm介绍" class="headerlink" title="部分jvm介绍"></a>部分jvm介绍</h2><ul>
-<li><p>Sun Classic VMr</p>
-<ul>
-<li>Classic VM是Sun公司发布的第一款商用java虚拟机，作为默认虚拟机与jdk1.0绑定发布，技术较为原始</li>
-<li>在jdk1.2之前都是唯一存在的虚拟机</li>
-<li>只能使用纯解释器方式来运行java程序</li>
-<li>如果要使用JIT编译器，必须外挂</li>
-</ul>
-</li>
-<li><p>Exact VM</p>
-<ul>
-<li>为了解决Classic VM存在的各种问题而开发，在jdk1.2期间发布</li>
-<li>具备了现代高性能虚拟机的原型</li>
-<li>在商用只存在了短暂的时间后，即被更为优秀的HotSpot取代</li>
-</ul>
-</li>
-<li><p>Sun HotSpot VM</p>
-<ul>
-<li>是SunJDK及OpenJDK中所带的虚拟机，也是目前使用最广的虚拟机</li>
-<li>最初是由一家名为”Longview Teconologies”的小公司设计，在1997年该公司被Sun收购</li>
-<li>其即有Sun之前两款虚拟机的优点，也有许多自身的技术优势如热点代码探测能力</li>
-</ul>
-</li>
-<li><p>Sun Mobile-Embedded VM/Meta-Circular VM</p>
-<ul>
-<li>Sun公司针对移动和嵌入式市场的虚拟机</li>
-</ul>
-</li>
-<li><p>BEA JRockit</p>
-<ul>
-<li>一款专门为服务端硬件和服务端应用场景而专门优化的虚拟机</li>
-<li>不关注应用程序的启动速度，因而其内部不含解析器的实现，全部代码靠JIT编译运行</li>
-<li>除此之外，其垃圾收集器和MissionControl等服务套件的实现也一直在众多虚拟机中保持领先的水平</li>
-</ul>
-</li>
-<li><p>IBM J9 VM</p>
-</li>
-<li>Azul VM/BEA Liquid VM</li>
-<li>Apache Harmony/Google Android Dalvik VM</li>
-<li>Microsoft JVM</li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/2/"><i class="fa fa-angle-left" aria-label="Previous page"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span>
+    <a class="extend prev" rel="prev" href="/page/2/"><i class="fa fa-angle-left" aria-label="Previous page"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/4/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
   </nav>
 
 
@@ -2513,14 +2406,14 @@ cn<span class="token punctuation">.</span>tac<span class="token punctuation">.</
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">30</span>
+          <span class="site-state-item-count">32</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">24</span>
+        <span class="site-state-item-count">27</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
@@ -2559,7 +2452,7 @@ cn<span class="token punctuation">.</span>tac<span class="token punctuation">.</
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2022</span>
+  <span itemprop="copyrightYear">2023</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>

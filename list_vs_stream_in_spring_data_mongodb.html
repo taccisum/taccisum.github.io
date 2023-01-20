@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-5J42R3VH2D"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-5J42R3VH2D');
+</script>
+
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.7.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"taccisum.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="对比如果只是简单地用在接口返回，List 与 Stream 并没有差异例如以下两段代码，返回的结果是一样的 @GetMapping(&quot;list&quot;) public Object listAll() {     return repository.findAll(); }  @GetMapping(&quot;stream&quot;) public Object streamAll() {     return rep">
+<meta property="og:type" content="article">
+<meta property="og:title" content="List 与 Stream 在 Spring Data MongoDB 场景下的比较">
+<meta property="og:url" content="https://taccisum.github.io/list_vs_stream_in_spring_data_mongodb.html">
+<meta property="og:site_name" content="Taccisum&#39;s blog 😉">
+<meta property="og:description" content="对比如果只是简单地用在接口返回，List 与 Stream 并没有差异例如以下两段代码，返回的结果是一样的 @GetMapping(&quot;list&quot;) public Object listAll() {     return repository.findAll(); }  @GetMapping(&quot;stream&quot;) public Object streamAll() {     return rep">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="https://taccisum.github.io/images/list-vs-stream/pool_size1.png">
+<meta property="og:image" content="https://taccisum.github.io/images/list-vs-stream/pool_size5.png">
+<meta property="og:updated_time" content="2023-01-20T09:53:08.337Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="List 与 Stream 在 Spring Data MongoDB 场景下的比较">
+<meta name="twitter:description" content="对比如果只是简单地用在接口返回，List 与 Stream 并没有差异例如以下两段代码，返回的结果是一样的 @GetMapping(&quot;list&quot;) public Object listAll() {     return repository.findAll(); }  @GetMapping(&quot;stream&quot;) public Object streamAll() {     return rep">
+<meta name="twitter:image" content="https://taccisum.github.io/images/list-vs-stream/pool_size1.png">
+
+<link rel="canonical" href="https://taccisum.github.io/list_vs_stream_in_spring_data_mongodb.html">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>List 与 Stream 在 Spring Data MongoDB 场景下的比较 | Taccisum's blog 😉</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="stylesheet" href="/css/prism-ghcolors.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Taccisum's blog 😉</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://taccisum.github.io/list_vs_stream_in_spring_data_mongodb.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="taccisum">
+      <meta itemprop="description" content="el psy congroo.">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Taccisum's blog 😉">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          List 与 Stream 在 Spring Data MongoDB 场景下的比较
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2023-01-20 17:36:23 / Modified: 17:53:08" itemprop="dateCreated datePublished" datetime="2023-01-20T17:36:23+08:00">2023-01-20</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/middleware/" itemprop="url" rel="index"><span itemprop="name">middleware</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/middleware/mongodb/" itemprop="url" rel="index"><span itemprop="name">mongodb</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/middleware/mongodb/client/" itemprop="url" rel="index"><span itemprop="name">client</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/list_vs_stream_in_spring_data_mongodb.html" class="post-meta-item leancloud_visitors" data-flag-title="List 与 Stream 在 Spring Data MongoDB 场景下的比较" title="Views">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine: </span>
+    
+    <a title="valine" href="/list_vs_stream_in_spring_data_mongodb.html#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/list_vs_stream_in_spring_data_mongodb.html" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="对比"><a href="#对比" class="headerlink" title="对比"></a>对比</h2><p>如果只是简单地用在接口返回，List 与 Stream 并没有差异<br>例如以下两段代码，返回的结果是一样的</p>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token annotation punctuation">@GetMapping</span><span class="token punctuation">(</span><span class="token string">"list"</span><span class="token punctuation">)</span>
+<span class="token keyword">public</span> Object <span class="token function">listAll</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> repository<span class="token punctuation">.</span><span class="token function">findAll</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token annotation punctuation">@GetMapping</span><span class="token punctuation">(</span><span class="token string">"stream"</span><span class="token punctuation">)</span>
+<span class="token keyword">public</span> Object <span class="token function">streamAll</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> repository<span class="token punctuation">.</span><span class="token function">streamAllBy</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+<p>但如果你需要在业务逻辑中处理大量的数据，List 和 Stream 的差异就体现出来了。</p>
+<p>如果不用 Stream，在处理海量数据的时候，为了避免一次性将全部数据 Load 到内存导致内存溢出，一般我们会进行分页处理。但 skip &amp; limit 跳页会导致较低的的查询性能，因此一般我们会采用 lastId 配合索引的方式来进行分页，如下所示</p>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token keyword">final</span> <span class="token keyword">int</span> PAGE_SIZE <span class="token operator">=</span> <span class="token number">5000</span><span class="token punctuation">;</span>
+String lastId <span class="token operator">=</span> <span class="token string">'000000000000000000000000'</span><span class="token punctuation">;</span>
+
+List<span class="token operator">&lt;</span>MyDoc<span class="token operator">></span> rows <span class="token operator">=</span> repo<span class="token punctuation">.</span><span class="token function">findAllByGreaterThanId</span><span class="token punctuation">(</span>lastId<span class="token punctuation">,</span> PageRequest<span class="token punctuation">.</span><span class="token function">of</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> PAGE_SIZE<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">while</span> <span class="token punctuation">(</span>rows<span class="token punctuation">.</span><span class="token function">size</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">></span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">for</span> <span class="token punctuation">(</span>row in rows<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token comment" spellcheck="true">// do something for current row</span>
+    <span class="token punctuation">}</span>
+    <span class="token comment" spellcheck="true">// read next page</span>
+    lastId <span class="token operator">=</span> <span class="token function">lastOne</span><span class="token punctuation">(</span>rows<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getId</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    rows <span class="token operator">=</span> repo<span class="token punctuation">.</span><span class="token function">findAllByGreaterThanId</span><span class="token punctuation">(</span>lastId<span class="token punctuation">,</span> PageRequest<span class="token punctuation">.</span><span class="token function">of</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> PAGE_SIZE<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>但这种方式仍然存在一些问题：</p>
+<ol>
+<li>仍然会占用一些内存（取决于你设定的 PAGE SIZE），当然这不是什么大问题</li>
+<li>在等待传输完当前页数据的 I/O 期间，应用程序什么也干不了</li>
+<li>如果哪天要修改成多线程版本以提升处理效率，会有比较大的改动</li>
+<li>代码复杂度稍高</li>
+</ol>
+<p>相比之下，如果我们用 Stream 来处理，代码就简单多了</p>
+<pre class="line-numbers language-java"><code class="language-java">repo<span class="token punctuation">.</span><span class="token function">streamAllBy</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">forEach</span><span class="token punctuation">(</span>doc <span class="token operator">-</span><span class="token operator">></span> <span class="token punctuation">{</span>
+    <span class="token comment" spellcheck="true">// do something for cuurent row</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<p>如果要修改为并行版本也非常简单</p>
+<pre class="line-numbers language-java"><code class="language-java">repository<span class="token punctuation">.</span><span class="token function">streamAllBy</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">parallel</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">forEach</span><span class="token punctuation">(</span>doc <span class="token operator">-</span><span class="token operator">></span> <span class="token punctuation">{</span>
+    <span class="token comment" spellcheck="true">// do something for cuurent row</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<p><strong>Stream 的缺点：</strong></p>
+<ol>
+<li>批处理的场景下没有分页直观（例如滑动窗口），这点主要是 JDK8 缺乏支持，其它类似的框架如 RxJava 或 ProjectReactor 都是支持的，<a href="https://spring.io/blog/2016/11/28/going-reactive-with-spring-data" target="_blank" rel="noopener">Spring Data Reactive</a> 也有相关的支持（当然，学习成本也是很高。。）</li>
+<li>【实际与我猜想的不一样，见实测章节】Stream 处理任务的期间会持续占用一个连接，不利于资源的复用。相比之下 List 只有每次拉取页的 I/O 期间才占用连接（假如不加事务的话）。如果连接资源很紧张，使用 Stream 可能会出较大的问题</li>
+</ol>
+<h3 id="缺点-2-实测"><a href="#缺点-2-实测" class="headerlink" title="缺点 2 实测"></a>缺点 2 实测</h3><p>为了验证上述的缺点 2，我准备了一个简单的服务以及两个接口</p>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token annotation punctuation">@GetMapping</span><span class="token punctuation">(</span><span class="token string">"list"</span><span class="token punctuation">)</span>
+<span class="token keyword">public</span> Object <span class="token function">listAll</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> repository<span class="token punctuation">.</span><span class="token function">findAll</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token annotation punctuation">@GetMapping</span><span class="token punctuation">(</span><span class="token string">"stream"</span><span class="token punctuation">)</span>
+<span class="token keyword">public</span> Object <span class="token function">streamAll</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    repository<span class="token punctuation">.</span><span class="token function">streamAllBy</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">parallel</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">forEach</span><span class="token punctuation">(</span>doc <span class="token operator">-</span><span class="token operator">></span> <span class="token punctuation">{</span>
+        <span class="token keyword">try</span> <span class="token punctuation">{</span>
+            Thread<span class="token punctuation">.</span><span class="token function">sleep</span><span class="token punctuation">(</span><span class="token number">200</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">InterruptedException</span> e<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            e<span class="token punctuation">.</span><span class="token function">printStackTrace</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">return</span> <span class="token string">"ok"</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>其中，<code>/stream</code>接口中针对每条数据会 sleep 200ms 的时间以模拟慢操作（数据库中预先准备了 100 条数据，因此该接口需要执行约 20s 的时间），<code>/list</code>接口则只是简单的返回所有数据。我们通过交叉用这两个接口来观察应用中的连接使用情况</p>
+<ol>
+<li>我们先重启应用，确保连接池为空</li>
+<li>先调用<code>/list</code>接口，观察日志会发现 Spring Data Mongo 创建了一个连接</li>
+</ol>
+<pre><code>2023-01-20 17:09:19.576  INFO 77750 --- [nio-8080-exec-1] org.mongodb.driver.connection            : Opened connection [connectionId{localValue:2, serverValue:1859}] to 192.168.11.180:32017
+</code></pre><p>如果此时进入断点查看，会发现连接池数量为 1<br><img src="images/list-vs-stream/pool_size1.png" alt="pool size 1"><br>继续调用<code>/list</code>接口（非并发场景）会发现 Mongo Client 将一直复用此连接，不会创建新的连接。这符合连接池的设计机制</p>
+<ol start="3">
+<li>我们先调用<code>/stream</code>接口，在其处理期间再调用<code>/list</code>接口，如果如我们所猜想的一样 Stream 会长时间占用一个连接的话，那么我们在调用<code>/list</code>接口的时候 Mongo Client 应该会再创建一个连接用于处理查询才对</li>
+</ol>
+<p><strong>实际情况是：</strong>在我们<code>/stream</code>接口执行期间，调用<code>/list</code>接口并没有使得 Mongo Client 创建新的连接。打断点观察<code>ServerSessionPool</code>的可用连接数也会发现其仍然为 1。显然 Mongo Client 及 JDK Stream 底层是针对这种情况做过优化的，<strong>猜想被推翻</strong></p>
+<ol start="4">
+<li>为了证明在资源不够用的时候 Mongo Client 确实是会自动创建新的连接的，我们也用 ab 来做一个简单的压测</li>
+</ol>
+<p><strong>压测命令：</strong><code>ab -n 100 -c 5 &#39;localhost:8080/mongo/list&#39;</code><br>可以看到控制台输出了 4 个连接创建的事件</p>
+<pre><code>2023-01-20 17:19:42.172  INFO 77750 --- [nio-8080-exec-3] org.mongodb.driver.connection            : Opened connection [connectionId{localValue:6, serverValue:1865}] to 192.168.11.180:32017
+2023-01-20 17:19:42.172  INFO 77750 --- [nio-8080-exec-4] org.mongodb.driver.connection            : Opened connection [connectionId{localValue:5, serverValue:1863}] to 192.168.11.180:32017
+2023-01-20 17:19:42.172  INFO 77750 --- [nio-8080-exec-2] org.mongodb.driver.connection            : Opened connection [connectionId{localValue:4, serverValue:1864}] to 192.168.11.180:32017
+2023-01-20 17:19:42.172  INFO 77750 --- [io-8080-exec-10] org.mongodb.driver.connection            : Opened connection [connectionId{localValue:3, serverValue:1866}] to 192.168.11.180:32017
+</code></pre><p>断点观察连接池可用连接数也变成了 5<br><img src="images/list-vs-stream/pool_size5.png" alt="pool size 5"></p>
+<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>除了如批处理之类的少数场景下，Stream 几乎总是优于分页 List（更不用说全量 List），因此在单次要处理的数据量达到一定量级时（比如超过 1000），应该优先考虑使用 Stream。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="https://stackoverflow.com/questions/63115831/spring-data-repository-list-vs-stream" target="_blank" rel="noopener">https://stackoverflow.com/questions/63115831/spring-data-repository-list-vs-stream</a></li>
+<li><a href="https://stackoverflow.com/questions/50698222/connection-pooling-in-spring-boot-and-mongo-db" target="_blank" rel="noopener">https://stackoverflow.com/questions/50698222/connection-pooling-in-spring-boot-and-mongo-db</a></li>
+<li><a href="https://stackoverflow.com/questions/23808264/how-to-get-connected-clients-in-mongodb" target="_blank" rel="noopener">https://stackoverflow.com/questions/23808264/how-to-get-connected-clients-in-mongodb</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/redis-wireshark.html" rel="prev" title="用 Wireshark 抓包 Redis">
+      <i class="fa fa-chevron-left"></i> 用 Wireshark 抓包 Redis
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#对比"><span class="nav-number">1.</span> <span class="nav-text">对比</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#缺点-2-实测"><span class="nav-number">1.1.</span> <span class="nav-text">缺点 2 实测</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#结论"><span class="nav-number">2.</span> <span class="nav-text">结论</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">3.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="taccisum"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">taccisum</p>
+  <div class="site-description" itemprop="description">el psy congroo.</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">32</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">27</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/taccisum" title="GitHub → https://github.com/taccisum" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/taccisum@gmail.com" title="G-Mail → taccisum@gmail.com"><i class="fa fa-envelope fa-fw"></i>G-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">taccisum</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/muse.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'q1GTC85aQcIvQIf3p9tWLTvW-gzGzoHsz',
+      appKey     : 'OjWCd5UV1xcOyCEfsSzu9w7z',
+      placeholder: "欢迎畅所欲言",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : true,
+      lang       : '' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

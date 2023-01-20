@@ -4,6 +4,70 @@
 
     
   <url>
+    <loc>https://taccisum.github.io/list_vs_stream_in_spring_data_mongodb.html</loc>
+    <lastmod>2023-01-20T09:53:08.337Z</lastmod>
+    <data>
+        <display>
+        <title>List 与 Stream 在 Spring Data MongoDB 场景下的比较</title>
+        <pubTime>2023-01-20T09:36:23.000Z</pubTime>
+        
+         
+           
+             
+              <breadCrumb title="middleware" url="https://taccisum.github.io/categories/middleware/"/>
+          
+             
+              <breadCrumb title="mongodb" url="https://taccisum.github.io/categories/middleware/mongodb/"/>
+          
+             
+              <breadCrumb title="client" url="https://taccisum.github.io/categories/middleware/mongodb/client/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+    
+    
+  <url>
+    <loc>https://taccisum.github.io/ddd_practice_in_java_server_side.html</loc>
+    <lastmod>2023-01-04T08:26:00.717Z</lastmod>
+    <data>
+        <display>
+        <title>DDD 战术设计之 Java 服务端落地简要方案探讨</title>
+        <pubTime>2021-11-16T08:04:22.000Z</pubTime>
+        
+         
+           
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>https://taccisum.github.io/%E8%AE%B0%E4%B8%80%E6%AC%A1%20springfox%20%E6%89%A9%E5%B1%95%E4%B9%8B%E6%97%85%20%E2%80%94%E2%80%94%20%E5%8A%A8%E6%80%81%20api%20%E6%96%87%E6%A1%A3.html</loc>
+    <lastmod>2023-01-04T08:18:48.418Z</lastmod>
+    <data>
+        <display>
+        <title>记一次 springfox 扩展之旅 —— 动态 api 文档</title>
+        <pubTime>2022-03-25T07:44:05.000Z</pubTime>
+        
+         
+           
+        </display>
+    </data>
+    </url>
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+  <url>
     <loc>https://taccisum.github.io/redis-wireshark.html</loc>
     <lastmod>2022-12-29T13:41:07.456Z</lastmod>
     <data>
@@ -37,29 +101,6 @@
     
     
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-  <url>
-    <loc>https://taccisum.github.io/%E8%AE%B0%E4%B8%80%E6%AC%A1%20springfox%20%E6%89%A9%E5%B1%95%E4%B9%8B%E6%97%85%20%E2%80%94%E2%80%94%20%E5%8A%A8%E6%80%81%20api%20%E6%96%87%E6%A1%A3.html</loc>
-    <lastmod>2022-04-04T08:26:48.541Z</lastmod>
-    <data>
-        <display>
-        <title>记一次 springfox 扩展之旅 —— 动态 api 文档</title>
-        <pubTime>2022-03-25T07:44:05.000Z</pubTime>
-        
-         
-           
-        </display>
-    </data>
-    </url>
-
     
   <url>
     <loc>https://taccisum.github.io/bathroom_automation.html</loc>
@@ -179,27 +220,6 @@
     
     
   <url>
-    <loc>https://taccisum.github.io/know_crawler.html</loc>
-    <lastmod>2020-03-13T10:05:01.366Z</lastmod>
-    <data>
-        <display>
-        <title>了解爬虫</title>
-        <pubTime>2017-10-01T15:08:55.000Z</pubTime>
-        
-         
-           
-             
-              <breadCrumb title="python" url="https://taccisum.github.io/categories/python/"/>
-          
-             
-              <breadCrumb title="爬虫" url="https://taccisum.github.io/categories/python/%E7%88%AC%E8%99%AB/"/>
-          
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
     <loc>https://taccisum.github.io/about_java.html</loc>
     <lastmod>2020-03-13T10:05:01.366Z</lastmod>
     <data>
@@ -214,6 +234,27 @@
           
              
               <breadCrumb title="jvm" url="https://taccisum.github.io/categories/java/jvm/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>https://taccisum.github.io/instantiationexception_on_mybatistest.html</loc>
+    <lastmod>2020-03-13T10:05:01.366Z</lastmod>
+    <data>
+        <display>
+        <title>在@MybatisTest中使用通用Mapper出现InstantiationException的问题</title>
+        <pubTime>2017-11-15T03:42:36.000Z</pubTime>
+        
+         
+           
+             
+              <breadCrumb title="java" url="https://taccisum.github.io/categories/java/"/>
+          
+             
+              <breadCrumb title="踩坑日记" url="https://taccisum.github.io/categories/java/%E8%B8%A9%E5%9D%91%E6%97%A5%E8%AE%B0/"/>
           
         </display>
     </data>
@@ -242,20 +283,20 @@
 
     
   <url>
-    <loc>https://taccisum.github.io/instantiationexception_on_mybatistest.html</loc>
+    <loc>https://taccisum.github.io/know_crawler.html</loc>
     <lastmod>2020-03-13T10:05:01.366Z</lastmod>
     <data>
         <display>
-        <title>在@MybatisTest中使用通用Mapper出现InstantiationException的问题</title>
-        <pubTime>2017-11-15T03:42:36.000Z</pubTime>
+        <title>了解爬虫</title>
+        <pubTime>2017-10-01T15:08:55.000Z</pubTime>
         
          
            
              
-              <breadCrumb title="java" url="https://taccisum.github.io/categories/java/"/>
+              <breadCrumb title="python" url="https://taccisum.github.io/categories/python/"/>
           
              
-              <breadCrumb title="踩坑日记" url="https://taccisum.github.io/categories/java/%E8%B8%A9%E5%9D%91%E6%97%A5%E8%AE%B0/"/>
+              <breadCrumb title="爬虫" url="https://taccisum.github.io/categories/python/%E7%88%AC%E8%99%AB/"/>
           
         </display>
     </data>
@@ -305,27 +346,6 @@
 
     
   <url>
-    <loc>https://taccisum.github.io/my_swagger_spring_boot_starter.html</loc>
-    <lastmod>2020-03-13T10:05:01.365Z</lastmod>
-    <data>
-        <display>
-        <title>一个很好用的Spring Boot Starter Swagger</title>
-        <pubTime>2019-02-14T06:17:43.000Z</pubTime>
-        
-         
-           
-             
-              <breadCrumb title="framework" url="https://taccisum.github.io/categories/framework/"/>
-          
-             
-              <breadCrumb title="starter" url="https://taccisum.github.io/categories/framework/starter/"/>
-          
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
     <loc>https://taccisum.github.io/%E3%80%8A%E6%91%84%E5%BD%B1%E5%B8%88%E7%9A%84%E8%A7%86%E7%95%8C%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0.html</loc>
     <lastmod>2020-03-13T10:05:01.365Z</lastmod>
     <data>
@@ -347,12 +367,33 @@
 
     
   <url>
-    <loc>https://taccisum.github.io/source/zuul/filters/pre.html</loc>
+    <loc>https://taccisum.github.io/my_swagger_spring_boot_starter.html</loc>
+    <lastmod>2020-03-13T10:05:01.365Z</lastmod>
+    <data>
+        <display>
+        <title>一个很好用的Spring Boot Starter Swagger</title>
+        <pubTime>2019-02-14T06:17:43.000Z</pubTime>
+        
+         
+           
+             
+              <breadCrumb title="framework" url="https://taccisum.github.io/categories/framework/"/>
+          
+             
+              <breadCrumb title="starter" url="https://taccisum.github.io/categories/framework/starter/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>https://taccisum.github.io/source/zuul/architecture.html</loc>
     <lastmod>2020-03-13T10:05:01.364Z</lastmod>
     <data>
         <display>
-        <title>zuul源码解析 —— Pre和其它类型的过滤器</title>
-        <pubTime>2018-12-01T06:17:36.000Z</pubTime>
+        <title>zuul源码解析 —— zuul整体架构</title>
+        <pubTime>2018-11-29T02:55:13.000Z</pubTime>
         
          
            
@@ -389,12 +430,12 @@
 
     
   <url>
-    <loc>https://taccisum.github.io/source/zuul/architecture.html</loc>
+    <loc>https://taccisum.github.io/source/zuul/filters/pre.html</loc>
     <lastmod>2020-03-13T10:05:01.364Z</lastmod>
     <data>
         <display>
-        <title>zuul源码解析 —— zuul整体架构</title>
-        <pubTime>2018-11-29T02:55:13.000Z</pubTime>
+        <title>zuul源码解析 —— Pre和其它类型的过滤器</title>
+        <pubTime>2018-12-01T06:17:36.000Z</pubTime>
         
          
            
@@ -473,27 +514,6 @@
 
     
   <url>
-    <loc>https://taccisum.github.io/zuul_hystrix_default_timeout_config_invalid_reason_research.html</loc>
-    <lastmod>2020-03-13T10:05:01.363Z</lastmod>
-    <data>
-        <display>
-        <title>zuul中hystrix默认timeout配置失效的原因</title>
-        <pubTime>2018-08-30T07:29:35.000Z</pubTime>
-        
-         
-           
-             
-              <breadCrumb title="java" url="https://taccisum.github.io/categories/java/"/>
-          
-             
-              <breadCrumb title="踩坑日记" url="https://taccisum.github.io/categories/java/%E8%B8%A9%E5%9D%91%E6%97%A5%E8%AE%B0/"/>
-          
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
     <loc>https://taccisum.github.io/source/zuul/filters/post.html</loc>
     <lastmod>2020-03-13T10:05:01.363Z</lastmod>
     <data>
@@ -515,12 +535,12 @@
 
     
   <url>
-    <loc>https://taccisum.github.io/learn_gradle_2.html</loc>
-    <lastmod>2020-03-13T10:05:01.362Z</lastmod>
+    <loc>https://taccisum.github.io/zuul_hystrix_default_timeout_config_invalid_reason_research.html</loc>
+    <lastmod>2020-03-13T10:05:01.363Z</lastmod>
     <data>
         <display>
-        <title>Gradle学习（二） - 常用插件</title>
-        <pubTime>2017-09-26T09:56:40.000Z</pubTime>
+        <title>zuul中hystrix默认timeout配置失效的原因</title>
+        <pubTime>2018-08-30T07:29:35.000Z</pubTime>
         
          
            
@@ -528,7 +548,7 @@
               <breadCrumb title="java" url="https://taccisum.github.io/categories/java/"/>
           
              
-              <breadCrumb title="gradle" url="https://taccisum.github.io/categories/java/gradle/"/>
+              <breadCrumb title="踩坑日记" url="https://taccisum.github.io/categories/java/%E8%B8%A9%E5%9D%91%E6%97%A5%E8%AE%B0/"/>
           
         </display>
     </data>
@@ -536,12 +556,12 @@
 
     
   <url>
-    <loc>https://taccisum.github.io/learn_gradle_5.html</loc>
+    <loc>https://taccisum.github.io/learn_gradle_2.html</loc>
     <lastmod>2020-03-13T10:05:01.362Z</lastmod>
     <data>
         <display>
-        <title>Gradle学习（五） - 打包发布</title>
-        <pubTime>2017-10-13T03:32:20.000Z</pubTime>
+        <title>Gradle学习（二） - 常用插件</title>
+        <pubTime>2017-09-26T09:56:40.000Z</pubTime>
         
          
            
@@ -578,6 +598,45 @@
 
     
   <url>
+    <loc>https://taccisum.github.io/UNIX_basic_knowledge.html</loc>
+    <lastmod>2020-03-13T10:05:01.362Z</lastmod>
+    <data>
+        <display>
+        <title>UNIX基础知识</title>
+        <pubTime>2018-09-30T01:45:57.000Z</pubTime>
+        
+         
+           
+             
+              <breadCrumb title="UNIX" url="https://taccisum.github.io/categories/UNIX/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>https://taccisum.github.io/learn_gradle_5.html</loc>
+    <lastmod>2020-03-13T10:05:01.362Z</lastmod>
+    <data>
+        <display>
+        <title>Gradle学习（五） - 打包发布</title>
+        <pubTime>2017-10-13T03:32:20.000Z</pubTime>
+        
+         
+           
+             
+              <breadCrumb title="java" url="https://taccisum.github.io/categories/java/"/>
+          
+             
+              <breadCrumb title="gradle" url="https://taccisum.github.io/categories/java/gradle/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
     <loc>https://taccisum.github.io/sourece/flowable/startup/spring_boot.html</loc>
     <lastmod>2020-03-13T10:05:01.362Z</lastmod>
     <data>
@@ -599,30 +658,12 @@
 
     
   <url>
-    <loc>https://taccisum.github.io/UNIX_basic_knowledge.html</loc>
-    <lastmod>2020-03-13T10:05:01.362Z</lastmod>
-    <data>
-        <display>
-        <title>UNIX基础知识</title>
-        <pubTime>2018-09-30T01:45:57.000Z</pubTime>
-        
-         
-           
-             
-              <breadCrumb title="UNIX" url="https://taccisum.github.io/categories/UNIX/"/>
-          
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
-    <loc>https://taccisum.github.io/learn_gradle_3.html</loc>
+    <loc>https://taccisum.github.io/learn_gradle_1.html</loc>
     <lastmod>2020-03-13T10:05:01.361Z</lastmod>
     <data>
         <display>
-        <title>Gradle学习（三） - 多项目构建</title>
-        <pubTime>2017-09-30T02:17:25.000Z</pubTime>
+        <title>Gradle学习（一） - Getting Started</title>
+        <pubTime>2017-09-26T07:39:42.000Z</pubTime>
         
          
            
@@ -638,12 +679,12 @@
 
     
   <url>
-    <loc>https://taccisum.github.io/learn_gradle_1.html</loc>
+    <loc>https://taccisum.github.io/learn_gradle_3.html</loc>
     <lastmod>2020-03-13T10:05:01.361Z</lastmod>
     <data>
         <display>
-        <title>Gradle学习（一） - Getting Started</title>
-        <pubTime>2017-09-26T07:39:42.000Z</pubTime>
+        <title>Gradle学习（三） - 多项目构建</title>
+        <pubTime>2017-09-30T02:17:25.000Z</pubTime>
         
          
            

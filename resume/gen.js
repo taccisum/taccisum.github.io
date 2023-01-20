@@ -19,7 +19,7 @@
 //   }
 
 // const conf = {
-//     work: ['wd', 'dp', 'ss', 'cc'],
+//     work: ['wd', 'dp', 'ss', 'ikt', 'cc_real'],
 //     // proj: ['wd_msg_center', 'devops', 'desense_cli', 'dag', 'stock_mgt', 'other'],
 //     proj: ['wd_msg_center', 'apsara', 'devops_v2', 'desense_cli', 'dag', 'stock_mgt',],
 // }

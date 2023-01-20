@@ -37,7 +37,7 @@
 <meta property="og:site_name" content="Taccisum&#39;s blog 😉">
 <meta property="og:description" content="出于 Pigeon 项目的需要，我需要把通过插件支持的扩展信息在 swagger api 文档中动态展示出来。 项目使用的是 springfox 框架生成的 swagger 文档，众所周知 springfox 是注解型的文档框架，而且文档内容是直接写死的，不支持动态化，估摸着是需要自己扩展了。 按照惯例，先了解代码架构（由于以前都是使用为主，没有深入了解，也不知道有哪些拓展点）。发现 spring">
 <meta property="og:locale" content="en">
-<meta property="og:updated_time" content="2022-04-04T08:26:48.541Z">
+<meta property="og:updated_time" content="2023-01-04T08:18:48.418Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="记一次 springfox 扩展之旅 —— 动态 api 文档">
 <meta name="twitter:description" content="出于 Pigeon 项目的需要，我需要把通过插件支持的扩展信息在 swagger api 文档中动态展示出来。 项目使用的是 springfox 框架生成的 swagger 文档，众所周知 springfox 是注解型的文档框架，而且文档内容是直接写死的，不支持动态化，估摸着是需要自己扩展了。 按照惯例，先了解代码架构（由于以前都是使用为主，没有深入了解，也不知道有哪些拓展点）。发现 spring">
@@ -234,7 +234,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2022-04-04 16:26:48" itemprop="dateModified" datetime="2022-04-04T16:26:48+08:00">2022-04-04</time>
+                <time title="Modified: 2023-01-04 16:18:48" itemprop="dateModified" datetime="2023-01-04T16:18:48+08:00">2023-01-04</time>
               </span>
 
           
@@ -298,7 +298,7 @@
 <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <p>跑下程序，果然所有 @ApiParam 标注的 string 类型参数都被加上了 Available values : MAIL, SMS 限制。但在 body 定义里面的参数没有效果，一开始推测是跟上述的 expand 概念有关，但后来发现不是，而是这类参数最终会指向一个 ModelRef，因此应该是与 Model 的解析有关。那 Model 的解析是在什么时候呢，同样是在 <code>ApiListingScanner#scan</code> 方法中，交由 ApiModelReader 完成。 ApiModelReader 会通过由 Spring MVC 维护的 RequestMapping 信息提取 model 信息（例如 @RequestBody, @Requestpart 之流），然后交给  <code>ModelProvied#modelFor</code> 转换成 springfox 的 Model 对象，此 Model 对象即是 ModelRef 引用的 Model。</p>
 <p>在 <code>#modelFor</code> 中，会通过反射解析出 Model 对应的 class 中的所有字段信息（称为 ModelProperty），而这个过程则是交给 <code>ModelPropertiesProvider#propertiesFor</code> 完成的，其中细节比较多，但总的来说，最终都是交由 <code>ModelPropertyBuilderPlugin</code> 链来处理的，这个类也正是我们要找的扩展点。后续简单验证了一下，确实是有效的。</p>
-<p>最终效果：</p>
+<p>最终效果：TODO</p>
 
     </div>
 
@@ -395,14 +395,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">30</span>
+          <span class="site-state-item-count">32</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">24</span>
+        <span class="site-state-item-count">27</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
@@ -441,7 +441,7 @@
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2022</span>
+  <span itemprop="copyrightYear">2023</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
