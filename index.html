@@ -225,10 +225,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2023-01-20 17:36:23 / Modified: 17:53:08" itemprop="dateCreated datePublished" datetime="2023-01-20T17:36:23+08:00">2023-01-20</time>
+              <time title="Created: 2023-01-20 17:36:23" itemprop="dateCreated datePublished" datetime="2023-01-20T17:36:23+08:00">2023-01-20</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2023-01-31 09:57:14" itemprop="dateModified" datetime="2023-01-31T09:57:14+08:00">2023-01-31</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -327,6 +333,36 @@ List<span class="token operator">&lt;</span>MyDoc<span class="token operator">><
 <li>批处理的场景下没有分页直观（例如滑动窗口），这点主要是 JDK8 缺乏支持，其它类似的框架如 RxJava 或 ProjectReactor 都是支持的，<a href="https://spring.io/blog/2016/11/28/going-reactive-with-spring-data" target="_blank" rel="noopener">Spring Data Reactive</a> 也有相关的支持（当然，学习成本也是很高。。）</li>
 <li>【实际与我猜想的不一样，见实测章节】Stream 处理任务的期间会持续占用一个连接，不利于资源的复用。相比之下 List 只有每次拉取页的 I/O 期间才占用连接（假如不加事务的话）。如果连接资源很紧张，使用 Stream 可能会出较大的问题</li>
 </ol>
+<h3 id="性能实测"><a href="#性能实测" class="headerlink" title="性能实测"></a>性能实测</h3><p><strong>环境</strong>：</p>
+<ul>
+<li>单 collection 约 130w 数据</li>
+<li>客户端：Java + MacOS</li>
+</ul>
+<h4 id="List"><a href="#List" class="headerlink" title="List"></a>List</h4><p><img src="images/list-vs-stream/jvm_list.png" alt="list performance"></p>
+<p><img src="images/list-vs-stream/idea_list_breakpoint.png" alt="idea list breakpoint"></p>
+<p>可以看到，调用 List 的过程，JVM 内存只增不减，且 GC 频率越来越高。整个过程花了接近 15min 时间。</p>
+<p><img src="images/list-vs-stream/jvm_list_gc.png" alt="list gc"></p>
+<p>而在执行完后，触发一次 GC，直接内存占用就清零了。</p>
+<p>原因显而易见，List 操作需要在 JVM 内存中构建 <code>ArrayList</code> 对象，加上数据量过于庞大，会导致不断地进行扩容，因此性能极差。同时由于所有数据均被一个 <code>ArrayList</code> 对象持有，导致<strong>内存占用只升不降</strong>（无法被 GC 回收）</p>
+<h4 id="Stream"><a href="#Stream" class="headerlink" title="Stream"></a>Stream</h4><p><img src="images/list-vs-stream/jvm_stream.png" alt="stream performance"></p>
+<pre class="line-numbers language-plain"><code class="language-plain">handle count: 1391665. time elapsed: 11500ms
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>首先性能上远远高于 List（没有扩容和 GC，只花了 11s 左右）</p>
+<p>由于不需要通过 <code>ArrayList</code> 去保存数据，内存利用率会迅速增加(约 700MB)，后面有一段维持直线的，猜测是因为一直没有触发 GC。</p>
+<p>将代码稍微改动下，在 stream 的处理期间手动触发一些 GC</p>
+<pre class="line-numbers language-java"><code class="language-java">repository<span class="token punctuation">.</span><span class="token function">streamAllBy</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+        <span class="token punctuation">.</span><span class="token function">forEach</span><span class="token punctuation">(</span>doc <span class="token operator">-</span><span class="token operator">></span> <span class="token punctuation">{</span>
+            String itemInMemory <span class="token operator">=</span> doc<span class="token punctuation">.</span><span class="token function">getContent</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token keyword">if</span> <span class="token punctuation">(</span>c<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">%</span> <span class="token number">100000</span> <span class="token operator">==</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                System<span class="token punctuation">.</span><span class="token function">gc</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+            c<span class="token punctuation">.</span><span class="token function">getAndIncrement</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p><img src="images/list-vs-stream/jvm_stream_with_gc.png" alt="stream performance"></p>
+<pre class="line-numbers language-plain"><code class="language-plain">handle count: 1391665. time elapsed: 15226ms
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>可以看到相比于 List，Stream 的处理期间是可以释放被占用的内存的。另外由于多了取余和 GC 的操作，整个时间花费也由 11s 上升到 15s，CPU 也有所上升。</p>
 <h3 id="缺点-2-实测"><a href="#缺点-2-实测" class="headerlink" title="缺点 2 实测"></a>缺点 2 实测</h3><p>为了验证上述的缺点 2，我准备了一个简单的服务以及两个接口</p>
 <pre class="line-numbers language-java"><code class="language-java"><span class="token annotation punctuation">@GetMapping</span><span class="token punctuation">(</span><span class="token string">"list"</span><span class="token punctuation">)</span>
 <span class="token keyword">public</span> Object <span class="token function">listAll</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
